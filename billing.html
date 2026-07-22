@@ -218,6 +218,7 @@
         margin-top: 0.3rem;
         font-size: 0.82rem;
         color: var(--danger);
+        display: none;
       }
 
       .summary-title {
@@ -417,7 +418,7 @@
               <label>
                 Email address
                 <input id="email" type="email" placeholder="owner@community.gg" required />
-                <div id="email-error" class="error-text" style="display:none;">
+                <div id="email-error" class="error-text">
                   Please enter a valid email address.
                 </div>
               </label>
@@ -427,10 +428,11 @@
                   Password
                   <input id="password" type="password" placeholder="Create a password" required />
                 </label>
+
                 <label>
                   Confirm password
                   <input id="confirm" type="password" placeholder="Repeat password" required />
-                  <div id="password-error" class="error-text" style="display:none;">
+                  <div id="password-error" class="error-text">
                     Passwords need to match.
                   </div>
                 </label>
@@ -481,8 +483,8 @@
               </div>
 
               <p class="hint">
-                This version stores an order request through your Cloudflare backend. Stripe checkout
-                and automatic server provisioning come next.
+                This version sends the order request to your Cloudflare backend first. Stripe and
+                automatic provisioning come next.
               </p>
             </form>
           </div>
@@ -511,7 +513,7 @@
             </div>
 
             <p class="summary-footnote">
-              This step only submits the request to your backend right now. It does not charge the customer yet.
+              This step only submits the request to your backend. It does not charge the customer yet.
             </p>
 
             <button id="checkout-button" class="btn btn-primary" type="button" disabled>
@@ -522,8 +524,8 @@
             <div id="error-box" class="error-box"></div>
 
             <p class="notice">
-              <strong>Next milestone:</strong> after this works, connect the button to Stripe Checkout,
-              then trigger provisioning only after a successful webhook-confirmed payment.
+              <strong>Next milestone:</strong> connect this to Stripe Checkout, then trigger
+              provisioning only after a successful payment webhook.
             </p>
 
             <div class="badge-line">
@@ -571,3 +573,141 @@
       const checkoutButton = document.getElementById("checkout-button");
       const successBox = document.getElementById("success-box");
       const errorBox = document.getElementById("error-box");
+
+      function isValidEmail(value) {
+        return /\S+@\S+\.\S+/.test(value);
+      }
+
+      function updateSummary() {
+        const planVal = plan.value;
+        const regionVal = region.value;
+
+        if (planVal && plans[planVal]) {
+          summaryPlan.textContent = plans[planVal].name;
+          summaryPrice.textContent = `$${plans[planVal].price.toFixed(2)} / first month`;
+        } else {
+          summaryPlan.textContent = "No plan selected";
+          summaryPrice.textContent = "$0.00";
+        }
+
+        summaryRegion.textContent = regionVal
+          ? region.options[region.selectedIndex].text
+          : "No region selected";
+
+        summaryPeriod.textContent = period.options[period.selectedIndex].text;
+      }
+
+      function validateForm() {
+        let ok = true;
+
+        if (!isValidEmail(email.value)) {
+          emailError.style.display = "block";
+          ok = false;
+        } else {
+          emailError.style.display = "none";
+        }
+
+        if (!password.value || password.value !== confirm.value) {
+          passwordError.style.display = "block";
+          ok = false;
+        } else {
+          passwordError.style.display = "none";
+        }
+
+        if (!plan.value || !region.value || !period.value) {
+          ok = false;
+        }
+
+        checkoutButton.disabled = !ok;
+      }
+
+      (function preselectPlanFromUrl() {
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const initialPlan = params.get("plan");
+          if (initialPlan && plans[initialPlan]) {
+            plan.value = initialPlan;
+          }
+        } catch (e) {
+          // ignore URL parse issues
+        }
+
+        updateSummary();
+        validateForm();
+      })();
+
+      email.addEventListener("input", validateForm);
+      password.addEventListener("input", validateForm);
+      confirm.addEventListener("input", validateForm);
+
+      plan.addEventListener("change", () => {
+        updateSummary();
+        validateForm();
+      });
+
+      region.addEventListener("change", () => {
+        updateSummary();
+        validateForm();
+      });
+
+      period.addEventListener("change", () => {
+        updateSummary();
+        validateForm();
+      });
+
+      checkoutButton.addEventListener("click", async () => {
+        validateForm();
+
+        if (checkoutButton.disabled) return;
+
+        checkoutButton.disabled = true;
+        checkoutButton.textContent = "Submitting...";
+        successBox.style.display = "none";
+        errorBox.style.display = "none";
+
+        try {
+          const response = await fetch("/api/create-order-request", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              email: email.value,
+              password: password.value,
+              plan: plan.value,
+              region: region.value,
+              billingPeriod: period.value,
+              discord: discord.value,
+              displayName: displayName.value
+            })
+          });
+
+          const result = await response.json();
+
+          if (!response.ok || !result.ok) {
+            errorBox.textContent =
+              result.message || "Something went wrong submitting the order request.";
+            errorBox.style.display = "block";
+            checkoutButton.textContent = "Submit order request";
+            validateForm();
+            return;
+          }
+
+          successBox.textContent =
+            result.message || "Order request received successfully.";
+          successBox.style.display = "block";
+          checkoutButton.textContent = "Submit order request";
+          validateForm();
+        } catch (error) {
+          errorBox.textContent = "Network error. Please try again.";
+          errorBox.style.display = "block";
+          checkoutButton.textContent = "Submit order request";
+          validateForm();
+        }
+      });
+
+      updateSummary();
+      validateForm();
+    </script>
+  </body>
+</html>
