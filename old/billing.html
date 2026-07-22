@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Billing & Checkout — SideQuest Servers</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Create your SideQuest Servers account, choose a Palworld plan, and continue to Stripe checkout."
+    />
+    <style>
+      :root {
+        --bg: #040813;
+        --surface: #0b1627;
+        --surface-2: #111e33;
+        --text: #f8fafc;
+        --muted: #9fb0c7;
+        --border: rgba(159, 176, 199, 0.22);
+        --primary: #38bdf8;
+        --primary-soft: rgba(56, 189, 248, 0.16);
+        --primary-hover: #0ea5e9;
+        --accent: #22c55e;
+        --shadow: 0 20px 50px rgba(3, 7, 18, 0.55);
+        --danger: #f97373;
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background:
+          radial-gradient(circle at top, rgba(56, 189, 248, 0.18), transparent 42%),
+          radial-gradient(circle at bottom, rgba(34, 197, 94, 0.08), transparent 45%),
+          linear-gradient(180deg, #040813 0%, #020617 100%);
+        color: var(--text);
+        line-height: 1.6;
+      }
+
+      a { color: inherit; text-decoration: none; }
+
+      .container {
+        width: min(1120px, calc(100% - 2rem));
+        margin: 0 auto;
+      }
+
+      /* Topbar */
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        backdrop-filter: blur(16px);
+        background: rgba(4, 8, 19, 0.92);
+        border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+      }
+
+      .topbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        min-height: 80px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+
+      .brand-mark {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        display: grid;
+        place-items: center;
+        background: radial-gradient(circle at 30% 20%, #facc15, #38bdf8);
+        color: #020617;
+        font-size: 1rem;
+        font-weight: 900;
+        box-shadow: var(--shadow);
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        flex-wrap: wrap;
+        font-size: 0.95rem;
+      }
+
+      .nav a {
+        padding: 0.7rem 0.95rem;
+        border-radius: 999px;
+        color: var(--muted);
+      }
+
+      .nav a:hover {
+        background: rgba(148, 163, 184, 0.14);
+        color: var(--text);
+      }
+
+      main section {
+        padding: 2.7rem 0;
+      }
+
+      /* Hero / steps */
+      .hero {
+        padding-top: 3.5rem;
+      }
+
+      .hero-headline {
+        max-width: 52ch;
+      }
+
+      h1 {
+        margin: 0 0 0.6rem;
+        font-size: clamp(2rem, 3.5vw, 2.5rem);
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+      }
+
+      .lead {
+        margin: 0;
+        color: var(--muted);
+        font-size: 1rem;
+      }
+
+      .steps-row {
+        display: flex;
+        gap: 0.9rem;
+        flex-wrap: wrap;
+        margin-top: 1.6rem;
+        font-size: 0.9rem;
+      }
+
+      .step-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.45rem 0.85rem;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        background: rgba(15, 23, 42, 0.95);
+        color: var(--muted);
+      }
+
+      .step-pill span.num {
+        width: 22px;
+        height: 22px;
+        border-radius: 999px;
+        display: grid;
+        place-items: center;
+        font-size: 0.8rem;
+        background: var(--primary-soft);
+        color: var(--primary);
+        font-weight: 600;
+      }
+
+      /* Layout */
+      .billing-grid {
+        display: grid;
+        grid-template-columns: 1.25fr 0.75fr;
+        gap: 1.6rem;
+        align-items: start;
+      }
+
+      .card {
+        background: linear-gradient(180deg, var(--surface-2), var(--surface));
+        border-radius: 22px;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+        padding: 1.4rem;
+      }
+
+      .card h2 {
+        margin: 0 0 0.5rem;
+        font-size: 1.3rem;
+      }
+
+      .card p.sub {
+        margin: 0 0 1rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 0.9rem;
+        font-size: 0.9rem;
+      }
+
+      input,
+      select {
+        width: 100%;
+        margin-top: 0.35rem;
+        min-height: 46px;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background: rgba(15, 23, 42, 0.96);
+        color: var(--text);
+        padding: 0 0.85rem;
+        font-size: 0.9rem;
+      }
+
+      .inline-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.9rem;
+      }
+
+      .hint {
+        margin-top: 0.7rem;
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+
+      .error-text {
+        margin-top: 0.3rem;
+        font-size: 0.82rem;
+        color: var(--danger);
+      }
+
+      .summary-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.7rem;
+      }
+
+      .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 0.6rem;
+        font-size: 0.93rem;
+        margin-bottom: 0.4rem;
+      }
+
+      .summary-label {
+        color: var(--muted);
+      }
+
+      .summary-value {
+        font-weight: 600;
+      }
+
+      .summary-plan {
+        font-size: 0.88rem;
+        color: var(--muted);
+      }
+
+      .summary-footnote {
+        margin-top: 0.9rem;
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        min-height: 46px;
+        margin-top: 1rem;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: 0.18s ease;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: #020617;
+        box-shadow: var(--shadow);
+      }
+
+      .btn-primary:hover:enabled {
+        background: var(--primary-hover);
+        transform: translateY(-1px);
+      }
+
+      .btn-primary:disabled {
+        background: rgba(56, 189, 248, 0.3);
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+
+      .notice {
+        margin-top: 0.7rem;
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+
+      .notice strong {
+        color: var(--primary);
+      }
+
+      .badge-line {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin-top: 0.8rem;
+        font-size: 0.8rem;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.6rem;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        color: var(--muted);
+      }
+
+      footer {
+        padding: 2rem 0 3rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 960px) {
+        .billing-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 720px) {
+        .topbar-inner {
+          flex-direction: column;
+          align-items: flex-start;
+          padding: 0.75rem 0;
+        }
+        .steps-row {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container topbar-inner">
+        <a href="index.html" class="brand">
+          <span class="brand-mark">SQ</span>
+          <span>SideQuest Servers</span>
+        </a>
+
+        <nav class="nav" aria-label="Primary">
+          <a href="index.html#plans">Plans</a>
+          <a href="index.html#why">Why Us</a>
+          <a href="index.html#process">Setup</a>
+          <a href="index.html#faq">FAQ</a>
+          <a href="billing.html">Billing & Checkout</a>
+          <a href="https://panel.sidequestservers.com" target="_blank" rel="noopener noreferrer">
+            Panel Login
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="container">
+          <div class="hero-headline">
+            <h1>Set up your Palworld server in a few steps.</h1>
+            <p class="lead">
+              Create your SideQuest Servers account, pick a Palworld plan, and get ready for Stripe
+              checkout. We ask for your email first so we can keep billing, support, and server
+              details in one place.
+            </p>
+            <div class="steps-row">
+              <div class="step-pill">
+                <span class="num">1</span>
+                <span>Create your account</span>
+              </div>
+              <div class="step-pill">
+                <span class="num">2</span>
+                <span>Choose plan & region</span>
+              </div>
+              <div class="step-pill">
+                <span class="num">3</span>
+                <span>Continue to Stripe checkout</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="container billing-grid">
+          <!-- Account + server form -->
+          <div class="card">
+            <h2>SideQuest account & Palworld details</h2>
+            <p class="sub">
+              This is the information we’ll use for your Palworld hosting, billing, and support.
+              You’ll need an email and password before you can check out.
+            </p>
+
+            <form id="billing-form" novalidate>
+              <label>
+                Email address
+                <input id="email" type="email" placeholder="owner@community.gg" required />
+                <div id="email-error" class="error-text" style="display:none;">
+                  Please enter a valid email address.
+                </div>
+              </label>
+
+              <div class="inline-row">
+                <label>
+                  Password
+                  <input id="password" type="password" placeholder="Create a password" required />
+                </label>
+                <label>
+                  Confirm password
+                  <input id="confirm" type="password" placeholder="Repeat password" required />
+                  <div id="password-error" class="error-text" style="display:none;">
+                    Passwords need to match.
+                  </div>
+                </label>
+              </div>
+
+              <label>
+                Display name (optional)
+                <input id="display-name" type="text" placeholder="Your group or community name" />
+              </label>
+
+              <div class="inline-row">
+                <label>
+                  Palworld plan
+                  <select id="plan" required>
+                    <option value="">Select a plan</option>
+                    <option value="4">Starter Camp — 4 players — $6.99 / month</option>
+                    <option value="6">Explorer Outpost — 6 players — $8.99 / month</option>
+                    <option value="8">Frontier Base — 8 players — $10.99 / month</option>
+                    <option value="12">Guild Hall — 12 players — $14.99 / month</option>
+                  </select>
+                </label>
+                <label>
+                  Region
+                  <select id="region" required>
+                    <option value="">Select a region</option>
+                    <option value="us-east">US East</option>
+                    <option value="us-central">US Central</option>
+                    <option value="us-west">US West</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="inline-row">
+                <label>
+                  Billing period
+                  <select id="billing-period" required>
+                    <option value="monthly">Monthly (most common)</option>
+                    <option value="quarterly">Quarterly</option>
+                    <option value="yearly">Yearly</option>
+                  </select>
+                </label>
+                <label>
+                  Discord (optional)
+                  <input id="discord" type="text" placeholder="@sidequest-servers" />
+                </label>
+              </div>
+
+              <p class="hint">
+                We’ll use your email for invoices and support. Passwords are for your SideQuest
+                account — we’ll never ask for your game passwords.
+              </p>
+            </form>
+          </div>
+
+          <!-- Summary + Stripe button placeholder -->
+          <aside class="card">
+            <div class="summary-title">Order summary</div>
+
+            <div class="summary-row">
+              <span class="summary-label">Plan</span>
+              <span id="summary-plan" class="summary-value">No plan selected</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-label">Region</span>
+              <span id="summary-region" class="summary-value">No region selected</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-label">Billing period</span>
+              <span id="summary-period" class="summary-value">Monthly</span>
+            </div>
+
+            <div class="summary-row" style="margin-top:0.8rem;">
+              <span class="summary-label">Estimated first payment</span>
+              <span id="summary-price" class="summary-value">$0.00</span>
+            </div>
+
+            <p class="summary-footnote">
+              Final amounts, taxes, and recurring details will be confirmed on the Stripe checkout
+              page. You’ll see everything clearly before you commit.
+            </p>
+
+            <button id="checkout-button" class="btn btn-primary" type="button" disabled>
+              Continue to Stripe checkout
+            </button>
+
+            <p class="notice">
+              Stripe integration is the next step — this button will eventually send you to a secure
+              Stripe checkout flow once your account and Palworld plan are set. For now, it stays
+              disabled until the details above are valid.
+            </p>
+
+            <div class="badge-line">
+              <span class="badge">Fast setup</span>
+              <span class="badge">Palworld‑only focus</span>
+              <span class="badge">Small US team</span>
+              <span class="badge">Community‑centered</span>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container">
+        © SideQuest Servers — a small, community‑centered Palworld hosting team run by real gamers in the US.
+      </div>
+    </footer>
+
+    <script>
+      // Simple front-end logic to:
+      // - Validate email & matching passwords
+      // - Track plan/region/period
+      // - Enable the Stripe button once everything is set
+
+      const plans = {
+        "4": { name: "Starter Camp — 4 players", price: 6.99 },
+        "6": { name: "Explorer Outpost — 6 players", price: 8.99 },
+        "8": { name: "Frontier Base — 8 players", price: 10.99 },
+        "12": { name: "Guild Hall — 12 players", price: 14.99 }
+      };
+
+      const email = document.getElementById("email");
+      const password = document.getElementById("password");
+      const confirm = document.getElementById("confirm");
+      const plan = document.getElementById("plan");
+      const region = document.getElementById("region");
+      const period = document.getElementById("billing-period");
+
+      const emailError = document.getElementById("email-error");
+      const passwordError = document.getElementById("password-error");
+      const summaryPlan = document.getElementById("summary-plan");
+      const summaryRegion = document.getElementById("summary-region");
+      const summaryPeriod = document.getElementById("summary-period");
+      const summaryPrice = document.getElementById("summary-price");
+      const checkoutButton = document.getElementById("checkout-button");
+
+      function isValidEmail(value) {
+        return /\S+@\S+\.\S+/.test(value);
+      }
+
+      function updateSummary() {
+        const planVal = plan.value;
+        const regionVal = region.value;
+        const periodVal = period.value;
+
+        if (planVal && plans[planVal]) {
+          summaryPlan.textContent = plans[planVal].name;
+          summaryPrice.textContent = `$${plans[planVal].price.toFixed(2)} / first month`;
+        } else {
+          summaryPlan.textContent = "No plan selected";
+          summaryPrice.textContent = "$0.00";
+        }
+
+        summaryRegion.textContent = regionVal
+          ? region.options[region.selectedIndex].text
+          : "No region selected";
+
+        summaryPeriod.textContent = period.options[period.selectedIndex].text;
+      }
+
+      function validateForm() {
+        let ok = true;
+
+        if (!isValidEmail(email.value)) {
+          emailError.style.display = "block";
+          ok = false;
+        } else {
+          emailError.style.display = "none";
+        }
+
+        if (!password.value || password.value !== confirm.value) {
+          passwordError.style.display = "block";
+          ok = false;
+        } else {
+          passwordError.style.display = "none";
+        }
+
+        if (!plan.value || !region.value || !period.value) {
+          ok = false;
+        }
+
+        checkoutButton.disabled = !ok;
+      }
+
+      email.addEventListener("input", () => {
+        validateForm();
+      });
+      password.addEventListener("input", () => {
+        validateForm();
+      });
+      confirm.addEventListener("input", () => {
+        validateForm();
+      });
+      plan.addEventListener("change", () => {
+        updateSummary();
+        validateForm();
+      });
+      region.addEventListener("change", () => {
+        updateSummary();
+        validateForm();
+      });
+      period.addEventListener("change", () => {
+        updateSummary();
+        validateForm();
+      });
+
+      checkoutButton.addEventListener("click", () => {
+        // Placeholder: this is where you will later:
+        // - Send details to a Cloudflare Pages Function
+        // - Create a Stripe Checkout Session server-side
+        // - Redirect the user to Stripe
+        alert(
+          "Stripe checkout will be wired in next. For now, this button just confirms that your account and plan details are valid."
+        );
+      });
+
+      updateSummary();
+      validateForm();
+    </script>
+  </body>
+</html>

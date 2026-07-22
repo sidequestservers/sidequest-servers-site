@@ -1,0 +1,831 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>SideQuest Servers — Palworld Hosting</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Community-centered Palworld server hosting from a small US-based team of real gamers."
+    />
+    <style>
+      :root {
+        --bg: #050b15;
+        --surface: #0b1627;
+        --surface-2: #111e33;
+        --text: #f8fafc;
+        --muted: #9fb0c7;
+        --border: rgba(159, 176, 199, 0.22);
+        --primary: #38bdf8;
+        --primary-soft: rgba(56, 189, 248, 0.14);
+        --primary-hover: #0ea5e9;
+        --accent: #22c55e;
+        --shadow: 0 20px 50px rgba(3, 7, 18, 0.55);
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background:
+          radial-gradient(circle at top, rgba(56, 189, 248, 0.18), transparent 40%),
+          radial-gradient(circle at bottom, rgba(34, 197, 94, 0.08), transparent 45%),
+          linear-gradient(180deg, #050b15 0%, #020617 100%);
+        color: var(--text);
+        line-height: 1.6;
+      }
+
+      a { color: inherit; text-decoration: none; }
+
+      .container {
+        width: min(1120px, calc(100% - 2rem));
+        margin: 0 auto;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        backdrop-filter: blur(16px);
+        background: rgba(5, 11, 21, 0.9);
+        border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+      }
+
+      .topbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        min-height: 80px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+
+      .brand-mark {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        display: grid;
+        place-items: center;
+        background: radial-gradient(circle at 30% 20%, #facc15, #38bdf8);
+        color: #020617;
+        font-size: 1rem;
+        font-weight: 900;
+        box-shadow: var(--shadow);
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        flex-wrap: wrap;
+        font-size: 0.95rem;
+      }
+
+      .nav a {
+        padding: 0.7rem 0.95rem;
+        border-radius: 999px;
+        color: var(--muted);
+      }
+
+      .nav a:hover {
+        background: rgba(148, 163, 184, 0.14);
+        color: var(--text);
+      }
+
+      main section {
+        padding: 2.5rem 0;
+      }
+
+      .hero {
+        padding-top: 4.2rem;
+      }
+
+      .hero-grid {
+        display: grid;
+        grid-template-columns: 1.25fr 0.75fr;
+        gap: 2rem;
+        align-items: center;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-bottom: 1rem;
+        padding: 0.35rem 0.7rem;
+        border-radius: 999px;
+        border: 1px solid rgba(56, 189, 248, 0.4);
+        font-size: 0.82rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--primary);
+      }
+
+      .eyebrow span {
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: var(--accent);
+      }
+
+      h1 {
+        margin: 0 0 1rem;
+        font-size: clamp(2.4rem, 5vw, 4.6rem);
+        line-height: 1.05;
+        letter-spacing: -0.04em;
+      }
+
+      .lead {
+        margin: 0;
+        max-width: 58ch;
+        color: var(--muted);
+        font-size: 1.02rem;
+      }
+
+      .cta-row {
+        display: flex;
+        gap: 0.9rem;
+        flex-wrap: wrap;
+        margin-top: 1.8rem;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 46px;
+        padding: 0.8rem 1.15rem;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: 0.18s ease;
+        cursor: pointer;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: #020617;
+        box-shadow: var(--shadow);
+      }
+
+      .btn-primary:hover {
+        background: var(--primary-hover);
+        transform: translateY(-1px);
+      }
+
+      .btn-secondary {
+        border-color: var(--border);
+        color: var(--text);
+        background: rgba(15, 23, 42, 0.8);
+      }
+
+      .btn-secondary:hover {
+        background: rgba(15, 23, 42, 1);
+      }
+
+      .hero-card,
+      .feature-card,
+      .plan-card,
+      .benefit-card,
+      .step,
+      .client-card,
+      .faq-card {
+        background: linear-gradient(180deg, var(--surface-2), var(--surface));
+        border-radius: 22px;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+      }
+
+      .hero-card {
+        padding: 1.35rem;
+      }
+
+      .mini {
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--muted);
+      }
+
+      .hero-card h2 {
+        margin: 0.45rem 0 0.8rem;
+        font-size: 1.15rem;
+      }
+
+      .hero-card ul {
+        margin: 0;
+        padding-left: 1rem;
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .price-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        margin-top: 0.9rem;
+        padding: 0.35rem 0.7rem;
+        border-radius: 999px;
+        background: var(--primary-soft);
+        color: var(--primary);
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.6rem;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        color: var(--muted);
+      }
+
+      .section-head {
+        margin-bottom: 1.3rem;
+      }
+
+      .section-head h2 {
+        margin: 0.4rem 0 0.6rem;
+        font-size: 1.4rem;
+      }
+
+      .section-head p {
+        margin: 0;
+        color: var(--muted);
+        max-width: 52ch;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+      }
+
+      .feature-card {
+        padding: 1.1rem;
+      }
+
+      .feature-card h3 {
+        margin: 0 0 0.45rem;
+        font-size: 1rem;
+      }
+
+      .feature-card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .plan-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+      }
+
+      .plan-card {
+        padding: 1.2rem;
+        position: relative;
+      }
+
+      .plan-card .badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 0.25rem 0.6rem;
+        border-radius: 999px;
+        background: rgba(34, 197, 94, 0.16);
+        color: var(--accent);
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .plan-card h3 {
+        margin: 0.35rem 0 0.4rem;
+        font-size: 1.05rem;
+      }
+
+      .plan-card p {
+        margin: 0 0 0.5rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .plan-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 0.6rem;
+        margin-top: 0.7rem;
+      }
+
+      .plan-price {
+        font-weight: 700;
+        font-size: 1.05rem;
+      }
+
+      .plan-slots {
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+
+      .benefit-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+      }
+
+      .benefit-card {
+        padding: 1.1rem;
+      }
+
+      .benefit-card h3 {
+        margin: 0 0 0.45rem;
+        font-size: 1rem;
+      }
+
+      .benefit-card ul {
+        margin: 0;
+        padding-left: 1rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .steps-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+      }
+
+      .step {
+        padding: 1.2rem;
+      }
+
+      .step-number {
+        width: 38px;
+        height: 38px;
+        border-radius: 999px;
+        display: grid;
+        place-items: center;
+        background: var(--primary-soft);
+        color: var(--primary);
+        font-weight: 700;
+        margin-bottom: 0.8rem;
+      }
+
+      .client-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 1.3rem;
+        align-items: start;
+      }
+
+      .client-card {
+        padding: 1.3rem;
+      }
+
+      .client-copy h2 {
+        margin: 0.3rem 0 0.7rem;
+        font-size: 1.4rem;
+      }
+
+      .client-copy p {
+        margin: 0;
+        color: var(--muted);
+        max-width: 55ch;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 0.9rem;
+        font-size: 0.9rem;
+      }
+
+      input,
+      select {
+        width: 100%;
+        margin-top: 0.35rem;
+        min-height: 46px;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background: rgba(15, 23, 42, 0.96);
+        color: var(--text);
+        padding: 0 0.85rem;
+        font-size: 0.9rem;
+      }
+
+      .helper {
+        margin-top: 0.8rem;
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+
+      .faq-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+      }
+
+      .faq-card {
+        padding: 1.1rem;
+      }
+
+      .faq-card h3 {
+        margin: 0 0 0.5rem;
+        font-size: 0.98rem;
+      }
+
+      .faq-card p {
+        margin: 0;
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+
+      footer {
+        padding: 2rem 0 3rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 980px) {
+        .hero-grid,
+        .feature-grid,
+        .plan-grid,
+        .benefit-grid,
+        .steps-grid,
+        .client-grid,
+        .faq-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      @media (max-width: 720px) {
+        .topbar-inner {
+          flex-direction: column;
+          align-items: flex-start;
+          padding: 0.75rem 0;
+        }
+
+        .hero {
+          padding-top: 3rem;
+        }
+
+        .hero-grid,
+        .feature-grid,
+        .plan-grid,
+        .benefit-grid,
+        .steps-grid,
+        .client-grid,
+        .faq-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .cta-row {
+          flex-direction: column;
+        }
+
+        .btn {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container topbar-inner">
+        <a href="#" class="brand">
+          <span class="brand-mark">SQ</span>
+          <span>SideQuest Servers</span>
+        </a>
+
+        <nav class="nav" aria-label="Primary">
+          <a href="#plans">Plans</a>
+          <a href="#why">Why Us</a>
+          <a href="#process">Setup</a>
+          <a href="#faq">FAQ</a>
+          <a href="https://panel.sidequestservers.com" target="_blank" rel="noopener noreferrer">
+            Panel Login
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <!-- Hero: Palworld + team identity -->
+      <section class="hero">
+        <div class="container hero-grid">
+          <div>
+            <div class="eyebrow">
+              <span></span>
+              <span>Palworld hosting • Small US team • Real gamers</span>
+            </div>
+            <h1>Palworld servers for real players, not just slots.</h1>
+            <p class="lead">
+              SideQuest Servers is a small, US‑based team of community‑focused gamers. We host
+              Palworld worlds for groups who care about uptime, support, and having full control
+              over their server instead of being locked into a mystery box panel.
+            </p>
+
+            <div class="cta-row">
+              <a href="#plans" class="btn btn-primary">View Palworld plans</a>
+              <a href="#why" class="btn btn-secondary">Why SideQuest?</a>
+            </div>
+          </div>
+
+          <aside class="hero-card">
+            <div class="mini">Featured Palworld server</div>
+            <h2>12‑Player Community World</h2>
+            <ul>
+              <li>US‑based hardware tuned for Palworld</li>
+              <li>Daily backups to keep your base safe</li>
+              <li>Scheduled restarts to keep performance smooth</li>
+              <li>Full file + config access through your panel</li>
+            </ul>
+            <div class="price-tag">
+              <span>$14.99 / month</span>
+              <span class="pill">12 players</span>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- Why Us -->
+      <section id="why">
+        <div class="container">
+          <div class="section-head">
+            <div class="mini">Why SideQuest Servers</div>
+            <h2>Built for small groups, communities, and creators.</h2>
+            <p>
+              Bigger hosts focus on packing in as many games and regions as possible. We focus
+              purely on Palworld right now, so you get a clear slot‑based plan, simple pricing,
+              and support from people who actually play the game.
+            </p>
+          </div>
+
+          <div class="feature-grid">
+            <article class="feature-card">
+              <h3>Community‑centered</h3>
+              <p>We host servers for friend groups, small communities, and creators — not faceless farms.</p>
+            </article>
+            <article class="feature-card">
+              <h3>Small US‑based team</h3>
+              <p>SideQuest Servers is run by real gamers in the US, not an outsourced support queue.</p>
+            </article>
+            <article class="feature-card">
+              <h3>Palworld‑only focus</h3>
+              <p>Every plan here is tuned for Palworld, so specs and pricing line up with how the game actually plays.</p>
+            </article>
+            <article class="feature-card">
+              <h3>Clear slot pricing</h3>
+              <p>Choose a 4, 6, 8, or 12‑player server with transparent monthly pricing — no hidden upsells.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Palworld Plans -->
+      <section id="plans">
+        <div class="container">
+          <div class="section-head">
+            <div class="mini">Palworld plans</div>
+            <h2>Pick the player count, we handle the rest.</h2>
+            <p>
+              Start small and grow over time. All plans include daily backups, full control of
+              your Palworld server, and scheduled tasks like automatic reboots.
+            </p>
+          </div>
+
+          <div class="plan-grid">
+            <article class="plan-card">
+              <div class="mini">Starter</div>
+              <h3>4‑Player Palworld</h3>
+              <p>Perfect for a small crew exploring and building together.</p>
+              <div class="plan-meta">
+                <span class="plan-price">$6.99 / month</span>
+                <span class="plan-slots">4 player slots</span>
+              </div>
+            </article>
+
+            <article class="plan-card">
+              <div class="badge">Most popular</div>
+              <div class="mini">Friends & family</div>
+              <h3>6‑Player Palworld</h3>
+              <p>Great for friend groups who want a persistent home base.</p>
+              <div class="plan-meta">
+                <span class="plan-price">$8.99 / month</span>
+                <span class="plan-slots">6 player slots</span>
+              </div>
+            </article>
+
+            <article class="plan-card">
+              <div class="mini">Community</div>
+              <h3>8‑Player Palworld</h3>
+              <p>More headroom for busier servers and shared worlds.</p>
+              <div class="plan-meta">
+                <span class="plan-price">$10.99 / month</span>
+                <span class="plan-slots">8 player slots</span>
+              </div>
+            </article>
+
+            <article class="plan-card">
+              <div class="mini">Growing world</div>
+              <h3>12‑Player Palworld</h3>
+              <p>Ideal for small communities, creators, and active groups.</p>
+              <div class="plan-meta">
+                <span class="plan-price">$14.99 / month</span>
+                <span class="plan-slots">12 player slots</span>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Included with every Palworld server -->
+      <section>
+        <div class="container">
+          <div class="section-head">
+            <div class="mini">Included with every server</div>
+            <h2>What you get with SideQuest Palworld hosting.</h2>
+            <p>
+              We looked at what Palworld hosts offer — backups, DDoS protection, control panels,
+              scheduled tasks — and made sure the essentials are built into every plan.
+            </p>
+          </div>
+
+          <div class="benefit-grid">
+            <article class="benefit-card">
+              <h3>Daily backups</h3>
+              <ul>
+                <li>Automatic daily backups of your Palworld world</li>
+                <li>Restore points so you can roll back if needed</li>
+              </ul>
+            </article>
+            <article class="benefit-card">
+              <h3>Full control</h3>
+              <ul>
+                <li>Full access to configs and files via the panel</li>
+                <li>Adjust rates, rules, and settings as you grow</li>
+              </ul>
+            </article>
+            <article class="benefit-card">
+              <h3>Scheduled tasks</h3>
+              <ul>
+                <li>Automatic restarts on your schedule</li>
+                <li>Room for tasks like auto‑updates and scripts</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Setup process -->
+      <section id="process">
+        <div class="container">
+          <div class="section-head">
+            <div class="mini">Setup process</div>
+            <h2>From idea to Palworld server in a few steps.</h2>
+            <p>
+              At launch, we keep things simple and human. As we grow, we add more automation — but
+              you never lose the ability to talk to a real person.
+            </p>
+          </div>
+
+          <div class="steps-grid">
+            <article class="step">
+              <div class="step-number">1</div>
+              <h3>Pick your plan</h3>
+              <p>Choose 4, 6, 8, or 12 players based on your group size.</p>
+            </article>
+            <article class="step">
+              <div class="step-number">2</div>
+              <h3>We set you up</h3>
+              <p>Our small US team configures your Palworld server and sends panel access.</p>
+            </article>
+            <article class="step">
+              <div class="step-number">3</div>
+              <h3>You configure & play</h3>
+              <p>You get full control of settings, mods, and schedules via the panel.</p>
+            </article>
+            <article class="step">
+              <div class="step-number">4</div>
+              <h3>Automation later</h3>
+              <p>We’ll roll in automated provisioning and billing as SideQuest Servers grows.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Client access -->
+      <section id="client">
+        <div class="container client-grid">
+          <div class="client-copy">
+            <div class="mini">Client access</div>
+            <h2>A simple path to your Palworld world.</h2>
+            <p>
+              SideQuest Servers uses a familiar panel for full server control. Right now, your
+              players join via the same panel you already know, while we build out automation and
+              quality‑of‑life features behind the scenes.
+            </p>
+          </div>
+
+          <div class="client-card">
+            <form>
+              <label>
+                Email address
+                <input type="email" placeholder="owner@community.gg" />
+              </label>
+
+              <label>
+                Palworld plan
+                <select>
+                  <option>4‑Player — $6.99</option>
+                  <option>6‑Player — $8.99</option>
+                  <option>8‑Player — $10.99</option>
+                  <option>12‑Player — $14.99</option>
+                </select>
+              </label>
+
+              <a
+                class="btn btn-primary"
+                href="https://panel.sidequestservers.com"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Go to panel login
+              </a>
+
+              <p class="helper">
+                This first version keeps things manual on purpose. Once you are ready for instant
+                provisioning, we’ll add order forms, billing, and automated server creation behind
+                the scenes using Cloudflare Pages Functions.
+              </p>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- FAQ -->
+      <section id="faq">
+        <div class="container">
+          <div class="section-head">
+            <div class="mini">FAQ</div>
+            <h2>Questions players usually ask.</h2>
+            <p>
+              Here are answers to the most common Palworld hosting questions. We’ll keep this
+              updated as the game and SideQuest Servers evolve.
+            </p>
+          </div>
+
+          <div class="faq-grid">
+            <article class="faq-card">
+              <h3>Where are your servers located?</h3>
+              <p>
+                We’re a US‑based team and start with US regions first. As SideQuest Servers grows,
+                we’ll add more regions based on where our communities are playing.
+              </p>
+            </article>
+            <article class="faq-card">
+              <h3>Can I change my player count later?</h3>
+              <p>
+                Yes — you can move up to a higher slot plan as your group grows. We try to keep
+                upgrades simple and transparent.
+              </p>
+            </article>
+            <article class="faq-card">
+              <h3>Do I have full control of my server?</h3>
+              <p>
+                Yes. You get access to configs, files, and scheduled tasks via the panel, so you
+                can tune your Palworld world to your community’s style.
+              </p>
+            </article>
+            <article class="faq-card">
+              <h3>Do you offer backups and restarts?</h3>
+              <p>
+                Every plan includes daily backups and the ability to schedule automatic restarts.
+                We treat your world as something worth protecting, not just a save file.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container">
+        © SideQuest Servers — small community‑centered Palworld hosting run by real gamers in the US.
+      </div>
+    </footer>
+  </body>
+</html>
