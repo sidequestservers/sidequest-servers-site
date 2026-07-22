@@ -246,11 +246,6 @@
         font-weight: 600;
       }
 
-      .summary-plan {
-        font-size: 0.88rem;
-        color: var(--muted);
-      }
-
       .summary-footnote {
         margin-top: 0.9rem;
         font-size: 0.85rem;
@@ -353,7 +348,6 @@
           <a href="index.html#why">Why Us</a>
           <a href="index.html#process">Setup</a>
           <a href="index.html#faq">FAQ</a>
-          <a href="billing.html">Billing & Checkout</a>
           <a href="https://panel.sidequestservers.com" target="_blank" rel="noopener noreferrer">
             Panel Login
           </a>
@@ -365,11 +359,11 @@
       <section class="hero">
         <div class="container">
           <div class="hero-headline">
-            <h1>Set up your Palworld server in a few steps.</h1>
+            <h1>Finish buying your Palworld server.</h1>
             <p class="lead">
-              Create your SideQuest Servers account, pick a Palworld plan, and get ready for Stripe
-              checkout. We ask for your email first so we can keep billing, support, and server
-              details in one place.
+              You clicked “Buy now” on a SideQuest Servers plan — now we’ll grab your account details
+              and Palworld preferences before sending you to Stripe checkout. Email comes first so
+              billing, support, and server info stay together.
             </p>
             <div class="steps-row">
               <div class="step-pill">
@@ -378,7 +372,7 @@
               </div>
               <div class="step-pill">
                 <span class="num">2</span>
-                <span>Choose plan & region</span>
+                <span>Confirm plan & region</span>
               </div>
               <div class="step-pill">
                 <span class="num">3</span>
@@ -503,13 +497,13 @@
             </button>
 
             <p class="notice">
-              Stripe integration is the next step — this button will eventually send you to a secure
-              Stripe checkout flow once your account and Palworld plan are set. For now, it stays
-              disabled until the details above are valid.
+              <strong>Stripe integration comes next.</strong> This button will eventually send you to
+              a secure Stripe checkout flow once your account and Palworld plan are set. For now, it
+              stays disabled until the details above are valid.
             </p>
 
             <div class="badge-line">
-              <span class="badge">Fast setup</span>
+              <span class="badge">Account required</span>
               <span class="badge">Palworld‑only focus</span>
               <span class="badge">Small US team</span>
               <span class="badge">Community‑centered</span>
@@ -526,11 +520,7 @@
     </footer>
 
     <script>
-      // Simple front-end logic to:
-      // - Validate email & matching passwords
-      // - Track plan/region/period
-      // - Enable the Stripe button once everything is set
-
+      // Plan data
       const plans = {
         "4": { name: "Starter Camp — 4 players", price: 6.99 },
         "6": { name: "Explorer Outpost — 6 players", price: 8.99 },
@@ -601,6 +591,19 @@
         checkoutButton.disabled = !ok;
       }
 
+      // Pre-select plan from URL (?plan=4/6/8/12)
+      (function preselectPlanFromUrl() {
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const initialPlan = params.get("plan");
+          if (initialPlan && plans[initialPlan]) {
+            plan.value = initialPlan;
+          }
+        } catch (e) {
+          // ignore URL parse errors
+        }
+      })();
+
       email.addEventListener("input", () => {
         validateForm();
       });
@@ -624,7 +627,7 @@
       });
 
       checkoutButton.addEventListener("click", () => {
-        // Placeholder: this is where you will later:
+        // Placeholder: later you will:
         // - Send details to a Cloudflare Pages Function
         // - Create a Stripe Checkout Session server-side
         // - Redirect the user to Stripe

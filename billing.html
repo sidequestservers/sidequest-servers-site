@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Create your SideQuest Servers account, choose a Palworld plan, and continue to Stripe checkout."
+      content="Create your SideQuest Servers account, choose a Palworld plan, and submit your order request."
     />
     <style>
       :root {
@@ -44,7 +44,6 @@
         margin: 0 auto;
       }
 
-      /* Topbar */
       .topbar {
         position: sticky;
         top: 0;
@@ -106,7 +105,6 @@
         padding: 2.7rem 0;
       }
 
-      /* Hero / steps */
       .hero {
         padding-top: 3.5rem;
       }
@@ -159,7 +157,6 @@
         font-weight: 600;
       }
 
-      /* Layout */
       .billing-grid {
         display: grid;
         grid-template-columns: 1.25fr 0.75fr;
@@ -294,6 +291,27 @@
         color: var(--primary);
       }
 
+      .success-box,
+      .error-box {
+        margin-top: 1rem;
+        padding: 0.85rem 1rem;
+        border-radius: 14px;
+        font-size: 0.9rem;
+        display: none;
+      }
+
+      .success-box {
+        background: rgba(34, 197, 94, 0.12);
+        border: 1px solid rgba(34, 197, 94, 0.28);
+        color: #bbf7d0;
+      }
+
+      .error-box {
+        background: rgba(249, 115, 115, 0.1);
+        border: 1px solid rgba(249, 115, 115, 0.28);
+        color: #fecaca;
+      }
+
       .badge-line {
         display: flex;
         flex-wrap: wrap;
@@ -329,8 +347,13 @@
           align-items: flex-start;
           padding: 0.75rem 0;
         }
+
         .steps-row {
           flex-direction: column;
+        }
+
+        .inline-row {
+          grid-template-columns: 1fr;
         }
       }
     </style>
@@ -359,11 +382,10 @@
       <section class="hero">
         <div class="container">
           <div class="hero-headline">
-            <h1>Finish buying your Palworld server.</h1>
+            <h1>Finish your Palworld order request.</h1>
             <p class="lead">
-              You clicked “Buy now” on a SideQuest Servers plan — now we’ll grab your account details
-              and Palworld preferences before sending you to Stripe checkout. Email comes first so
-              billing, support, and server info stay together.
+              You clicked “Buy now” on a SideQuest Servers plan. Fill this out so we can capture your
+              account and plan details before we wire in Stripe and instant provisioning.
             </p>
             <div class="steps-row">
               <div class="step-pill">
@@ -376,7 +398,7 @@
               </div>
               <div class="step-pill">
                 <span class="num">3</span>
-                <span>Continue to Stripe checkout</span>
+                <span>Submit order request</span>
               </div>
             </div>
           </div>
@@ -385,12 +407,10 @@
 
       <section>
         <div class="container billing-grid">
-          <!-- Account + server form -->
           <div class="card">
-            <h2>SideQuest account & Palworld details</h2>
+            <h2>Account & server details</h2>
             <p class="sub">
-              This is the information we’ll use for your Palworld hosting, billing, and support.
-              You’ll need an email and password before you can check out.
+              This information will be used for your hosting account, support, and future billing flow.
             </p>
 
             <form id="billing-form" novalidate>
@@ -432,6 +452,7 @@
                     <option value="12">Guild Hall — 12 players — $14.99 / month</option>
                   </select>
                 </label>
+
                 <label>
                   Region
                   <select id="region" required>
@@ -452,6 +473,7 @@
                     <option value="yearly">Yearly</option>
                   </select>
                 </label>
+
                 <label>
                   Discord (optional)
                   <input id="discord" type="text" placeholder="@sidequest-servers" />
@@ -459,13 +481,12 @@
               </div>
 
               <p class="hint">
-                We’ll use your email for invoices and support. Passwords are for your SideQuest
-                account — we’ll never ask for your game passwords.
+                This version stores an order request through your Cloudflare backend. Stripe checkout
+                and automatic server provisioning come next.
               </p>
             </form>
           </div>
 
-          <!-- Summary + Stripe button placeholder -->
           <aside class="card">
             <div class="summary-title">Order summary</div>
 
@@ -473,10 +494,12 @@
               <span class="summary-label">Plan</span>
               <span id="summary-plan" class="summary-value">No plan selected</span>
             </div>
+
             <div class="summary-row">
               <span class="summary-label">Region</span>
               <span id="summary-region" class="summary-value">No region selected</span>
             </div>
+
             <div class="summary-row">
               <span class="summary-label">Billing period</span>
               <span id="summary-period" class="summary-value">Monthly</span>
@@ -488,25 +511,26 @@
             </div>
 
             <p class="summary-footnote">
-              Final amounts, taxes, and recurring details will be confirmed on the Stripe checkout
-              page. You’ll see everything clearly before you commit.
+              This step only submits the request to your backend right now. It does not charge the customer yet.
             </p>
 
             <button id="checkout-button" class="btn btn-primary" type="button" disabled>
-              Continue to Stripe checkout
+              Submit order request
             </button>
 
+            <div id="success-box" class="success-box"></div>
+            <div id="error-box" class="error-box"></div>
+
             <p class="notice">
-              <strong>Stripe integration comes next.</strong> This button will eventually send you to
-              a secure Stripe checkout flow once your account and Palworld plan are set. For now, it
-              stays disabled until the details above are valid.
+              <strong>Next milestone:</strong> after this works, connect the button to Stripe Checkout,
+              then trigger provisioning only after a successful webhook-confirmed payment.
             </p>
 
             <div class="badge-line">
-              <span class="badge">Account required</span>
+              <span class="badge">Cloudflare Pages</span>
+              <span class="badge">Pages Functions</span>
               <span class="badge">Palworld‑only focus</span>
               <span class="badge">Small US team</span>
-              <span class="badge">Community‑centered</span>
             </div>
           </aside>
         </div>
@@ -520,7 +544,6 @@
     </footer>
 
     <script>
-      // Plan data
       const plans = {
         "4": { name: "Starter Camp — 4 players", price: 6.99 },
         "6": { name: "Explorer Outpost — 6 players", price: 8.99 },
@@ -531,113 +554,20 @@
       const email = document.getElementById("email");
       const password = document.getElementById("password");
       const confirm = document.getElementById("confirm");
+      const displayName = document.getElementById("display-name");
       const plan = document.getElementById("plan");
       const region = document.getElementById("region");
       const period = document.getElementById("billing-period");
+      const discord = document.getElementById("discord");
 
       const emailError = document.getElementById("email-error");
       const passwordError = document.getElementById("password-error");
+
       const summaryPlan = document.getElementById("summary-plan");
       const summaryRegion = document.getElementById("summary-region");
       const summaryPeriod = document.getElementById("summary-period");
       const summaryPrice = document.getElementById("summary-price");
+
       const checkoutButton = document.getElementById("checkout-button");
-
-      function isValidEmail(value) {
-        return /\S+@\S+\.\S+/.test(value);
-      }
-
-      function updateSummary() {
-        const planVal = plan.value;
-        const regionVal = region.value;
-        const periodVal = period.value;
-
-        if (planVal && plans[planVal]) {
-          summaryPlan.textContent = plans[planVal].name;
-          summaryPrice.textContent = `$${plans[planVal].price.toFixed(2)} / first month`;
-        } else {
-          summaryPlan.textContent = "No plan selected";
-          summaryPrice.textContent = "$0.00";
-        }
-
-        summaryRegion.textContent = regionVal
-          ? region.options[region.selectedIndex].text
-          : "No region selected";
-
-        summaryPeriod.textContent = period.options[period.selectedIndex].text;
-      }
-
-      function validateForm() {
-        let ok = true;
-
-        if (!isValidEmail(email.value)) {
-          emailError.style.display = "block";
-          ok = false;
-        } else {
-          emailError.style.display = "none";
-        }
-
-        if (!password.value || password.value !== confirm.value) {
-          passwordError.style.display = "block";
-          ok = false;
-        } else {
-          passwordError.style.display = "none";
-        }
-
-        if (!plan.value || !region.value || !period.value) {
-          ok = false;
-        }
-
-        checkoutButton.disabled = !ok;
-      }
-
-      // Pre-select plan from URL (?plan=4/6/8/12)
-      (function preselectPlanFromUrl() {
-        try {
-          const params = new URLSearchParams(window.location.search);
-          const initialPlan = params.get("plan");
-          if (initialPlan && plans[initialPlan]) {
-            plan.value = initialPlan;
-          }
-        } catch (e) {
-          // ignore URL parse errors
-        }
-      })();
-
-      email.addEventListener("input", () => {
-        validateForm();
-      });
-      password.addEventListener("input", () => {
-        validateForm();
-      });
-      confirm.addEventListener("input", () => {
-        validateForm();
-      });
-      plan.addEventListener("change", () => {
-        updateSummary();
-        validateForm();
-      });
-      region.addEventListener("change", () => {
-        updateSummary();
-        validateForm();
-      });
-      period.addEventListener("change", () => {
-        updateSummary();
-        validateForm();
-      });
-
-      checkoutButton.addEventListener("click", () => {
-        // Placeholder: later you will:
-        // - Send details to a Cloudflare Pages Function
-        // - Create a Stripe Checkout Session server-side
-        // - Redirect the user to Stripe
-        alert(
-          "Stripe checkout will be wired in next. For now, this button just confirms that your account and plan details are valid."
-        );
-      });
-
-      updateSummary();
-      validateForm();
-    </script>
-  </body>
-</html>
+      const successBox = document.getElementById("success-box");
+      const errorBox = document.getElementById("error-box");
