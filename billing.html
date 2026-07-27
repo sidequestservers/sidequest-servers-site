@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Create your SideQuest Servers account, choose a Palworld plan, and submit your order request."
+      content="Choose a SideQuest Servers Palworld plan and continue to secure checkout."
     />
     <style>
       :root {
@@ -383,10 +383,9 @@
       <section class="hero">
         <div class="container">
           <div class="hero-headline">
-            <h1>Palworld hosting is launching soon.</h1>
+            <h1>Choose your Palworld hosting plan.</h1>
             <p class="lead">
-              Choose the plan that fits your group and preview its price. Secure checkout, account creation,
-              and instant server provisioning are not available yet.
+              Choose the plan that fits your group, then continue to secure Stripe Checkout.
             </p>
             <div class="steps-row">
               <div class="step-pill">
@@ -395,11 +394,11 @@
               </div>
               <div class="step-pill">
                 <span class="num">2</span>
-                <span>Review billing</span>
+                <span>Secure checkout</span>
               </div>
               <div class="step-pill">
                 <span class="num">3</span>
-                <span>Checkout opening soon</span>
+                <span>Server setup</span>
               </div>
             </div>
           </div>
@@ -411,7 +410,7 @@
           <div class="card">
             <h2>Plan & server preferences</h2>
             <p class="sub">
-              This is a price preview only. Do not enter passwords or payment details on this page.
+              Select a monthly plan. Payment details are entered securely through Stripe Checkout.
             </p>
 
             <form id="billing-form">
@@ -427,21 +426,8 @@
                 </select>
               </label>
 
-              <div class="inline-row">
-                <label>
-                  Billing period
-                  <select id="billing-period">
-                    <option value="monthly">Monthly (most common)</option>
-                    <option value="quarterly">Quarterly</option>
-                    <option value="yearly">Yearly</option>
-                  </select>
-                </label>
-
-                <div aria-hidden="true"></div>
-              </div>
-
               <p class="hint">
-                This is a plan preview only. No account, payment, or server is created from this page.
+                All plans bill monthly. Your server is provisioned after a successful payment when provisioning is enabled.
               </p>
             </form>
           </div>
@@ -465,17 +451,19 @@
             </div>
 
             <p class="summary-footnote">
-              Prices are shown for planning only. Checkout is not currently available.
+              You will be redirected to Stripe to complete payment securely.
             </p>
 
-            <button class="btn btn-primary" type="button" disabled>
-              Checkout coming soon
+            <button id="checkout-button" class="btn btn-primary" type="button" disabled>
+              Select a plan to continue
             </button>
 
             <p class="notice">
-              <strong>What we’re building:</strong> verified Stripe and PayPal payments, then automatic
-              Pterodactyl server provisioning after payment succeeds.
+              <strong>Secure payment:</strong> Stripe handles card details. We provision through Pterodactyl after payment succeeds.
             </p>
+
+            <div id="success-box" class="success-box" role="status" aria-live="polite"></div>
+            <div id="error-box" class="error-box" role="alert" aria-live="assertive"></div>
 
             <div class="badge-line">
               <span class="badge">Cloudflare Pages</span>
@@ -503,23 +491,32 @@
       };
 
       const plan = document.getElementById("plan");
-      const period = document.getElementById("billing-period");
-
       const summaryPlan = document.getElementById("summary-plan");
       const summaryPeriod = document.getElementById("summary-period");
       const summaryPrice = document.getElementById("summary-price");
+      const checkoutButton = document.getElementById("checkout-button");
+      const successBox = document.getElementById("success-box");
+      const errorBox = document.getElementById("error-box");
+
+      function showMessage(element, message) {
+        element.textContent = message;
+        element.style.display = "block";
+      }
 
       function updateSummary() {
         const planVal = plan.value;
         if (planVal && plans[planVal]) {
           summaryPlan.textContent = plans[planVal].name;
           summaryPrice.textContent = `$${plans[planVal].price.toFixed(2)} / month`;
+          checkoutButton.disabled = false;
+          checkoutButton.textContent = "Continue to secure checkout";
         } else {
           summaryPlan.textContent = "No plan selected";
           summaryPrice.textContent = "$0.00";
+          checkoutButton.disabled = true;
+          checkoutButton.textContent = "Select a plan to continue";
         }
-
-        summaryPeriod.textContent = period.options[period.selectedIndex].text;
+        summaryPeriod.textContent = "Monthly";
       }
 
       (function preselectPlanFromUrl() {
@@ -540,9 +537,37 @@
         updateSummary();
       });
 
-      period.addEventListener("change", () => {
-        updateSummary();
+      checkoutButton.addEventListener("click", async () => {
+        if (!plan.value || !plans[plan.value]) return;
+        errorBox.style.display = "none";
+        checkoutButton.disabled = true;
+        checkoutButton.textContent = "Opening secure checkout...";
+
+        try {
+          const response = await fetch("/api/stripe/create-checkout", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ plan: plan.value })
+          });
+          const result = await response.json().catch(() => ({}));
+          if (!response.ok || !result.checkoutUrl) {
+            throw new Error(result.message || "Unable to start secure checkout. Please try again.");
+          }
+          window.location.assign(result.checkoutUrl);
+        } catch (error) {
+          showMessage(errorBox, error.message);
+          updateSummary();
+        }
       });
+
+      (function showCheckoutResult() {
+        const payment = new URLSearchParams(window.location.search).get("payment");
+        if (payment === "success") {
+          showMessage(successBox, "Payment received. We will email you when your server is ready.");
+        } else if (payment === "cancelled") {
+          showMessage(errorBox, "Checkout was cancelled. No payment was made.");
+        }
+      })();
 
       updateSummary();
     </script>
