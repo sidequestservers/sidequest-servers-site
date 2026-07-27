@@ -33,3 +33,11 @@
 
 - Created a restorable pre-change backup at `C:\Users\Admin\Documents\Codex\2026-07-27\now\work\backups\SideQuestServers_2026-07-27_13-05-40`.
 - Added a Cloudflare D1 schema for orders and de-duplicated payment webhook events.
+
+## 2026-07-27 - Stripe payment-to-provisioning flow
+
+- Created a restorable pre-change backup at `C:\Projects\SideQuestServers\backups\2026-07-27_13-55-00`.
+- Added a Stripe signature-verified webhook for completed paid checkout sessions.
+- Recorded and de-duplicated Stripe events in D1, then connected each claimed paid order to the protected provisioning endpoint.
+- Kept checkout and provisioning disabled by default; a failed provisioning attempt is retried safely when Stripe retries the event.
+- Created an additional restore point at C:\Projects\SideQuestServers\backups\2026-07-27_13-59-45 before correcting the webhook review finding and making D1 order/event recording atomic.

@@ -55,5 +55,5 @@ export async function onRequestPost(context) {
   });
   const server = await serverResponse.json();
   if (!serverResponse.ok) return jsonError("Panel account was created, but server creation failed.", 502);
-  return Response.json({ ok: true, panelUrl, serverId: server.attributes.id, serverIdentifier: server.attributes.identifier });
+  return Response.json({ ok: true, panelUrl, userId: user.attributes.id, serverId: server.attributes.id, serverIdentifier: server.attributes.identifier });
 }

@@ -1,12 +1,13 @@
 # Payments and provisioning setup
 
-These endpoints are intentionally disabled until you finish the business setup. Do not set `CHECKOUT_ENABLED=true` until Stripe/PayPal webhooks and an order database are added.
+These endpoints are intentionally disabled until you finish the business setup. Do not set `CHECKOUT_ENABLED=true` until the Stripe webhook, the D1 database, and Pterodactyl have all been tested together.
 
 ## Stripe test setup
 
 1. Create one recurring monthly Stripe Price for each plan.
-2. Add `STRIPE_SECRET_KEY` and `STRIPE_PRICE_ID_4_MONTHLY`, `STRIPE_PRICE_ID_6_MONTHLY`, `STRIPE_PRICE_ID_8_MONTHLY`, and `STRIPE_PRICE_ID_12_MONTHLY` as Cloudflare Pages secrets.
-3. Keep `CHECKOUT_ENABLED` unset while testing the backend structure.
+2. Add `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, and the four `STRIPE_PRICE_ID_*_MONTHLY` values as Cloudflare Pages secrets.
+3. In Stripe, add `https://your-domain/api/stripe/webhook` and subscribe it to `checkout.session.completed`.
+4. Keep `CHECKOUT_ENABLED` unset while testing the backend structure, and keep `PROVISIONING_ENABLED=false` until the Palworld node has capacity.
 
 ## PayPal sandbox setup
 
@@ -33,6 +34,7 @@ Your confirmed panel values are: Palworld nest `5`, egg `15`, and Docker image `
 ## Before enabling sales
 
 - Create a Cloudflare D1 database, apply `database/schema.sql`, and bind it to Pages as `DB` for order storage and webhook event de-duplication.
-- Add verified Stripe and PayPal webhook handlers that call `/api/provision` exactly once per paid order.
+- The verified Stripe webhook records each paid checkout event in D1, claims the order once, then calls `/api/provision` only when `PROVISIONING_ENABLED=true`.
+- Add a verified PayPal webhook handler before enabling PayPal.
 - Test with Stripe test mode and PayPal sandbox.
 - Confirm Pterodactyl can email account setup links and has available allocations.
