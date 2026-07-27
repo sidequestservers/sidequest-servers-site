@@ -427,7 +427,7 @@
               </label>
 
               <p class="hint">
-                All plans bill monthly. Your server is provisioned after a successful payment when provisioning is enabled.
+                All plans bill monthly. After payment, we confirm your server setup before panel access is provided.
               </p>
             </form>
           </div>
@@ -459,7 +459,7 @@
             </button>
 
             <p class="notice">
-              <strong>Secure payment:</strong> Stripe handles card details. We provision through Pterodactyl after payment succeeds.
+              <strong>Secure payment:</strong> Stripe handles your card details. Keep your Stripe confirmation for your records.
             </p>
 
             <div id="success-box" class="success-box" role="status" aria-live="polite"></div>
@@ -563,7 +563,7 @@
       (function showCheckoutResult() {
         const payment = new URLSearchParams(window.location.search).get("payment");
         if (payment === "success") {
-          showMessage(successBox, "Payment received. We will email you when your server is ready.");
+          showMessage(successBox, "Payment received. Keep your Stripe confirmation for your records. Contact us if you need help with your setup.");
         } else if (payment === "cancelled") {
           showMessage(errorBox, "Checkout was cancelled. No payment was made.");
         }
