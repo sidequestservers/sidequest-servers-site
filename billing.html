@@ -395,7 +395,7 @@
               </div>
               <div class="step-pill">
                 <span class="num">2</span>
-                <span>Pick a region</span>
+                <span>Review billing</span>
               </div>
               <div class="step-pill">
                 <span class="num">3</span>
@@ -416,28 +416,16 @@
 
             <form id="billing-form">
 
-              <div class="inline-row">
-                <label>
-                  Palworld plan
-                  <select id="plan" required>
+              <label>
+                Palworld plan
+                <select id="plan" required>
                     <option value="">Select a plan</option>
                     <option value="4">Starter Camp — 4 players — $6.99 / month</option>
                     <option value="6">Explorer Outpost — 6 players — $8.99 / month</option>
                     <option value="8">Frontier Base — 8 players — $10.99 / month</option>
                     <option value="12">Guild Hall — 12 players — $14.99 / month</option>
-                  </select>
-                </label>
-
-                <label>
-                  Region
-                  <select id="region" required>
-                    <option value="">Select a region</option>
-                    <option value="us-east">US East</option>
-                    <option value="us-central">US Central</option>
-                    <option value="us-west">US West</option>
-                  </select>
-                </label>
-              </div>
+                </select>
+              </label>
 
               <div class="inline-row">
                 <label>
@@ -464,11 +452,6 @@
             <div class="summary-row">
               <span class="summary-label">Plan</span>
               <span id="summary-plan" class="summary-value">No plan selected</span>
-            </div>
-
-            <div class="summary-row">
-              <span class="summary-label">Region</span>
-              <span id="summary-region" class="summary-value">No region selected</span>
             </div>
 
             <div class="summary-row">
@@ -520,18 +503,14 @@
       };
 
       const plan = document.getElementById("plan");
-      const region = document.getElementById("region");
       const period = document.getElementById("billing-period");
 
       const summaryPlan = document.getElementById("summary-plan");
-      const summaryRegion = document.getElementById("summary-region");
       const summaryPeriod = document.getElementById("summary-period");
       const summaryPrice = document.getElementById("summary-price");
 
       function updateSummary() {
         const planVal = plan.value;
-        const regionVal = region.value;
-
         if (planVal && plans[planVal]) {
           summaryPlan.textContent = plans[planVal].name;
           summaryPrice.textContent = `$${plans[planVal].price.toFixed(2)} / month`;
@@ -539,10 +518,6 @@
           summaryPlan.textContent = "No plan selected";
           summaryPrice.textContent = "$0.00";
         }
-
-        summaryRegion.textContent = regionVal
-          ? region.options[region.selectedIndex].text
-          : "No region selected";
 
         summaryPeriod.textContent = period.options[period.selectedIndex].text;
       }
@@ -562,10 +537,6 @@
       })();
 
       plan.addEventListener("change", () => {
-        updateSummary();
-      });
-
-      region.addEventListener("change", () => {
         updateSummary();
       });
 
