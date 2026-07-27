@@ -1,0 +1,313 @@
+/*
+ * SideQuest visual layer. It is intentionally separate from the page markup
+ * so the prior presentation can be restored without affecting checkout logic.
+ */
+:root {
+  --bg: #101719;
+  --surface: #182123;
+  --surface-2: #202b2e;
+  --text: #f5f2e9;
+  --muted: #b3c0bb;
+  --border: rgba(218, 224, 203, 0.18);
+  --primary: #f8b83d;
+  --primary-soft: rgba(248, 184, 61, 0.14);
+  --primary-hover: #ffcd68;
+  --accent: #80d49b;
+  --shadow: 0 24px 55px rgba(0, 0, 0, 0.28);
+}
+
+html { background: var(--bg); }
+
+body {
+  background:
+    radial-gradient(circle at 83% -9%, rgba(248, 184, 61, 0.16), transparent 32rem),
+    radial-gradient(circle at -10% 45%, rgba(104, 175, 170, 0.12), transparent 35rem),
+    linear-gradient(180deg, #101719 0%, #121a1c 45%, #0b1011 100%);
+  letter-spacing: 0.005em;
+}
+
+body::before {
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  content: "";
+  opacity: 0.2;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(204, 219, 202, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(204, 219, 202, 0.035) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: linear-gradient(to bottom, black, transparent 78%);
+}
+
+.container { width: min(1180px, calc(100% - 2.5rem)); }
+
+.topbar {
+  background: rgba(16, 23, 25, 0.86);
+  border-bottom-color: rgba(218, 224, 203, 0.12);
+  backdrop-filter: blur(18px) saturate(135%);
+}
+
+.topbar-inner { min-height: 72px; }
+
+.brand {
+  color: var(--text);
+  text-transform: uppercase;
+  font-size: 0.84rem;
+  letter-spacing: 0.11em;
+}
+
+.brand-mark {
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(248, 184, 61, 0.85);
+  border-radius: 8px;
+  background: #f8b83d;
+  box-shadow: 4px 4px 0 rgba(128, 212, 155, 0.65);
+  font-size: 0.76rem;
+}
+
+.nav { gap: 0.15rem; font-size: 0.82rem; }
+
+.nav a {
+  padding: 0.48rem 0.62rem;
+  border-radius: 5px;
+  color: var(--muted);
+}
+
+.nav a:hover { color: var(--text); background: rgba(248, 184, 61, 0.12); }
+
+main section { padding: 4.75rem 0; }
+
+.hero {
+  position: relative;
+  padding-top: 6.6rem;
+  padding-bottom: 5.6rem;
+}
+
+.hero::after {
+  position: absolute;
+  right: max(1.25rem, calc((100vw - 1180px) / 2));
+  bottom: 1.2rem;
+  width: min(25vw, 320px);
+  height: 1px;
+  content: "";
+  background: linear-gradient(90deg, transparent, var(--primary));
+}
+
+.hero-grid { grid-template-columns: minmax(0, 1.45fr) minmax(290px, 0.55fr); gap: 3rem; }
+
+.eyebrow {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: var(--accent);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.eyebrow span.dot { width: 8px; height: 8px; border-radius: 1px; background: var(--accent); }
+
+h1 {
+  max-width: 11ch;
+  font-size: clamp(3rem, 7vw, 6.2rem);
+  font-weight: 750;
+  line-height: 0.94;
+  letter-spacing: -0.065em;
+}
+
+.lead { max-width: 55ch; font-size: 1.05rem; }
+
+.cta-row { margin-top: 2rem; }
+
+.btn {
+  min-height: 48px;
+  border-radius: 5px;
+  font-size: 0.81rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.btn-primary {
+  background: var(--primary);
+  box-shadow: 4px 4px 0 rgba(128, 212, 155, 0.7);
+}
+
+.btn-primary:hover { background: var(--primary-hover); transform: translate(1px, 1px); box-shadow: 2px 2px 0 rgba(128, 212, 155, 0.7); }
+
+.btn-secondary { border-color: rgba(218, 224, 203, 0.35); background: rgba(22, 31, 33, 0.8); }
+
+.hero-card,
+.feature-card,
+.plan-card,
+.benefit-card,
+.step,
+.client-card,
+.faq-card,
+.card,
+article {
+  border-radius: 8px;
+  border-color: rgba(218, 224, 203, 0.17);
+  background: linear-gradient(145deg, rgba(35, 47, 49, 0.95), rgba(21, 30, 31, 0.96));
+  box-shadow: var(--shadow);
+}
+
+.hero-card {
+  position: relative;
+  overflow: hidden;
+  padding: 1.5rem;
+  border-top: 3px solid var(--primary);
+}
+
+.hero-card::before {
+  display: block;
+  margin-bottom: 1.15rem;
+  color: var(--primary);
+  content: "LIVE WORLD PROFILE";
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.69rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+}
+
+.hero-card .mini { display: none; }
+.hero-card h2 { font-size: 1.3rem; line-height: 1.15; }
+.hero-card ul { padding-left: 1.15rem; }
+.hero-card li + li { margin-top: 0.48rem; }
+
+.price-tag {
+  border-radius: 4px;
+  background: rgba(248, 184, 61, 0.12);
+  color: #ffd886;
+}
+
+.pill { border-radius: 4px; border-color: rgba(248, 184, 61, 0.36); }
+
+.section-head { margin-bottom: 2.25rem; }
+.section-head .mini,
+.mini {
+  color: var(--accent);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.69rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.section-head h2,
+.client-copy h2 {
+  max-width: 19ch;
+  font-size: clamp(1.85rem, 3.5vw, 3rem);
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+}
+
+.feature-grid { grid-template-columns: repeat(2, 1fr); gap: 1.15rem; }
+.feature-card { min-height: 174px; padding: 1.35rem; }
+.feature-card h3,
+.benefit-card h3,
+.step h3,
+.faq-card h3 { color: var(--text); font-size: 1.02rem; }
+
+.feature-card:nth-child(odd) { border-left: 3px solid rgba(128, 212, 155, 0.72); }
+.feature-card:nth-child(even) { border-left: 3px solid rgba(248, 184, 61, 0.75); }
+
+.plan-grid { gap: 0.85rem; }
+.plan-card { min-height: 292px; padding: 1.25rem; }
+.plan-card:hover { border-color: rgba(248, 184, 61, 0.7); transform: translateY(-4px); transition: 0.18s ease; }
+.plan-card h3 { font-size: 1.15rem; line-height: 1.15; }
+.plan-card .mini { min-height: 1.25rem; }
+.plan-meta { margin-top: auto; padding-top: 1rem; border-top: 1px solid rgba(218, 224, 203, 0.13); }
+.plan-price { color: #ffd886; font-size: 1.1rem; }
+.plan-cta { margin-top: 0.7rem; }
+
+.benefit-grid { gap: 1.15rem; }
+.benefit-card { padding: 1.35rem; }
+.benefit-card ul { padding-left: 1.1rem; }
+.benefit-card li + li { margin-top: 0.5rem; }
+
+.steps-grid { position: relative; gap: 0.85rem; }
+.step { padding: 1.2rem; }
+.step-number {
+  width: 34px;
+  height: 34px;
+  border-radius: 4px;
+  background: var(--primary);
+  color: #101719;
+}
+
+.client-grid { gap: 3rem; align-items: center; }
+.client-card { padding: 1.55rem; border-top: 3px solid var(--accent); }
+.client-card .btn { width: auto; min-width: 190px; }
+
+.faq-grid { gap: 0.9rem; }
+.faq-card { padding: 1.25rem; }
+
+footer {
+  border-top: 1px solid rgba(218, 224, 203, 0.12);
+  padding-top: 2rem;
+  font-size: 0.78rem;
+}
+
+footer a { margin-left: 1rem; color: var(--primary); }
+
+/* Checkout page */
+.hero-headline h1 { max-width: 16ch; font-size: clamp(2.4rem, 5vw, 4.3rem); }
+.steps-row { gap: 0.45rem; }
+.step-pill { border-radius: 4px; background: rgba(24, 33, 35, 0.9); }
+.step-pill span.num { border-radius: 3px; background: var(--primary-soft); color: #ffd886; }
+.billing-grid { gap: 1.2rem; }
+.card { padding: 1.5rem; }
+.card h2 { font-size: 1.45rem; letter-spacing: -0.03em; }
+input,
+select {
+  border-radius: 5px;
+  border-color: rgba(218, 224, 203, 0.22);
+  background: rgba(12, 18, 19, 0.75);
+}
+input:focus,
+select:focus { outline: 2px solid rgba(248, 184, 61, 0.65); outline-offset: 2px; }
+.badge { border-radius: 4px; }
+.notice strong { color: #ffd886; }
+
+/* Policies page */
+.back {
+  border-radius: 5px;
+  border-color: rgba(218, 224, 203, 0.25);
+  color: var(--muted);
+}
+.back:hover { border-color: var(--primary); color: var(--primary); }
+.policy-grid { grid-template-columns: repeat(2, 1fr); }
+.policy-grid article { min-height: 185px; }
+.policy-grid article h2 { color: var(--text); }
+.policy-grid article:nth-child(3n + 1) { border-top: 3px solid var(--primary); }
+.policy-grid article:nth-child(3n + 2) { border-top: 3px solid var(--accent); }
+.policy-grid article:nth-child(3n) { border-top: 3px solid #75a8b6; }
+
+@media (max-width: 980px) {
+  .hero-grid { grid-template-columns: 1fr; }
+  .hero-card { max-width: 560px; }
+  .plan-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 720px) {
+  .container { width: min(100% - 1.5rem, 1180px); }
+  .topbar-inner { gap: 0.65rem; }
+  .nav { gap: 0.1rem; }
+  .nav a { padding: 0.35rem 0.45rem; }
+  .hero { padding-top: 4.4rem; padding-bottom: 4rem; }
+  main section { padding: 3.5rem 0; }
+  h1 { font-size: clamp(3rem, 15vw, 4.7rem); }
+  .feature-grid,
+  .plan-grid,
+  .benefit-grid,
+  .steps-grid,
+  .client-grid,
+  .faq-grid,
+  .policy-grid { grid-template-columns: 1fr; }
+  .plan-card { min-height: 0; }
+  .feature-card { min-height: 0; }
+  .client-card .btn { width: 100%; }
+  footer a { display: inline-block; margin: 0.5rem 0 0; }
+}
