@@ -1,14 +1,16 @@
 import { getPlan, jsonError } from "../../_lib/plans";
 
 export async function onRequestPost(context) {
-  if (context.env.CHECKOUT_ENABLED !== "true") {
+  const stripeSecretKey = context.env.STRIPE_SECRET_KEY;
+  const stripeTestMode = stripeSecretKey?.startsWith("sk_test_");
+  if (context.env.CHECKOUT_ENABLED !== "true" && !stripeTestMode) {
     return jsonError("Checkout is not available yet.", 503);
   }
 
   const { plan } = await context.request.json().catch(() => ({}));
   const selectedPlan = getPlan(plan);
   const priceId = context.env[`STRIPE_PRICE_ID_${plan}_MONTHLY`];
-  if (!selectedPlan || !priceId || !context.env.STRIPE_SECRET_KEY) {
+  if (!selectedPlan || !priceId || !stripeSecretKey) {
     return jsonError("Stripe checkout is not configured for this plan.", 503);
   }
 
@@ -23,7 +25,7 @@ export async function onRequestPost(context) {
   const response = await fetch("https://api.stripe.com/v1/checkout/sessions", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${context.env.STRIPE_SECRET_KEY}`,
+      Authorization: `Bearer ${stripeSecretKey}`,
       "Content-Type": "application/x-www-form-urlencoded"
     },
     body: form
