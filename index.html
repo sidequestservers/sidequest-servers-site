@@ -139,6 +139,13 @@
       .world-tools { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem; }
       .world-tools span { padding: 0.65rem 0.7rem; border-left: 2px solid var(--coral); color: #dbe8ee; background: rgba(255, 255, 255, 0.04); font-size: 0.78rem; }
 
+      .game-card { position: relative; min-height: 330px; overflow: hidden; border: 1px solid rgba(109, 229, 245, 0.5); border-radius: 14px; background: #091829; box-shadow: var(--shadow), 12px 12px 0 rgba(180, 239, 131, 0.1); }
+      .game-card::after { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 28%, rgba(7, 17, 31, 0.92) 100%); content: ""; }
+      .game-card img { width: 100%; height: 100%; min-height: 330px; display: block; object-fit: cover; object-position: center; }
+      .game-card-copy { position: absolute; z-index: 1; right: 1.35rem; bottom: 1.25rem; left: 1.35rem; }
+      .game-card-copy span { color: var(--lime); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.13em; }
+      .game-card-copy strong { display: block; margin-top: 0.3rem; font-size: 1.2rem; letter-spacing: -0.03em; }
+
       .trust-bar { position: relative; z-index: 2; margin-top: -34px; }
       .trust-inner { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); border-radius: 11px; overflow: hidden; background: #0d2032; box-shadow: var(--shadow); }
       .trust-item { padding: 1rem 1.1rem; border-right: 1px solid var(--line); }
@@ -173,8 +180,15 @@
       .plan-price strong { font-size: 1.55rem; letter-spacing: -0.05em; }
       .plan-price span { color: var(--muted); font-size: 0.78rem; }
       .plan .button { width: 100%; margin-top: 0.9rem; min-height: 43px; font-size: 0.74rem; }
+      .plan-art { width: calc(100% + 2.6rem); height: 94px; margin: -1.3rem -1.3rem 0; object-fit: cover; opacity: 0.9; }
+      .plan-guild { border-color: rgba(180, 239, 131, 0.5); }
       .included { display: flex; flex-wrap: wrap; gap: 0.65rem; margin-top: 1.5rem; }
       .included span { padding: 0.4rem 0.62rem; border: 1px solid rgba(180, 239, 131, 0.26); border-radius: 99px; color: #d4edc1; background: rgba(180, 239, 131, 0.06); font-size: 0.76rem; }
+      .palworld-feature { display: grid; grid-template-columns: 0.82fr 1.18fr; margin-top: 2rem; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: #10283a; box-shadow: var(--shadow); }
+      .palworld-feature-copy { padding: 2rem; }
+      .palworld-feature-copy h3 { margin: 0.65rem 0; font-size: clamp(1.6rem, 3vw, 2.4rem); line-height: 1; letter-spacing: -0.05em; }
+      .palworld-feature-copy p { margin: 0; color: var(--muted); }
+      .palworld-feature img { width: 100%; height: 100%; min-height: 265px; object-fit: cover; }
 
       .control-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, 0.86fr); gap: 4rem; align-items: center; }
       .control-copy h2 { max-width: 13ch; margin: 0; font-size: clamp(2.3rem, 4.7vw, 4.3rem); line-height: 0.96; letter-spacing: -0.07em; }
@@ -204,6 +218,14 @@
       .console-actions span { padding: 0.65rem; border-radius: 5px; color: var(--night); background: var(--lime); font-size: 0.76rem; font-weight: 800; text-align: center; }
       .console-actions span:last-child { color: var(--copy); border: 1px solid var(--line); background: transparent; }
 
+      .panel-tour { background: #0b1b2c; }
+      .panel-gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+      .panel-shot { overflow: hidden; border: 1px solid rgba(109, 229, 245, 0.23); border-radius: 10px; background: #07111f; box-shadow: var(--shadow); }
+      .panel-shot img { width: 100%; height: 215px; display: block; object-fit: cover; object-position: top; }
+      .panel-shot-copy { padding: 1rem; }
+      .panel-shot-copy h3 { margin: 0; font-size: 1rem; }
+      .panel-shot-copy p { margin: 0.35rem 0 0; color: var(--muted); font-size: 0.84rem; }
+
       .how { background: linear-gradient(140deg, #112a3a, #0a1727); }
       .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
       .step { position: relative; padding: 1.35rem; border: 1px solid var(--line); border-radius: 10px; background: rgba(9, 24, 39, 0.42); }
@@ -231,6 +253,7 @@
         .hero-layout, .control-layout { grid-template-columns: 1fr; gap: 2.5rem; }
         .signal-card { max-width: 520px; }
         .plan-grid { grid-template-columns: 1fr 1fr; }
+        .palworld-feature { grid-template-columns: 1fr; }
       }
       @media (max-width: 680px) {
         .wrap { width: min(100% - 1.5rem, 1160px); }
@@ -241,12 +264,13 @@
         h1 { font-size: clamp(3.25rem, 16vw, 5rem); }
         .hero-actions { flex-direction: column; }
         .hero-actions .button { width: 100%; }
-        .trust-inner, .section-title, .steps, .details { grid-template-columns: 1fr; }
+        .trust-inner, .section-title, .steps, .details, .panel-gallery { grid-template-columns: 1fr; }
         .trust-item { border-right: 0; border-bottom: 1px solid var(--line); }
         .trust-item:last-child { border-bottom: 0; }
         section { padding: 4.5rem 0; }
         .plan-grid { grid-template-columns: 1fr; }
         .plan { min-height: 0; }
+        .game-card img { min-height: 280px; }
         .support { padding-bottom: 4.5rem; }
         .support-box { align-items: flex-start; flex-direction: column; padding: 1.5rem; }
         .support-box .button { width: 100%; }
@@ -261,9 +285,10 @@
         <nav class="nav" aria-label="Primary navigation">
           <a href="#plans">Plans</a>
           <a href="#control">Control panel</a>
+          <a href="#panel-tour">Panel tour</a>
           <a href="#how">How it works</a>
           <a href="policies.html">Policies</a>
-          <a class="portal" href="https://panel.sidequestservers.com" target="_blank" rel="noopener noreferrer">Client portal</a>
+          <a class="portal" href="https://panel.sidequestservers.com" target="_blank" rel="noopener noreferrer">Portal Login</a>
         </nav>
       </div>
     </header>
@@ -285,16 +310,9 @@
             <p class="hero-note"><strong>Clear monthly plans.</strong> No required add-ons. No confusing configurator.</p>
           </div>
 
-          <aside class="signal-card" aria-label="Example server profile">
-            <div class="signal-kicker"><span>WORLD STATUS</span><span class="status-dot" aria-label="Online"></span></div>
-            <h2>Guild Hall</h2>
-            <p>12-player Palworld server</p>
-            <div class="meter">
-              <div><span>Region</span><strong>US</strong></div>
-              <div><span>Backups</span><strong>Daily</strong></div>
-              <div><span>Billing</span><strong>Monthly</strong></div>
-            </div>
-            <div class="world-tools"><span>Panel controls</span><span>Self-service restores</span></div>
+          <aside class="game-card">
+            <img src="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1623730/57df7aed61d65c9012a11d58e812aff275b7daed/capsule_616x353.jpg?t=1784714419" alt="Palworld promotional artwork" />
+            <div class="game-card-copy"><span>HOST YOUR OWN ADVENTURE</span><strong>Built for the worlds your group keeps returning to.</strong></div>
           </aside>
         </div>
       </section>
@@ -340,7 +358,8 @@
               <div class="plan-price"><strong>$10.99</strong> <span>/ month</span></div>
               <a class="button button-quiet" href="billing.html?plan=8">Choose Frontier</a>
             </article>
-            <article class="plan">
+            <article class="plan plan-guild">
+              <img class="plan-art" src="https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1623730/ss_f81b7c4f20be3b99f76a1415c4cdb9b444c99b97.1920x1080.jpg?t=1784714419" alt="Pals protecting a Palworld base" />
               <span class="level">Guild Hall</span>
               <h3>12 players</h3>
               <p>For small communities and creator groups that need a proper shared home world.</p>
@@ -351,6 +370,15 @@
 
           <div class="included" aria-label="Included with every server">
             <span>Daily backups</span><span>Downloadable world data</span><span>Self-service restores</span><span>Panel settings</span><span>Scheduled restarts</span>
+          </div>
+
+          <div class="palworld-feature">
+            <div class="palworld-feature-copy">
+              <p class="eyebrow">Bring the whole crew</p>
+              <h3>Your group, your pace, your world.</h3>
+              <p>Build, explore, and keep your Palworld adventure available for the people who make it worth returning to.</p>
+            </div>
+            <img src="https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1623730/ss_b3cea7c9f04a67d784d4c6a0c157a11d6268b189.1920x1080.jpg?t=1784714419" alt="Players riding and flying with Pals in Palworld" />
           </div>
         </div>
       </section>
@@ -397,6 +425,21 @@
         </div>
       </section>
 
+      <section class="panel-tour" id="panel-tour">
+        <div class="wrap">
+          <div class="section-title">
+            <div><p class="eyebrow">The real SideQuest panel</p><h2>Tools that do more than start and stop.</h2></div>
+            <p>These are actual SideQuest panel screens. Import an existing world, manage files, or tune a Palworld world without digging through raw configuration files.</p>
+          </div>
+          <div class="panel-gallery">
+            <article class="panel-shot"><img src="assets/panel-console.png" alt="SideQuest live Palworld server console" /><div class="panel-shot-copy"><h3>Live console</h3><p>Start, restart, monitor resource usage, and watch your server come online.</p></div></article>
+            <article class="panel-shot"><img src="assets/panel-files.png" alt="SideQuest server file manager" /><div class="panel-shot-copy"><h3>File manager</h3><p>Browse and manage the files that make up your server.</p></div></article>
+            <article class="panel-shot"><img src="assets/panel-import.png" alt="SideQuest Palworld world import tool" /><div class="panel-shot-copy"><h3>World import</h3><p>Move an existing dedicated-server world with guided steps and rollback protection.</p></div></article>
+            <article class="panel-shot"><img src="assets/panel-easy-config.png" alt="SideQuest Palworld easy configuration controls" /><div class="panel-shot-copy"><h3>Easy-Config</h3><p>Adjust Palworld settings through clear controls rather than hunting through config files.</p></div></article>
+          </div>
+        </div>
+      </section>
+
       <section>
         <div class="wrap">
           <div class="section-title">
@@ -422,7 +465,7 @@
 
     <footer>
       <div class="wrap footer-row">
-        <span>&copy; SideQuest Servers. Palworld hosting for groups.</span>
+        <span>&copy; SideQuest Servers. Palworld hosting for groups. Palworld is a trademark of Pocketpair, Inc. SideQuest Servers is not affiliated with or endorsed by Pocketpair.</span>
         <div class="footer-links"><a href="policies.html">Service policies</a><a href="mailto:sidequestservers@gmail.com">Contact support</a><a href="https://panel.sidequestservers.com" target="_blank" rel="noopener noreferrer">Client portal</a></div>
       </div>
     </footer>

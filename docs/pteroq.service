@@ -1,0 +1,13 @@
+[Unit]
+Description=Pterodactyl Queue Worker
+After=redis-server.service
+
+[Service]
+User=www-data
+Group=www-data
+Restart=always
+RestartSec=5s
+ExecStart=/usr/bin/php /var/www/pterodactyl/artisan queue:work redis --sleep=3 --tries=3 --max-time=3600
+
+[Install]
+WantedBy=multi-user.target
