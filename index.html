@@ -225,14 +225,17 @@
       .control-art-copy strong { display: block; margin-top: 0.35rem; font-size: 1.35rem; letter-spacing: -0.04em; }
 
       .panel-tour { background: #0b1b2c; }
-      .panel-gallery { display: grid; gap: 2rem; }
-      .panel-shot { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(260px, 0.5fr); overflow: hidden; border: 1px solid rgba(109, 229, 245, 0.23); border-radius: 12px; background: #07111f; box-shadow: var(--shadow); }
-      .panel-shot:nth-child(even) img { order: 2; }
-      .panel-shot img { width: 100%; min-height: 430px; display: block; object-fit: cover; object-position: top; }
-      .panel-shot-copy { display: flex; flex-direction: column; justify-content: center; padding: 2rem; background: linear-gradient(145deg, #112b40, #0a1929); }
-      .panel-shot-copy h3 { margin: 0; font-size: clamp(1.35rem, 2.7vw, 2.1rem); letter-spacing: -0.05em; }
-      .panel-shot-copy p { margin: 0.7rem 0 0; color: var(--muted); }
-      .panel-shot-copy::before { margin-bottom: 0.9rem; color: var(--lime); content: "SIDEQUEST PANEL"; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.13em; }
+      .panel-tabs { display: flex; flex-wrap: wrap; gap: 0.55rem; margin: 2rem 0 1rem; }
+      .panel-tab { padding: 0.65rem 0.9rem; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--muted); cursor: pointer; font: inherit; font-size: 0.82rem; font-weight: 700; }
+      .panel-tab:hover, .panel-tab[aria-selected="true"] { border-color: var(--cyan); background: rgba(109, 229, 245, 0.12); color: var(--cyan); }
+      .panel-view { display: none; overflow: hidden; border: 1px solid rgba(109, 229, 245, 0.23); border-radius: 12px; background: #07111f; box-shadow: var(--shadow); }
+      .panel-view.is-active { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(260px, 0.5fr); }
+      .panel-view img { width: 100%; min-height: 480px; display: block; object-fit: cover; object-position: top; }
+      .panel-view[data-panel-view="files"] img { object-fit: contain; background: #07111f; }
+      .panel-view-copy { display: flex; flex-direction: column; justify-content: center; padding: 2rem; background: linear-gradient(145deg, #112b40, #0a1929); }
+      .panel-view-copy h3 { margin: 0; font-size: clamp(1.35rem, 2.7vw, 2.1rem); letter-spacing: -0.05em; }
+      .panel-view-copy p { margin: 0.7rem 0 0; color: var(--muted); }
+      .panel-view-copy::before { margin-bottom: 0.9rem; color: var(--lime); content: "SIDEQUEST PANEL"; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.13em; }
 
       .how { background: linear-gradient(140deg, #112a3a, #0a1727); }
       .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
@@ -262,8 +265,7 @@
         .signal-card { max-width: 520px; }
         .plan-grid { grid-template-columns: 1fr 1fr; }
         .palworld-feature { grid-template-columns: 1fr; }
-        .panel-shot { grid-template-columns: 1fr; }
-        .panel-shot:nth-child(even) img { order: 0; }
+        .panel-view.is-active { grid-template-columns: 1fr; }
       }
       @media (max-width: 680px) {
         .wrap { width: min(100% - 1.5rem, 1160px); }
@@ -281,7 +283,7 @@
         .plan-grid { grid-template-columns: 1fr; }
         .plan { min-height: 0; }
         .control-art img { min-height: 320px; }
-        .panel-shot img { min-height: 260px; }
+        .panel-view img { min-height: 260px; }
         .support { padding-bottom: 4.5rem; }
         .support-box { align-items: flex-start; flex-direction: column; padding: 1.5rem; }
         .support-box .button { width: 100%; }
@@ -318,7 +320,7 @@
               <a class="button button-primary" href="#plans">Choose your server</a>
               <a class="button button-quiet" href="#how">See how setup works</a>
             </div>
-            <p class="hero-note"><strong>Clear monthly plans.</strong> No required add-ons. No confusing configurator.</p>
+            <p class="hero-note"><strong>Crossplay ready.</strong> Steam, Xbox, PS5, and Mac players can share the same world.</p>
           </div>
 
           <aside class="game-card">
@@ -331,7 +333,7 @@
       <div class="trust-bar">
         <div class="wrap trust-inner">
           <div class="trust-item"><span>Focus</span><strong>Palworld only</strong></div>
-          <div class="trust-item"><span>Plans</span><strong>4 to 12 players</strong></div>
+          <div class="trust-item"><span>Crossplay</span><strong>Steam, Xbox, PS5, Mac</strong></div>
           <div class="trust-item"><span>Backups</span><strong>Daily and downloadable</strong></div>
           <div class="trust-item"><span>Support</span><strong>CST, up to 48 hours</strong></div>
         </div>
@@ -433,13 +435,18 @@
             <div><p class="eyebrow">The real SideQuest panel</p><h2>Tools that do more than start and stop.</h2></div>
             <p>These are actual SideQuest panel screens. Import an existing world, manage files, or tune a Palworld world without digging through raw configuration files.</p>
           </div>
-          <div class="panel-gallery">
-            <article class="panel-shot"><img src="assets/panel-console.png" alt="SideQuest live Palworld server console" /><div class="panel-shot-copy"><h3>Live console</h3><p>Start, restart, monitor resource usage, and watch your server come online.</p></div></article>
-            <article class="panel-shot"><img src="assets/panel-files.png" alt="SideQuest server file manager" /><div class="panel-shot-copy"><h3>File manager</h3><p>Browse and manage the files that make up your server.</p></div></article>
-            <article class="panel-shot"><img src="assets/panel-import.png" alt="SideQuest Palworld world import tool" /><div class="panel-shot-copy"><h3>World import</h3><p>Move an existing dedicated-server world with guided steps and rollback protection.</p></div></article>
-            <article class="panel-shot"><img src="assets/panel-easy-config.png" alt="SideQuest Palworld easy configuration controls" /><div class="panel-shot-copy"><h3>Easy-Config</h3><p>Adjust Palworld settings through clear controls rather than hunting through config files.</p></div></article>
-            <article class="panel-shot"><img src="assets/panel-scheduler.png" alt="SideQuest daily maintenance task scheduler" /><div class="panel-shot-copy"><h3>Task scheduler</h3><p>Build reliable routines with restarts, backups, commands, and maintenance tasks on a schedule you control.</p></div></article>
+          <div class="panel-tabs" role="tablist" aria-label="Panel features">
+            <button class="panel-tab" type="button" role="tab" aria-selected="true" data-panel-target="console">Live Console</button>
+            <button class="panel-tab" type="button" role="tab" aria-selected="false" data-panel-target="files">File Manager</button>
+            <button class="panel-tab" type="button" role="tab" aria-selected="false" data-panel-target="import">World Import</button>
+            <button class="panel-tab" type="button" role="tab" aria-selected="false" data-panel-target="config">Easy-Config</button>
+            <button class="panel-tab" type="button" role="tab" aria-selected="false" data-panel-target="scheduler">Scheduler</button>
           </div>
+          <article class="panel-view is-active" data-panel-view="console"><img src="assets/panel-console.png" alt="SideQuest live Palworld server console" /><div class="panel-view-copy"><h3>Live console</h3><p>Start, restart, monitor resource usage, and watch your server come online.</p></div></article>
+          <article class="panel-view" data-panel-view="files"><img src="assets/panel-files.png" alt="SideQuest server file manager" /><div class="panel-view-copy"><h3>File manager</h3><p>Browse and manage the files that make up your server.</p></div></article>
+          <article class="panel-view" data-panel-view="import"><img src="assets/panel-import.png" alt="SideQuest Palworld world import tool" /><div class="panel-view-copy"><h3>World import</h3><p>Move an existing dedicated-server world with guided steps and rollback protection.</p></div></article>
+          <article class="panel-view" data-panel-view="config"><img src="assets/panel-easy-config.png" alt="SideQuest Palworld easy configuration controls" /><div class="panel-view-copy"><h3>Easy-Config</h3><p>Adjust Palworld settings through clear controls rather than hunting through config files.</p></div></article>
+          <article class="panel-view" data-panel-view="scheduler"><img src="assets/panel-scheduler.png" alt="SideQuest daily maintenance task scheduler" /><div class="panel-view-copy"><h3>Task scheduler</h3><p>Build reliable routines with restarts, backups, commands, and maintenance tasks on a schedule you control.</p></div></article>
         </div>
       </section>
 
@@ -472,5 +479,14 @@
         <div class="footer-links"><a href="policies.html">Service policies</a><a href="mailto:sidequestservers@gmail.com">Contact support</a><a href="https://panel.sidequestservers.com" target="_blank" rel="noopener noreferrer">Client portal</a></div>
       </div>
     </footer>
+    <script>
+      document.querySelectorAll("[data-panel-target]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const target = button.dataset.panelTarget;
+          document.querySelectorAll("[data-panel-target]").forEach((tab) => tab.setAttribute("aria-selected", String(tab === button)));
+          document.querySelectorAll("[data-panel-view]").forEach((view) => view.classList.toggle("is-active", view.dataset.panelView === target));
+        });
+      });
+    </script>
   </body>
 </html>
