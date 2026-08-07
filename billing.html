@@ -387,7 +387,7 @@
           <div class="hero-headline">
             <h1>Choose your Palworld hosting plan.</h1>
             <p class="lead">
-              Choose the plan that fits your group, then continue to secure Stripe Checkout.
+              Choose the plan that fits your group, then continue to secure checkout.
             </p>
             <div class="steps-row">
               <div class="step-pill">
@@ -412,7 +412,7 @@
           <div class="card">
             <h2>Plan & server preferences</h2>
             <p class="sub">
-              Select a monthly plan. Payment details are entered securely through Stripe Checkout.
+              Select a monthly plan. Payment details are entered securely during checkout.
             </p>
 
             <form id="billing-form">
@@ -453,7 +453,7 @@
             </div>
 
             <p class="summary-footnote">
-              You will be redirected to Stripe to complete payment securely. Eligible new services may
+              You will be redirected to complete payment securely. Eligible new services may
               be refunded within 24 hours of the initial purchase. By continuing, you agree to the
               <a href="policies.html">service policies</a>.
             </p>
@@ -463,16 +463,16 @@
             </button>
 
             <p class="notice">
-              <strong>Secure payment:</strong> Stripe handles your card details. Keep your Stripe confirmation for your records.
+              <strong>Secure payment:</strong> Card details are handled by our payment processor. Keep your payment confirmation for your records.
             </p>
 
             <div id="success-box" class="success-box" role="status" aria-live="polite"></div>
             <div id="error-box" class="error-box" role="alert" aria-live="assertive"></div>
 
             <div class="badge-line">
-              <span class="badge">Cloudflare Pages</span>
-              <span class="badge">Pages Functions</span>
-              <span class="badge">Palworld‑only focus</span>
+              <span class="badge">Monthly plans</span>
+              <span class="badge">Secure checkout</span>
+              <span class="badge">Game server hosting</span>
               <span class="badge">Small US team</span>
             </div>
           </aside>
@@ -568,7 +568,7 @@
       (function showCheckoutResult() {
         const payment = new URLSearchParams(window.location.search).get("payment");
         if (payment === "success") {
-          showMessage(successBox, "Payment received. Keep your Stripe confirmation for your records. Contact us if you need help with your setup.");
+          showMessage(successBox, "Payment received. Keep your payment confirmation for your records. Contact us if you need help with your setup.");
         } else if (payment === "cancelled") {
           showMessage(errorBox, "Checkout was cancelled. No payment was made.");
         }
