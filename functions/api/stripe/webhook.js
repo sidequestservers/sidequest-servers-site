@@ -1,4 +1,5 @@
 import { getPlan, jsonError } from "../../_lib/plans";
+import { escapeHtml, sendEmail } from "../../_lib/email";
 
 function hex(bytes) {
   return Array.from(new Uint8Array(bytes), (byte) => byte.toString(16).padStart(2, "0")).join("");
@@ -77,6 +78,14 @@ export async function onRequestPost(context) {
     await context.env.DB.prepare(
       "UPDATE orders SET status = 'active', pterodactyl_user_id = ?, pterodactyl_server_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?"
     ).bind(result.userId || null, result.serverId || null, orderId).run();
+    const customerName = String(session.customer_details?.name || "there").trim();
+    const panelUrl = result.panelUrl || context.env.PTERODACTYL_PANEL_URL;
+    await sendEmail(context.env, {
+      to: email,
+      subject: "Your SideQuest Servers game server is ready",
+      text: `Hi ${customerName},\n\nYour ${plan.name} game server is ready. Sign in to the control panel at ${panelUrl}. If this is your first server, check for a separate account setup email from the panel.\n\nQuestions? Reply to this email or contact support@sidequestservers.com.`,
+      html: `<p>Hi ${escapeHtml(customerName)},</p><p>Your <strong>${escapeHtml(plan.name)}</strong> game server is ready.</p><p><a href="${escapeHtml(panelUrl)}">Open the control panel</a></p><p>If this is your first server, check for a separate account setup email from the panel.</p><p>Questions? Reply to this email or contact <a href="mailto:support@sidequestservers.com">support@sidequestservers.com</a>.</p>`
+    });
     return response("Payment recorded and server provisioned.");
   } catch (error) {
     await context.env.DB.batch([

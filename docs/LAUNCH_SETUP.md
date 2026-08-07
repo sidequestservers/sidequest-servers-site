@@ -38,3 +38,26 @@ Your confirmed panel values are: Palworld nest `5`, egg `15`, and Docker image `
 - Add a verified PayPal webhook handler before enabling PayPal.
 - Test with Stripe test mode and PayPal sandbox.
 - Confirm Pterodactyl can email account setup links and has available allocations.
+
+## Transactional email
+
+Resend sends website lifecycle emails from `SideQuest Servers <noreply@sidequestservers.com>` and sets `support@sidequestservers.com` as the reply address. Add these Cloudflare Pages secrets:
+
+- `RESEND_API_KEY`: a Resend key with Sending access for `sidequestservers.com`.
+- `RESEND_FROM=SideQuest Servers <noreply@sidequestservers.com>`
+- `RESEND_REPLY_TO=support@sidequestservers.com`
+
+The Stripe webhook sends the server-ready email only after Pterodactyl provisioning has completed. A Resend delivery failure is logged but never changes a successfully paid order to failed.
+
+Configure Pterodactyl separately to send password reset and account setup emails through Resend SMTP:
+
+```dotenv
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.resend.com
+MAIL_PORT=587
+MAIL_USERNAME=resend
+MAIL_PASSWORD=<Resend API key>
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=noreply@sidequestservers.com
+MAIL_FROM_NAME="SideQuest Servers"
+```
