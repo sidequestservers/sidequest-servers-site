@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#07111f" />
+    <meta
+      name="description"
+      content="Straightforward Palworld server hosting for groups. Clear monthly pricing, daily backups, and full panel access."
+    />
+    <title>SideQuest Servers | Palworld Hosting</title>
+    <style>
+      :root {
+        --night: #07111f;
+        --ink: #0c1c2f;
+        --panel: rgba(13, 32, 50, 0.76);
+        --panel-solid: #10273d;
+        --line: rgba(192, 222, 239, 0.16);
+        --copy: #f4f8fb;
+        --muted: #a9bdcb;
+        --cyan: #6de5f5;
+        --lime: #b4ef83;
+        --coral: #ff9d7b;
+        --shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        overflow-x: hidden;
+        color: var(--copy);
+        background: var(--night);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.55;
+      }
+
+      a { color: inherit; text-decoration: none; }
+      .wrap { width: min(1160px, calc(100% - 2.5rem)); margin: 0 auto; }
+      .eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        margin: 0 0 1rem;
+        color: var(--cyan);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+      }
+      .eyebrow::before { width: 8px; height: 8px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 16px var(--lime); content: ""; }
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        padding: 0.8rem 1.1rem;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        font-size: 0.82rem;
+        font-weight: 800;
+        letter-spacing: 0.055em;
+        text-transform: uppercase;
+        transition: transform 180ms ease, background 180ms ease, border 180ms ease;
+      }
+      .button:hover { transform: translateY(-2px); }
+      .button-primary { color: #07111f; background: var(--lime); box-shadow: 5px 5px 0 rgba(109, 229, 245, 0.7); }
+      .button-primary:hover { background: #cef6aa; }
+      .button-quiet { border-color: rgba(192, 222, 239, 0.34); color: var(--copy); background: rgba(12, 28, 47, 0.42); }
+      .button-quiet:hover { border-color: var(--cyan); background: rgba(109, 229, 245, 0.09); }
+
+      .topbar { position: relative; z-index: 5; border-bottom: 1px solid rgba(192, 222, 239, 0.1); }
+      .topbar-inner { min-height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+      .brand { display: inline-flex; align-items: center; gap: 0.75rem; font-size: 0.83rem; font-weight: 850; letter-spacing: 0.08em; text-transform: uppercase; }
+      .brand-mark {
+        width: 34px;
+        height: 34px;
+        display: grid;
+        place-items: center;
+        border: 1px solid var(--cyan);
+        border-radius: 9px;
+        color: #07111f;
+        background: linear-gradient(135deg, var(--cyan), var(--lime));
+        box-shadow: 3px 3px 0 rgba(255, 157, 123, 0.7);
+        font-size: 0.68rem;
+      }
+      .nav { display: flex; align-items: center; gap: 0.2rem; }
+      .nav a { padding: 0.5rem 0.65rem; border-radius: 6px; color: var(--muted); font-size: 0.79rem; }
+      .nav a:hover { color: var(--copy); background: rgba(109, 229, 245, 0.08); }
+      .nav .portal { margin-left: 0.3rem; border: 1px solid rgba(180, 239, 131, 0.35); color: var(--lime); }
+
+      .hero {
+        position: relative;
+        isolation: isolate;
+        min-height: 675px;
+        overflow: hidden;
+        padding: 6.6rem 0 5.5rem;
+        background:
+          radial-gradient(circle at 76% 18%, rgba(109, 229, 245, 0.17), transparent 22rem),
+          radial-gradient(circle at 48% 108%, rgba(180, 239, 131, 0.15), transparent 27rem),
+          linear-gradient(140deg, #07111f 10%, #0c2137 55%, #0b2735 100%);
+      }
+      .hero::before {
+        position: absolute;
+        z-index: -1;
+        inset: 0;
+        content: "";
+        opacity: 0.34;
+        background-image: linear-gradient(rgba(186, 223, 235, 0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(186, 223, 235, 0.12) 1px, transparent 1px);
+        background-size: 58px 58px;
+        mask-image: linear-gradient(115deg, black, transparent 74%);
+      }
+      .hero-layout { display: grid; grid-template-columns: minmax(0, 1fr) 500px; gap: 3.8rem; align-items: center; }
+      h1 { max-width: 10ch; margin: 0; font-size: clamp(3.45rem, 7.4vw, 6.3rem); font-weight: 850; line-height: 0.91; letter-spacing: -0.074em; }
+      .hero-copy { max-width: 53ch; margin: 1.5rem 0 0; color: var(--muted); font-size: 1.08rem; }
+      .hero-actions { display: flex; flex-wrap: wrap; gap: 0.85rem; margin-top: 2rem; }
+      .hero-note { margin: 1.3rem 0 0; color: #c5d5df; font-size: 0.83rem; }
+      .hero-note strong { color: var(--lime); }
+
+      .signal-card {
+        position: relative;
+        overflow: hidden;
+        padding: 1.35rem;
+        border: 1px solid rgba(109, 229, 245, 0.4);
+        border-radius: 14px;
+        background: linear-gradient(145deg, rgba(20, 50, 71, 0.92), rgba(9, 24, 40, 0.94));
+        box-shadow: var(--shadow), 12px 12px 0 rgba(180, 239, 131, 0.1);
+      }
+      .signal-card::after { position: absolute; top: 0; right: 0; width: 115px; height: 115px; border-radius: 0 0 0 100%; background: rgba(109, 229, 245, 0.08); content: ""; }
+      .signal-kicker { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; color: var(--cyan); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.69rem; font-weight: 700; letter-spacing: 0.12em; }
+      .status-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 16px var(--lime); }
+      .signal-card h2 { position: relative; z-index: 1; margin: 2.5rem 0 0.2rem; font-size: 1.55rem; letter-spacing: -0.04em; }
+      .signal-card > p { position: relative; z-index: 1; margin: 0; color: var(--muted); font-size: 0.88rem; }
+      .meter { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.55rem; margin: 1.5rem 0; }
+      .meter div { padding: 0.7rem 0.55rem; border: 1px solid var(--line); border-radius: 8px; background: rgba(4, 16, 29, 0.42); }
+      .meter span { display: block; color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.64rem; letter-spacing: 0.07em; text-transform: uppercase; }
+      .meter strong { display: block; margin-top: 0.25rem; color: var(--copy); font-size: 0.87rem; }
+      .world-tools { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem; }
+      .world-tools span { padding: 0.65rem 0.7rem; border-left: 2px solid var(--coral); color: #dbe8ee; background: rgba(255, 255, 255, 0.04); font-size: 0.78rem; }
+
+      .game-card { position: relative; overflow: hidden; border: 1px solid rgba(109, 229, 245, 0.5); border-radius: 14px; background: #091829; box-shadow: var(--shadow), 12px 12px 0 rgba(180, 239, 131, 0.1); }
+      .game-card::after { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 28%, rgba(7, 17, 31, 0.92) 100%); content: ""; }
+      .game-card img { width: 100%; height: auto; display: block; }
+      .game-card-copy { position: absolute; z-index: 1; right: 1.35rem; bottom: 1.25rem; left: 1.35rem; }
+      .game-card-copy span { color: var(--lime); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.13em; }
+      .game-card-copy strong { display: block; margin-top: 0.3rem; font-size: 1.2rem; letter-spacing: -0.03em; }
+
+      .trust-bar { position: relative; z-index: 2; margin-top: -34px; }
+      .trust-inner { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); border-radius: 11px; overflow: hidden; background: #0d2032; box-shadow: var(--shadow); }
+      .trust-item { padding: 1rem 1.1rem; border-right: 1px solid var(--line); }
+      .trust-item:last-child { border-right: 0; }
+      .trust-item span { display: block; color: var(--cyan); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.11em; text-transform: uppercase; }
+      .trust-item strong { display: block; margin-top: 0.22rem; font-size: 0.88rem; }
+
+      section { padding: 6.5rem 0; }
+      .section-title { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 0.65fr); gap: 2rem; align-items: end; margin-bottom: 2.1rem; }
+      .section-title h2 { max-width: 14ch; margin: 0; font-size: clamp(2.15rem, 4vw, 3.65rem); line-height: 0.98; letter-spacing: -0.06em; }
+      .section-title p { max-width: 43ch; margin: 0; color: var(--muted); }
+
+      .plans { position: relative; background: #0c1a2a; }
+      .plans::before { position: absolute; inset: 0; content: ""; opacity: 0.32; background: linear-gradient(90deg, rgba(109, 229, 245, 0.08) 1px, transparent 1px); background-size: 25%; pointer-events: none; }
+      .plans .wrap { position: relative; }
+      .plan-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.8rem; }
+      .plan {
+        display: flex;
+        min-height: 310px;
+        flex-direction: column;
+        padding: 1.3rem;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: linear-gradient(160deg, #132d43, #0d2033);
+        transition: border 180ms ease, transform 180ms ease;
+      }
+      .plan:hover { border-color: var(--cyan); transform: translateY(-5px); }
+      .plan .level { color: var(--cyan); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.11em; text-transform: uppercase; }
+      .plan h3 { margin: 1rem 0 0.5rem; font-size: 1.2rem; letter-spacing: -0.03em; }
+      .plan p { margin: 0; color: var(--muted); font-size: 0.86rem; }
+      .plan-price { margin-top: auto; padding-top: 1.15rem; border-top: 1px solid var(--line); }
+      .plan-price strong { font-size: 1.55rem; letter-spacing: -0.05em; }
+      .plan-price span { color: var(--muted); font-size: 0.78rem; }
+      .plan .button { width: 100%; margin-top: 0.9rem; min-height: 43px; font-size: 0.74rem; }
+      .plan-guild { border-color: rgba(180, 239, 131, 0.5); }
+      .included { display: flex; flex-wrap: wrap; gap: 0.65rem; margin-top: 1.5rem; }
+      .included span { padding: 0.4rem 0.62rem; border: 1px solid rgba(180, 239, 131, 0.26); border-radius: 99px; color: #d4edc1; background: rgba(180, 239, 131, 0.06); font-size: 0.76rem; }
+      .palworld-feature { display: grid; grid-template-columns: 0.82fr 1.18fr; margin-top: 2rem; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: #10283a; box-shadow: var(--shadow); }
+      .palworld-feature-copy { padding: 2rem; }
+      .palworld-feature-copy h3 { margin: 0.65rem 0; font-size: clamp(1.6rem, 3vw, 2.4rem); line-height: 1; letter-spacing: -0.05em; }
+      .palworld-feature-copy p { margin: 0; color: var(--muted); }
+      .palworld-feature img { width: 100%; height: 100%; min-height: 265px; object-fit: cover; }
+
+      .control-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, 0.86fr); gap: 4rem; align-items: center; }
+      .control-copy h2 { max-width: 13ch; margin: 0; font-size: clamp(2.3rem, 4.7vw, 4.3rem); line-height: 0.96; letter-spacing: -0.07em; }
+      .control-copy > p { max-width: 52ch; margin: 1.4rem 0 0; color: var(--muted); }
+      .control-list { display: grid; gap: 0.9rem; margin: 2rem 0 0; }
+      .control-list article { display: grid; grid-template-columns: 44px 1fr; gap: 0.85rem; align-items: start; }
+      .control-list b { display: grid; width: 39px; height: 39px; place-items: center; border: 1px solid rgba(109, 229, 245, 0.45); border-radius: 7px; color: var(--cyan); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.72rem; }
+      .control-list h3 { margin: 0; font-size: 1rem; }
+      .control-list p { margin: 0.15rem 0 0; color: var(--muted); font-size: 0.88rem; }
+      .console {
+        overflow: hidden;
+        border: 1px solid rgba(109, 229, 245, 0.3);
+        border-radius: 14px;
+        background: #0a1726;
+        box-shadow: var(--shadow);
+      }
+      .console-top { display: flex; align-items: center; justify-content: space-between; padding: 0.8rem 1rem; border-bottom: 1px solid var(--line); color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.7rem; }
+      .console-top i { display: flex; gap: 0.3rem; }
+      .console-top i::before, .console-top i::after, .console-top i { color: var(--coral); font-style: normal; content: ""; }
+      .console-body { padding: 1.3rem; }
+      .console-label { color: var(--cyan); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; }
+      .console h3 { margin: 0.45rem 0 1.3rem; font-size: 1.55rem; letter-spacing: -0.04em; }
+      .console-row { display: flex; align-items: center; justify-content: space-between; padding: 0.78rem 0; border-top: 1px solid rgba(192, 222, 239, 0.1); color: var(--muted); font-size: 0.83rem; }
+      .console-row strong { color: var(--copy); font-weight: 700; }
+      .console-row .ready { color: var(--lime); }
+      .console-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-top: 1.1rem; }
+      .console-actions span { padding: 0.65rem; border-radius: 5px; color: var(--night); background: var(--lime); font-size: 0.76rem; font-weight: 800; text-align: center; }
+      .console-actions span:last-child { color: var(--copy); border: 1px solid var(--line); background: transparent; }
+
+      .control-art { position: relative; overflow: hidden; min-height: 430px; border: 1px solid rgba(109, 229, 245, 0.32); border-radius: 14px; background: #0a1726; box-shadow: var(--shadow); }
+      .control-art::after { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 35%, rgba(7, 17, 31, 0.92) 100%); content: ""; }
+      .control-art img { width: 100%; height: 100%; min-height: 430px; display: block; object-fit: cover; }
+      .control-art-copy { position: absolute; z-index: 1; right: 1.5rem; bottom: 1.4rem; left: 1.5rem; }
+      .control-art-copy span { color: var(--lime); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.13em; }
+      .control-art-copy strong { display: block; margin-top: 0.35rem; font-size: 1.35rem; letter-spacing: -0.04em; }
+
+      .panel-tour { background: #0b1b2c; }
+      .panel-tabs { display: flex; flex-wrap: wrap; gap: 0.55rem; margin: 2rem 0 1rem; }
+      .panel-tab { padding: 0.65rem 0.9rem; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--muted); cursor: pointer; font: inherit; font-size: 0.82rem; font-weight: 700; }
+      .panel-tab:hover, .panel-tab[aria-selected="true"] { border-color: var(--cyan); background: rgba(109, 229, 245, 0.12); color: var(--cyan); }
+      .panel-view { display: none; overflow: hidden; border: 1px solid rgba(109, 229, 245, 0.23); border-radius: 12px; background: #07111f; box-shadow: var(--shadow); }
+      .panel-view.is-active { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(260px, 0.5fr); }
+      .panel-view img { width: 100%; min-height: 480px; display: block; object-fit: cover; object-position: top; }
+      .panel-view[data-panel-view="files"] img { object-fit: contain; background: #07111f; }
+      .panel-view[data-panel-view="config"] img { height: 810px; }
+      .panel-view-copy { display: flex; flex-direction: column; justify-content: center; padding: 2rem; background: linear-gradient(145deg, #112b40, #0a1929); }
+      .panel-view-copy h3 { margin: 0; font-size: clamp(1.35rem, 2.7vw, 2.1rem); letter-spacing: -0.05em; }
+      .panel-view-copy p { margin: 0.7rem 0 0; color: var(--muted); }
+      .panel-view-copy::before { margin-bottom: 0.9rem; color: var(--lime); content: "SIDEQUEST PANEL"; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.13em; }
+
+      .how { background: linear-gradient(140deg, #112a3a, #0a1727); }
+      .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+      .step { position: relative; padding: 1.35rem; border: 1px solid var(--line); border-radius: 10px; background: rgba(9, 24, 39, 0.42); }
+      .step-number { color: var(--coral); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.13em; }
+      .step h3 { margin: 1.5rem 0 0.45rem; font-size: 1.2rem; letter-spacing: -0.03em; }
+      .step p { margin: 0; color: var(--muted); font-size: 0.9rem; }
+
+      .details { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+      .detail { padding: 1.4rem; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+      .detail h3 { margin: 0; font-size: 1.05rem; }
+      .detail p { margin: 0.55rem 0 0; color: var(--muted); font-size: 0.88rem; }
+      .detail a { color: var(--cyan); font-weight: 700; }
+
+      .support { padding: 0 0 6.5rem; }
+      .support-box { display: flex; align-items: center; justify-content: space-between; gap: 2rem; padding: 2.25rem; border: 1px solid rgba(180, 239, 131, 0.32); border-radius: 13px; background: linear-gradient(120deg, #17333b, #0f283a); box-shadow: var(--shadow); }
+      .support-box h2 { margin: 0; font-size: clamp(1.7rem, 3vw, 2.5rem); letter-spacing: -0.05em; }
+      .support-box p { max-width: 55ch; margin: 0.45rem 0 0; color: #c1d3d5; }
+
+      footer { border-top: 1px solid rgba(192, 222, 239, 0.1); padding: 2rem 0 2.8rem; color: var(--muted); font-size: 0.78rem; }
+      .footer-row { display: flex; justify-content: space-between; gap: 1rem; }
+      .footer-links { display: flex; flex-wrap: wrap; gap: 1rem; }
+      .footer-links a:hover { color: var(--cyan); }
+
+      @media (max-width: 920px) {
+        .hero-layout, .control-layout { grid-template-columns: 1fr; gap: 2.5rem; }
+        .signal-card { max-width: 520px; }
+        .plan-grid { grid-template-columns: 1fr 1fr; }
+        .palworld-feature { grid-template-columns: 1fr; }
+        .panel-view.is-active { grid-template-columns: 1fr; }
+      }
+      @media (max-width: 680px) {
+        .wrap { width: min(100% - 1.5rem, 1160px); }
+        .topbar-inner { min-height: auto; padding: 0.8rem 0; align-items: flex-start; flex-direction: column; }
+        .nav { width: 100%; overflow-x: auto; padding-bottom: 0.1rem; }
+        .nav a { white-space: nowrap; }
+        .hero { min-height: auto; padding: 4.5rem 0 4rem; }
+        h1 { font-size: clamp(3.25rem, 16vw, 5rem); }
+        .hero-actions { flex-direction: column; }
+        .hero-actions .button { width: 100%; }
+        .trust-inner, .section-title, .steps, .details { grid-template-columns: 1fr; }
+        .trust-item { border-right: 0; border-bottom: 1px solid var(--line); }
+        .trust-item:last-child { border-bottom: 0; }
+        section { padding: 4.5rem 0; }
+        .plan-grid { grid-template-columns: 1fr; }
+        .plan { min-height: 0; }
+        .control-art img { min-height: 320px; }
+        .panel-view img { min-height: 260px; }
+        .panel-view[data-panel-view="config"] img { height: 400px; }
+        .support { padding-bottom: 4.5rem; }
+        .support-box { align-items: flex-start; flex-direction: column; padding: 1.5rem; }
+        .support-box .button { width: 100%; }
+        .footer-row { flex-direction: column; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="wrap topbar-inner">
+        <a class="brand" href="#top"><span class="brand-mark">SQ</span> SideQuest Servers</a>
+        <nav class="nav" aria-label="Primary navigation">
+          <a href="#plans">Plans</a>
+          <a href="#control">Control panel</a>
+          <a href="#panel-tour">Panel tour</a>
+          <a href="#how">How it works</a>
+          <a href="policies.html">Policies</a>
+          <a class="portal" href="https://panel.sidequestservers.com" target="_blank" rel="noopener noreferrer">Portal Login</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="wrap hero-layout">
+          <div>
+            <p class="eyebrow">Palworld hosting for real groups</p>
+            <h1>Your world has a home now.</h1>
+            <p class="hero-copy">
+              Straightforward Palworld hosting for the world your group keeps coming back to. Pick a
+              monthly plan, check out securely, and manage everything from your own control panel.
+            </p>
+            <div class="hero-actions">
+              <a class="button button-primary" href="#plans">Choose your server</a>
+              <a class="button button-quiet" href="#how">See how setup works</a>
+            </div>
+            <p class="hero-note"><strong>Crossplay ready.</strong> Steam, Xbox, PS5, and Mac players can share the same world.</p>
+          </div>
+
+          <aside class="game-card">
+            <img src="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1623730/57df7aed61d65c9012a11d58e812aff275b7daed/capsule_616x353.jpg?t=1784714419" alt="Palworld promotional artwork" />
+            <div class="game-card-copy"><span>HOST YOUR OWN ADVENTURE</span><strong>Built for the worlds your group keeps returning to.</strong></div>
+          </aside>
+        </div>
+      </section>
+
+      <div class="trust-bar">
+        <div class="wrap trust-inner">
+          <div class="trust-item"><span>Full control</span><strong>Your server, your rules</strong></div>
+          <div class="trust-item"><span>Crossplay</span><strong>Steam, Xbox, PS5, Mac</strong></div>
+          <div class="trust-item"><span>Secure payments</span><strong>Protected checkout</strong></div>
+          <div class="trust-item"><span>USA-based support</span><strong>Real people, not bots</strong></div>
+        </div>
+      </div>
+
+      <section class="plans" id="plans">
+        <div class="wrap">
+          <div class="section-title">
+            <div>
+              <p class="eyebrow">Pick your party size</p>
+              <h2>One clear price for your crew.</h2>
+            </div>
+            <p>Every plan is monthly and includes the same core server controls, daily backups, and scheduled tasks. Choose the capacity that fits your group today.</p>
+          </div>
+
+          <div class="plan-grid">
+            <article class="plan">
+              <span class="level">Starter Camp</span>
+              <h3>4 players</h3>
+              <p>For a small co-op group that wants a dependable world waiting for the next session.</p>
+              <div class="plan-price"><strong>$6.99</strong> <span>/ month</span></div>
+              <a class="button button-quiet" href="billing.html?plan=4">Choose Starter</a>
+            </article>
+            <article class="plan">
+              <span class="level">Explorer Outpost</span>
+              <h3>6 players</h3>
+              <p>For regular friend groups and families building a world together a few nights each week.</p>
+              <div class="plan-price"><strong>$8.99</strong> <span>/ month</span></div>
+              <a class="button button-quiet" href="billing.html?plan=6">Choose Explorer</a>
+            </article>
+            <article class="plan">
+              <span class="level">Frontier Base</span>
+              <h3>8 players</h3>
+              <p>For a growing group with bigger builds, longer sessions, and more people dropping in.</p>
+              <div class="plan-price"><strong>$10.99</strong> <span>/ month</span></div>
+              <a class="button button-quiet" href="billing.html?plan=8">Choose Frontier</a>
+            </article>
+            <article class="plan plan-guild">
+              <span class="level">Guild Hall</span>
+              <h3>12 players</h3>
+              <p>For small communities and creator groups that need a proper shared home world.</p>
+              <div class="plan-price"><strong>$14.99</strong> <span>/ month</span></div>
+              <a class="button button-primary" href="billing.html?plan=12">Choose Guild Hall</a>
+            </article>
+          </div>
+
+          <div class="included" aria-label="Included with every server">
+            <span>Daily backups</span><span>Downloadable world data</span><span>Self-service restores</span><span>Panel settings</span><span>Scheduled restarts</span>
+          </div>
+
+          <div class="palworld-feature">
+            <div class="palworld-feature-copy">
+              <p class="eyebrow">Bring the whole crew</p>
+              <h3>Your group, your pace, your world.</h3>
+              <p>Build, explore, and keep your Palworld adventure available for the people who make it worth returning to.</p>
+            </div>
+            <img src="https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1623730/ss_b3cea7c9f04a67d784d4c6a0c157a11d6268b189.1920x1080.jpg?t=1784714419" alt="Players riding and flying with Pals in Palworld" />
+          </div>
+        </div>
+      </section>
+
+      <section id="control">
+        <div class="wrap control-layout">
+          <div class="control-copy">
+            <p class="eyebrow">Your server, under your control</p>
+            <h2>Less waiting on a host. More time in your world.</h2>
+            <p>Use the server panel to manage your Palworld settings, scheduled tasks, files, and backup restores. The day-to-day tools stay with the people who actually play on the server.</p>
+            <div class="control-list">
+              <article><b>01</b><div><h3>Keep a copy of your world</h3><p>Daily backups are retained by us, and you can download available backups from the panel.</p></div></article>
+              <article><b>02</b><div><h3>Restore on your schedule</h3><p>Use the panel to restore available backups yourself when you need to roll a world back.</p></div></article>
+              <article><b>03</b><div><h3>Set the rules for your group</h3><p>Manage server settings and scheduled restarts without opening a support ticket for routine changes.</p></div></article>
+            </div>
+          </div>
+
+          <div class="control-art">
+            <img src="https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1623730/648ed4266fc18f413292292741304ef648421c55/ss_648ed4266fc18f413292292741304ef648421c55.1920x1080.jpg" alt="Player encountering a Pal in a Palworld cavern" />
+            <div class="control-art-copy"><span>YOUR WORLD, YOUR RULES</span><strong>Manage the details without losing the adventure.</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="how" id="how">
+        <div class="wrap">
+          <div class="section-title">
+            <div><p class="eyebrow">No long sales funnel</p><h2>From plan to panel in three steps.</h2></div>
+            <p>We keep the order flow simple. Choose the size of your group, complete secure checkout, then receive your server setup details.</p>
+          </div>
+          <div class="steps">
+            <article class="step"><span class="step-number">STEP 01</span><h3>Choose your plan</h3><p>Select the 4, 6, 8, or 12-player monthly plan that matches your group.</p></article>
+            <article class="step"><span class="step-number">STEP 02</span><h3>Check out securely</h3><p>Payment is handled securely. We do not collect or store your card details.</p></article>
+            <article class="step"><span class="step-number">STEP 03</span><h3>Set up your world</h3><p>Once setup is confirmed, use the panel to manage your server and invite your group.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel-tour" id="panel-tour">
+        <div class="wrap">
+          <div class="section-title">
+            <div><p class="eyebrow">The real SideQuest panel</p><h2>Tools that do more than start and stop.</h2></div>
+            <p>These are actual SideQuest panel screens. Import an existing world, manage files, or tune a Palworld world without digging through raw configuration files.</p>
+          </div>
+          <div class="panel-tabs" role="tablist" aria-label="Panel features">
+            <button class="panel-tab" type="button" role="tab" aria-selected="true" data-panel-target="console">Live Console</button>
+            <button class="panel-tab" type="button" role="tab" aria-selected="false" data-panel-target="files">File Manager</button>
+            <button class="panel-tab" type="button" role="tab" aria-selected="false" data-panel-target="import">World Import</button>
+            <button class="panel-tab" type="button" role="tab" aria-selected="false" data-panel-target="config">Easy-Config</button>
+            <button class="panel-tab" type="button" role="tab" aria-selected="false" data-panel-target="scheduler">Scheduler</button>
+          </div>
+          <article class="panel-view is-active" data-panel-view="console"><img src="assets/panel-console.png" alt="SideQuest live Palworld server console" /><div class="panel-view-copy"><h3>Live console</h3><p>Start, restart, monitor resource usage, and watch your server come online.</p></div></article>
+          <article class="panel-view" data-panel-view="files"><img src="assets/panel-files.png" alt="SideQuest server file manager" /><div class="panel-view-copy"><h3>File manager</h3><p>Browse and manage the files that make up your server.</p></div></article>
+          <article class="panel-view" data-panel-view="import"><img src="assets/panel-import.png" alt="SideQuest Palworld world import tool" /><div class="panel-view-copy"><h3>World import</h3><p>Move an existing dedicated-server world with guided steps and rollback protection.</p></div></article>
+          <article class="panel-view" data-panel-view="config"><img src="assets/panel-easy-config.png" alt="SideQuest Palworld easy configuration controls" /><div class="panel-view-copy"><h3>Easy-Config</h3><p>Adjust Palworld settings through clear controls rather than hunting through config files.</p></div></article>
+          <article class="panel-view" data-panel-view="scheduler"><img src="assets/panel-scheduler.png" alt="SideQuest daily maintenance task scheduler" /><div class="panel-view-copy"><h3>Task scheduler</h3><p>Build reliable routines with restarts, backups, commands, and maintenance tasks on a schedule you control.</p></div></article>
+        </div>
+      </section>
+
+      <section>
+        <div class="wrap">
+          <div class="section-title">
+            <div><p class="eyebrow">Straight answers</p><h2>Policies that are easy to find.</h2></div>
+            <p>We publish the practical details before checkout, including monthly cancellation, backups, support, refunds, and server data deletion.</p>
+          </div>
+          <div class="details">
+            <article class="detail"><h3>Refunds and cancellation</h3><p>Eligible new services may be refunded within 24 hours. Cancel before renewal and your server remains active through the paid period. <a href="policies.html">Read the policy</a></p></article>
+            <article class="detail"><h3>Your data</h3><p>Server data is removed 14 days after termination. Download the world files or backups you want to keep before then. <a href="policies.html">Read the policy</a></p></article>
+            <article class="detail"><h3>Support</h3><p>Support is handled in CST. Please allow up to 48 hours for a response to billing, plan, or normal server-management questions.</p></article>
+            <article class="detail"><h3>Existing customer?</h3><p>Access your server controls, files, backups, and scheduled tasks through the client panel. <a href="https://panel.sidequestservers.com" target="_blank" rel="noopener noreferrer">Open client portal</a></p></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="support">
+        <div class="wrap support-box">
+          <div><h2>Ready to give your world a home?</h2><p>Choose a server for your group, or sign in if you already have a SideQuest server.</p></div>
+          <a class="button button-primary" href="#plans">View plans</a>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="wrap footer-row">
+        <span>&copy; SideQuest Servers. Palworld hosting for groups. Palworld is a trademark of Pocketpair, Inc. SideQuest Servers is not affiliated with or endorsed by Pocketpair.</span>
+        <div class="footer-links"><a href="policies.html">Service policies</a><a href="mailto:support@sidequestservers.com">Contact support</a><a href="https://panel.sidequestservers.com" target="_blank" rel="noopener noreferrer">Client portal</a></div>
+      </div>
+    </footer>
+    <script>
+      document.querySelectorAll("[data-panel-target]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const target = button.dataset.panelTarget;
+          document.querySelectorAll("[data-panel-target]").forEach((tab) => tab.setAttribute("aria-selected", String(tab === button)));
+          document.querySelectorAll("[data-panel-view]").forEach((view) => view.classList.toggle("is-active", view.dataset.panelView === target));
+        });
+      });
+    </script>
+  </body>
+</html>
