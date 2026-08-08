@@ -58,6 +58,10 @@ section { padding: 6.2rem 0; }
 .game:hover { border-color: var(--cyan); transform: translateY(-5px); }
 .game::before { position: absolute; inset: 0; opacity: 0.7; content: ""; background: radial-gradient(circle at 82% 16%, var(--game-glow), transparent 33%), repeating-linear-gradient(135deg, transparent 0 16px, rgba(255, 255, 255, 0.025) 16px 17px); }
 .game > * { position: relative; }
+.game-art { height: 156px; margin: -1.35rem -1.35rem 1.25rem; overflow: hidden; border-bottom: 1px solid var(--line); background: var(--surface-deep); }
+.game-art::after { position: absolute; inset: 0; content: ""; background: linear-gradient(180deg, transparent 26%, rgba(7, 17, 31, 0.92) 100%); }
+.game-art img { width: 100%; height: 100%; display: block; object-fit: cover; transition: transform 300ms ease; }
+.game:hover .game-art img { transform: scale(1.05); }
 .game-palworld { --game-glow: rgba(109, 229, 245, 0.23); }
 .game-zomboid { --game-glow: rgba(255, 157, 123, 0.24); }
 .game-windrose { --game-glow: rgba(180, 239, 131, 0.23); }
@@ -96,6 +100,7 @@ footer { border-top: 1px solid rgba(192, 222, 239, 0.1); padding: 2rem 0 2.8rem;
 .game-brief span { display: block; color: var(--muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; }
 .game-brief strong { display: block; margin-top: 0.25rem; font-size: 0.9rem; }
 .game-panel { padding: 1.5rem; border: 1px solid var(--line); border-radius: 14px; background: rgba(9, 24, 40, 0.78); box-shadow: var(--shadow); }
+.game-panel-image { width: calc(100% + 3rem); height: 154px; display: block; margin: -1.5rem -1.5rem 1.4rem; border-bottom: 1px solid var(--line); object-fit: cover; }
 .game-panel .game-mark { margin-top: 0; }
 .game-panel h2 { margin: 1.5rem 0 0.4rem; font-size: 1.5rem; }
 .game-panel p { color: var(--muted); }
@@ -105,6 +110,17 @@ footer { border-top: 1px solid rgba(192, 222, 239, 0.1); padding: 2rem 0 2.8rem;
 .feature-list b { color: var(--cyan); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.68rem; letter-spacing: 0.12em; }
 .feature-list h3 { margin: 0.7rem 0 0.4rem; font-size: 1.08rem; }
 .feature-list p { margin: 0; color: var(--muted); font-size: 0.88rem; }
+.world-scene { position: relative; display: grid; min-height: 330px; grid-template-columns: minmax(0, 1fr) minmax(260px, 0.52fr); overflow: hidden; margin-top: 1rem; border: 1px solid var(--line); border-radius: 14px; background: var(--surface-deep); box-shadow: var(--shadow); }
+.world-scene img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.world-scene::after { position: absolute; inset: 0; content: ""; background: linear-gradient(90deg, rgba(7, 17, 31, 0.18), rgba(7, 17, 31, 0.88) 63%); }
+.scene-copy { position: relative; z-index: 1; grid-column: 2; align-self: end; padding: 2rem; }
+.scene-copy b { color: var(--lime); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.68rem; letter-spacing: 0.13em; }
+.scene-copy h3 { margin: 0.65rem 0 0.45rem; font-size: clamp(1.5rem, 3vw, 2.25rem); line-height: 1; letter-spacing: -0.05em; }
+.scene-copy p { margin: 0; color: #c1d3d5; }
+.routine-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.85rem; margin-top: 1rem; }
+.routine-grid div { padding: 1rem; border-top: 2px solid var(--accent, var(--lime)); background: rgba(255, 255, 255, 0.045); }
+.routine-grid span { display: block; color: var(--muted); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; }
+.routine-grid strong { display: block; margin-top: 0.35rem; font-size: 0.94rem; }
 
-@media (max-width: 900px) { .hero-grid, .section-head { grid-template-columns: 1fr; gap: 2.5rem; } .game-grid, .ops-grid, .feature-list { grid-template-columns: 1fr; } .game { min-height: 360px; } }
+@media (max-width: 900px) { .hero-grid, .section-head, .world-scene { grid-template-columns: 1fr; gap: 2.5rem; } .game-grid, .ops-grid, .feature-list, .routine-grid { grid-template-columns: 1fr; } .game { min-height: 360px; } .scene-copy { grid-column: 1; } .world-scene::after { background: linear-gradient(180deg, rgba(7, 17, 31, 0.1), rgba(7, 17, 31, 0.92) 70%); } }
 @media (max-width: 620px) { .wrap { width: min(100% - 1.5rem, 1180px); } .topbar-inner { min-height: auto; padding: 0.8rem 0; align-items: flex-start; flex-direction: column; } .nav { width: 100%; overflow-x: auto; padding-bottom: 0.1rem; } .nav a { white-space: nowrap; } .catalog-hero, .game-hero { padding: 4.8rem 0 3.8rem; } h1 { font-size: clamp(3.2rem, 16vw, 5rem); } .hero-actions { flex-direction: column; } .hero-actions .button { width: 100%; } section { padding: 4.5rem 0; } .support-box { align-items: flex-start; flex-direction: column; padding: 1.5rem; } .support-box .button { width: 100%; } .footer-row { flex-direction: column; } }
