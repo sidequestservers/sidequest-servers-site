@@ -77,9 +77,9 @@ export async function onRequestPost(context) {
     "8": context.env.STRIPE_PRICE_ID_8_MONTHLY,
     "12": context.env.STRIPE_PRICE_ID_12_MONTHLY
   }[plan];
-  if (!selectedPlan || !priceId || !stripeSecretKey) {
-    return jsonError("Stripe checkout is not configured for this plan.", 503);
-  }
+  if (!selectedPlan) return jsonError("The selected hosting plan is unavailable.", 400);
+  if (!priceId) return jsonError("Stripe pricing is not configured for this plan.", 503);
+  if (!stripeSecretKey) return jsonError("Stripe checkout is not configured.", 503);
   const reservation = await reserveAllocation(context, selectedPlan);
   if (!reservation) {
     return jsonError("Palworld capacity is currently full. Please check back soon.", 409);
