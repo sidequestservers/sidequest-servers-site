@@ -1,7 +1,7 @@
 import { getPlan, jsonError } from "../../_lib/plans";
 
 export async function onRequestPost(context) {
-  if (context.env.CHECKOUT_ENABLED !== "true") {
+  if (context.env.CHECKOUT_ENABLED !== "launch-ready") {
     return jsonError("Checkout is not available yet.", 503);
   }
 

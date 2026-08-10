@@ -292,6 +292,16 @@
         color: var(--primary);
       }
 
+      .development-notice {
+        margin-top: 1.3rem;
+        padding: 0.85rem 1rem;
+        border: 1px solid rgba(248, 184, 61, 0.45);
+        border-radius: 12px;
+        background: rgba(248, 184, 61, 0.1);
+        color: #ffe0a3;
+        font-size: 0.9rem;
+      }
+
       .success-box,
       .error-box {
         margin-top: 1rem;
@@ -386,8 +396,9 @@
           <div class="hero-headline">
             <h1>Choose your Palworld hosting plan.</h1>
             <p class="lead">
-              Choose the plan that fits your group, then continue to secure checkout.
+              Browse the current plan options while we finish preparing SideQuest Servers for launch.
             </p>
+            <p class="development-notice"><strong>Checkout is temporarily unavailable.</strong> The site and automated server setup are still under development. Please check back soon.</p>
             <div class="steps-row">
               <div class="step-pill">
                 <span class="num">1</span>
@@ -395,7 +406,7 @@
               </div>
               <div class="step-pill">
                 <span class="num">2</span>
-                <span>Secure checkout</span>
+                <span>Launch preparation</span>
               </div>
               <div class="step-pill">
                 <span class="num">3</span>
@@ -411,7 +422,7 @@
           <div class="card">
             <h2>Plan & server preferences</h2>
             <p class="sub">
-              Select a monthly plan. Payment details are entered securely during checkout.
+              Review the current monthly plan options. Checkout will be available after launch preparation is complete.
             </p>
 
             <form id="billing-form">
@@ -428,7 +439,7 @@
               </label>
 
               <p class="hint">
-                All plans bill monthly. After payment, we confirm your server setup before panel access is provided.
+                Plans are shown for launch preparation. Checkout and server setup are not available yet.
               </p>
             </form>
           </div>
@@ -452,17 +463,16 @@
             </div>
 
             <p class="summary-footnote">
-              You will be redirected to complete payment securely. Eligible new services may
-              be refunded within 24 hours of the initial purchase. By continuing, you agree to the
+              Checkout will be enabled after launch preparation is complete. Review the
               <a href="policies.html">service policies</a>.
             </p>
 
             <button id="checkout-button" class="btn btn-primary" type="button" disabled>
-              Select a plan to continue
+              Checkout coming soon
             </button>
 
             <p class="notice">
-              <strong>Secure payment:</strong> Card details are handled by our payment processor. Keep your payment confirmation for your records.
+              <strong>No payment information is collected here.</strong> Checkout is unavailable while the site is under development.
             </p>
 
             <div id="success-box" class="success-box" role="status" aria-live="polite"></div>
@@ -470,7 +480,7 @@
 
             <div class="badge-line">
               <span class="badge">Monthly plans</span>
-              <span class="badge">Secure checkout</span>
+              <span class="badge">Checkout coming soon</span>
               <span class="badge">Game server hosting</span>
               <span class="badge">Small US team</span>
             </div>
@@ -512,13 +522,13 @@
         if (planVal && plans[planVal]) {
           summaryPlan.textContent = plans[planVal].name;
           summaryPrice.textContent = `$${plans[planVal].price.toFixed(2)} / month`;
-          checkoutButton.disabled = false;
-          checkoutButton.textContent = "Continue to secure checkout";
+          checkoutButton.disabled = true;
+          checkoutButton.textContent = "Checkout coming soon";
         } else {
           summaryPlan.textContent = "No plan selected";
           summaryPrice.textContent = "$0.00";
           checkoutButton.disabled = true;
-          checkoutButton.textContent = "Select a plan to continue";
+          checkoutButton.textContent = "Checkout coming soon";
         }
         summaryPeriod.textContent = "Monthly";
       }

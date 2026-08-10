@@ -1,13 +1,13 @@
 # Payments and provisioning setup
 
-These endpoints are intentionally disabled until you finish the business setup. Stripe test-mode Checkout is available automatically when `STRIPE_SECRET_KEY` starts with `sk_test_`; live Checkout still requires `CHECKOUT_ENABLED=true` after the Stripe webhook, the D1 database, and Pterodactyl have all been tested together.
+These endpoints are intentionally disabled until you finish the business setup. Checkout, including Stripe test mode, requires `CHECKOUT_ENABLED=launch-ready` after the Stripe webhook, the D1 database, and Pterodactyl have all been tested together.
 
 ## Stripe test setup
 
 1. Create one recurring monthly Stripe Price for each plan.
 2. Add `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, and the four `STRIPE_PRICE_ID_*_MONTHLY` values as Cloudflare Pages secrets.
 3. In Stripe, add `https://your-domain/api/stripe/webhook` and subscribe it to `checkout.session.completed`.
-4. `CHECKOUT_ENABLED` is optional in Stripe test mode; keep `PROVISIONING_ENABLED=false` until the Palworld node has capacity.
+4. Keep `CHECKOUT_ENABLED` unset or set to any value other than `launch-ready` on production. Use `launch-ready` only in an isolated test environment, and keep `PROVISIONING_ENABLED=false` until the Palworld node has capacity.
 
 ## PayPal sandbox setup
 

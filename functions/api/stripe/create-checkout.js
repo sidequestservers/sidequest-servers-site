@@ -2,9 +2,8 @@ import { getPlan, jsonError } from "../../_lib/plans";
 
 export async function onRequestPost(context) {
   const stripeSecretKey = context.env.STRIPE_SECRET_KEY;
-  const stripeTestMode = stripeSecretKey?.startsWith("sk_test_");
-  if (context.env.CHECKOUT_ENABLED !== "true" && !stripeTestMode) {
-    return jsonError("Checkout is not available yet.", 503);
+  if (context.env.CHECKOUT_ENABLED !== "launch-ready") {
+    return jsonError("Checkout is temporarily unavailable while SideQuest Servers is under development.", 503);
   }
 
   const { plan } = await context.request.json().catch(() => ({}));
