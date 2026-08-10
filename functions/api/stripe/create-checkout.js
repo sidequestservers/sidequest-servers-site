@@ -44,6 +44,7 @@ async function reserveAllocation(context, plan) {
       if (!deployableResponse.ok || !(deployable.data || []).some(({ attributes }) => attributes.id === nodeId)) continue;
 
       for (const { attributes } of allocations) {
+        if (attributes.assigned) continue;
         if (attributes.alias !== allocationAliases[String(nodeId)]) continue;
         if (reservedIds.has(attributes.id)) continue;
         const reservationId = crypto.randomUUID();
