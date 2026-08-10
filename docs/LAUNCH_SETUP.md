@@ -23,12 +23,17 @@ Create an Application API key in the Pterodactyl admin panel. Never place it in 
 - `PTERODACTYL_APPLICATION_API_KEY`
 - `PTERODACTYL_NEST_ID`
 - `PTERODACTYL_EGG_ID`
-- `PTERODACTYL_ALLOCATION_ID` (one fixed allocation) or `PTERODACTYL_LOCATION_IDS_JSON` (for example `[1]` to let Pterodactyl choose an available allocation across a location)
+- `PTERODACTYL_NODE_IDS_JSON` (for example `[2,4]` for the Palworld capacity pool)
+- `PTERODACTYL_ALLOCATION_ALIASES_JSON` (for example `{"2":"node2.sidequestservers.com","4":"node3.sidequestservers.com"}`)
 - `PTERODACTYL_DOCKER_IMAGE`
 - `PROVISIONING_SECRET`
 - `PROVISIONING_ENABLED=false`
 
 Your confirmed panel values are: Palworld nest `5`, egg `15`, and Docker image `ghcr.io/ptero-eggs/steamcmd:debian`. Provisioning reads the egg startup command and all variable defaults from the Panel API, then sets a unique admin password, server name, and the player limit for the purchased plan. The provision endpoint is server-to-server only and must only be called after a verified payment webhook.
+
+Before enabling checkout, apply `database/capacity-reservations.sql` to D1. Checkout reserves one specific free allocation on the configured nodes for up to 24 hours. Once every allocation in that pool is either assigned or reserved, checkout returns a sold-out response instead of accepting another payment.
+
+The Palworld pool uses Node2 (`192.168.0.130`) ports `20000-20010` and Node3 (`192.168.0.140`) ports `30000-30010`. Set `PTERODACTYL_NODE_IDS_JSON=[2,4]` and `PTERODACTYL_ALLOCATION_ALIASES_JSON={"2":"node2.sidequestservers.com","4":"node3.sidequestservers.com"}`. Forward those ranges to their matching node IP addresses in the router. Checkout only selects free allocations with the matching alias, preventing it from using older allocations outside the forwarded ranges.
 
 ## Before enabling sales
 

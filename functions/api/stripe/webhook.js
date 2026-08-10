@@ -39,9 +39,11 @@ export async function onRequestPost(context) {
 
   const session = event.data?.object;
   const planId = String(session?.metadata?.plan || "");
+  const allocationId = Number(session?.metadata?.allocation_id);
+  const reservationId = String(session?.metadata?.reservation_id || "");
   const plan = getPlan(planId);
   const email = session?.customer_details?.email || session?.customer_email;
-  if (!session?.id || !email || !plan || session.payment_status !== "paid") {
+  if (!session?.id || !email || !plan || !Number.isInteger(allocationId) || !reservationId || session.payment_status !== "paid") {
     return jsonError("Unsupported completed checkout session.", 400);
   }
 
@@ -49,6 +51,14 @@ export async function onRequestPost(context) {
     return jsonError("Provisioning secret is not configured.", 503);
   }
   const orderId = `stripe_${session.id}`;
+  const handled = await context.env.DB.prepare(
+    "SELECT 1 FROM webhook_events WHERE provider = ? AND event_id = ?"
+  ).bind("stripe", event.id).first();
+  if (handled) return response("Event already handled.");
+  const reservation = await context.env.DB.prepare(
+    "SELECT allocation_id FROM checkout_reservations WHERE id = ? AND allocation_id = ? AND expires_at > unixepoch()"
+  ).bind(reservationId, allocationId).first();
+  if (!reservation) return jsonError("The reserved server slot is no longer available.", 409);
   const results = await context.env.DB.batch([
     context.env.DB.prepare("INSERT OR IGNORE INTO webhook_events (provider, event_id) VALUES (?, ?)").bind("stripe", event.id),
     context.env.DB.prepare(
@@ -71,13 +81,14 @@ export async function onRequestPost(context) {
     const provision = await fetch(`${new URL(context.request.url).origin}/api/provision`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Provisioning-Secret": context.env.PROVISIONING_SECRET },
-      body: JSON.stringify({ email, plan: planId, externalId: orderId, firstName, lastName: rest.join(" ") || "Customer" })
+      body: JSON.stringify({ email, plan: planId, externalId: orderId, allocationId, firstName, lastName: rest.join(" ") || "Customer" })
     });
     const result = await provision.json().catch(() => ({}));
     if (!provision.ok) throw new Error(result.message || "Provisioning request failed.");
     await context.env.DB.prepare(
       "UPDATE orders SET status = 'active', pterodactyl_user_id = ?, pterodactyl_server_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?"
     ).bind(result.userId || null, result.serverId || null, orderId).run();
+    await context.env.DB.prepare("DELETE FROM checkout_reservations WHERE id = ?").bind(reservationId).run();
     const customerName = String(session.customer_details?.name || "there").trim();
     const panelUrl = result.panelUrl || context.env.PTERODACTYL_PANEL_URL;
     await sendEmail(context.env, {

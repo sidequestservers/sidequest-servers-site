@@ -12,17 +12,18 @@ export async function onRequestPost(context) {
     return jsonError("Provisioning is not enabled.", 503);
   }
 
-  const { email, plan, externalId, firstName = "SideQuest", lastName = "Customer" } = await context.request.json().catch(() => ({}));
+  const { email, plan, externalId, allocationId, firstName = "SideQuest", lastName = "Customer" } = await context.request.json().catch(() => ({}));
   const selectedPlan = getPlan(plan);
-  if (!email || !externalId || !selectedPlan) return jsonError("Invalid provisioning request.");
+  const selectedAllocationId = Number(allocationId);
+  if (!email || !externalId || !selectedPlan || !Number.isInteger(selectedAllocationId)) {
+    return jsonError("Invalid provisioning request.");
+  }
 
   const panelUrl = context.env.PTERODACTYL_PANEL_URL?.replace(/\/$/, "");
   const apiKey = context.env.PTERODACTYL_APPLICATION_API_KEY;
   const nestId = Number(context.env.PTERODACTYL_NEST_ID || 0);
   const eggId = Number(context.env.PTERODACTYL_EGG_ID || 0);
-  const locationIds = JSON.parse(context.env.PTERODACTYL_LOCATION_IDS_JSON || "[]");
-  const defaultAllocation = Number(context.env.PTERODACTYL_ALLOCATION_ID || 0);
-  if (!panelUrl || !apiKey || !nestId || !eggId || (!defaultAllocation && !locationIds.length)) {
+  if (!panelUrl || !apiKey || !nestId || !eggId) {
     return jsonError("Pterodactyl is not configured.", 503);
   }
   const headers = {
@@ -65,9 +66,7 @@ export async function onRequestPost(context) {
       environment,
       limits: { memory: selectedPlan.memory, swap: 0, disk: selectedPlan.disk, io: 500, cpu: selectedPlan.cpu },
       feature_limits: { databases: 0, allocations: 0, backups: 1 },
-      ...(defaultAllocation
-        ? { allocation: { default: defaultAllocation } }
-        : { deployment: { locations: locationIds, dedicated_ip: false, port_range: [] } }),
+      allocation: { default: selectedAllocationId },
       start_on_completion: true,
       external_id: externalId
     })
