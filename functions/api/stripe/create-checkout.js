@@ -89,6 +89,12 @@ export async function onRequestPost(context) {
     "metadata[plan]": String(plan),
     "metadata[allocation_id]": String(reservation.allocationId),
     "metadata[reservation_id]": reservation.reservationId,
+    "custom_fields[0][key]": "panel_login_email",
+    "custom_fields[0][label][type]": "custom",
+    "custom_fields[0][label][custom]": "Panel login email",
+    "custom_fields[0][type]": "dropdown",
+    "custom_fields[0][dropdown][options][0][label]": "Use my checkout email for my Panel login",
+    "custom_fields[0][dropdown][options][0][value]": "checkout_email",
     "custom_text[submit][message]": "The email entered here will be used for your SideQuest control-panel login. After server setup, you will receive a separate email with a one-time link to create your password.",
     "expires_at": String(reservation.expiresAt)
   });
