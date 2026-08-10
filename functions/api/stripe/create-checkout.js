@@ -126,6 +126,7 @@ export async function onRequestPost(context) {
     return jsonError(`Unable to contact Stripe Checkout: ${error.message}`, 502);
   }
   if (!response.ok) {
+    console.error("Stripe Checkout creation failed:", result?.error?.message || result?.error?.code || response.status);
     await context.env.DB.prepare("DELETE FROM checkout_reservations WHERE id = ?").bind(reservation.reservationId).run();
     return jsonError("Unable to start Stripe Checkout.", 502);
   }
