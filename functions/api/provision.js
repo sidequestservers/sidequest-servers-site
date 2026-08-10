@@ -1,5 +1,9 @@
 import { getPlan, jsonError } from "../_lib/plans";
 
+function createAdminPassword() {
+  return crypto.randomUUID().replaceAll("-", "").slice(0, 24);
+}
+
 export async function onRequestPost(context) {
   if (context.request.headers.get("X-Provisioning-Secret") !== context.env.PROVISIONING_SECRET) {
     return jsonError("Unauthorized.", 401);
@@ -14,10 +18,11 @@ export async function onRequestPost(context) {
 
   const panelUrl = context.env.PTERODACTYL_PANEL_URL?.replace(/\/$/, "");
   const apiKey = context.env.PTERODACTYL_APPLICATION_API_KEY;
-  const environment = JSON.parse(context.env.PTERODACTYL_ENVIRONMENT_JSON || "{}");
+  const nestId = Number(context.env.PTERODACTYL_NEST_ID || 0);
+  const eggId = Number(context.env.PTERODACTYL_EGG_ID || 0);
   const locationIds = JSON.parse(context.env.PTERODACTYL_LOCATION_IDS_JSON || "[]");
   const defaultAllocation = Number(context.env.PTERODACTYL_ALLOCATION_ID || 0);
-  if (!panelUrl || !apiKey || !context.env.PTERODACTYL_EGG_ID || (!defaultAllocation && !locationIds.length)) {
+  if (!panelUrl || !apiKey || !nestId || !eggId || (!defaultAllocation && !locationIds.length)) {
     return jsonError("Pterodactyl is not configured.", 503);
   }
   const headers = {
@@ -25,6 +30,20 @@ export async function onRequestPost(context) {
     Accept: "Application/vnd.pterodactyl.v1+json",
     "Content-Type": "application/json"
   };
+  const eggResponse = await fetch(`${panelUrl}/api/application/nests/${nestId}/eggs/${eggId}?include=variables`, { headers });
+  const egg = await eggResponse.json().catch(() => ({}));
+  const variables = egg.attributes?.relationships?.variables?.data;
+  if (!eggResponse.ok || !egg.attributes?.startup || !Array.isArray(variables)) {
+    return jsonError("Unable to load the Palworld egg configuration.", 502);
+  }
+  const environment = Object.fromEntries(
+    variables.map(({ attributes }) => [attributes.env_variable, String(attributes.default_value ?? "")])
+  );
+  Object.assign(environment, {
+    ADMIN_PASSWORD: createAdminPassword(),
+    MAX_PLAYERS: String(selectedPlan.players),
+    SERVER_NAME: `SideQuest ${selectedPlan.name}`
+  });
   const username = `sq${String(externalId).replace(/[^a-z0-9]/gi, "").slice(-20)}`.toLowerCase();
   const userResponse = await fetch(`${panelUrl}/api/application/users`, {
     method: "POST",
@@ -40,9 +59,9 @@ export async function onRequestPost(context) {
     body: JSON.stringify({
       name: `${selectedPlan.name} - ${username}`,
       user: user.attributes.id,
-      egg: Number(context.env.PTERODACTYL_EGG_ID),
+      egg: eggId,
       docker_image: context.env.PTERODACTYL_DOCKER_IMAGE,
-      startup: context.env.PTERODACTYL_STARTUP,
+      startup: egg.attributes.startup,
       environment,
       limits: { memory: selectedPlan.memory, swap: 0, disk: selectedPlan.disk, io: 500, cpu: selectedPlan.cpu },
       feature_limits: { databases: 0, allocations: 0, backups: 1 },

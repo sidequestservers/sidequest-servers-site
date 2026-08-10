@@ -21,15 +21,14 @@ Create an Application API key in the Pterodactyl admin panel. Never place it in 
 
 - `PTERODACTYL_PANEL_URL`
 - `PTERODACTYL_APPLICATION_API_KEY`
+- `PTERODACTYL_NEST_ID`
 - `PTERODACTYL_EGG_ID`
 - `PTERODACTYL_ALLOCATION_ID` (one fixed allocation) or `PTERODACTYL_LOCATION_IDS_JSON` (for example `[1]` to let Pterodactyl choose an available allocation across a location)
 - `PTERODACTYL_DOCKER_IMAGE`
-- `PTERODACTYL_STARTUP`
-- `PTERODACTYL_ENVIRONMENT_JSON`
 - `PROVISIONING_SECRET`
 - `PROVISIONING_ENABLED=false`
 
-Your confirmed panel values are: Palworld nest `5`, egg `15`, and Docker image `ghcr.io/ptero-eggs/steamcmd:debian`. The environment JSON must still match the egg's required variables. The provision endpoint is server-to-server only and must only be called after a verified payment webhook.
+Your confirmed panel values are: Palworld nest `5`, egg `15`, and Docker image `ghcr.io/ptero-eggs/steamcmd:debian`. Provisioning reads the egg startup command and all variable defaults from the Panel API, then sets a unique admin password, server name, and the player limit for the purchased plan. The provision endpoint is server-to-server only and must only be called after a verified payment webhook.
 
 ## Before enabling sales
 
