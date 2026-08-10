@@ -396,9 +396,8 @@
           <div class="hero-headline">
             <h1>Choose your Palworld hosting plan.</h1>
             <p class="lead">
-              Browse the current plan options while we finish preparing SideQuest Servers for launch.
+              Select a plan and continue to Stripe's secure checkout.
             </p>
-            <p class="development-notice"><strong>Checkout is temporarily unavailable.</strong> The website is still under development. Please check back soon or reach out to <a href="mailto:support@sidequestservers.com?subject=Beta%20testing%20interest">support@sidequestservers.com</a> if you are interested in beta testing with a free trial.</p>
             <div class="steps-row">
               <div class="step-pill">
                 <span class="num">1</span>
@@ -406,7 +405,7 @@
               </div>
               <div class="step-pill">
                 <span class="num">2</span>
-                <span>Launch preparation</span>
+                <span>Secure checkout</span>
               </div>
               <div class="step-pill">
                 <span class="num">3</span>
@@ -422,7 +421,7 @@
           <div class="card">
             <h2>Plan & server preferences</h2>
             <p class="sub">
-              Review the current monthly plan options. Checkout will be available after launch preparation is complete.
+              Choose a monthly plan, then complete checkout securely through Stripe.
             </p>
 
             <form id="billing-form">
@@ -439,7 +438,7 @@
               </label>
 
               <p class="hint">
-                Plans are shown for launch preparation. Checkout and server setup are not available yet.
+                This checkout is currently configured for Stripe sandbox testing. No server will be provisioned during this test.
               </p>
             </form>
           </div>
@@ -463,16 +462,16 @@
             </div>
 
             <p class="summary-footnote">
-              Checkout will be enabled after launch preparation is complete. Review the
+              Stripe securely processes your payment details. Review the
               <a href="policies.html">service policies</a>.
             </p>
 
             <button id="checkout-button" class="btn btn-primary" type="button" disabled>
-              Checkout coming soon
+              Select a plan to continue
             </button>
 
             <p class="notice">
-              <strong>No payment information is collected here.</strong> Checkout is unavailable while the site is under development.
+              <strong>Stripe sandbox test:</strong> use Stripe test payment details only. Provisioning remains disabled.
             </p>
 
             <div id="success-box" class="success-box" role="status" aria-live="polite"></div>
@@ -480,7 +479,7 @@
 
             <div class="badge-line">
               <span class="badge">Monthly plans</span>
-              <span class="badge">Checkout coming soon</span>
+              <span class="badge">Stripe test checkout</span>
               <span class="badge">Game server hosting</span>
               <span class="badge">Small US team</span>
             </div>
@@ -522,13 +521,13 @@
         if (planVal && plans[planVal]) {
           summaryPlan.textContent = plans[planVal].name;
           summaryPrice.textContent = `$${plans[planVal].price.toFixed(2)} / month`;
-          checkoutButton.disabled = true;
-          checkoutButton.textContent = "Checkout coming soon";
+          checkoutButton.disabled = false;
+          checkoutButton.textContent = "Continue to secure checkout";
         } else {
           summaryPlan.textContent = "No plan selected";
           summaryPrice.textContent = "$0.00";
           checkoutButton.disabled = true;
-          checkoutButton.textContent = "Checkout coming soon";
+          checkoutButton.textContent = "Select a plan to continue";
         }
         summaryPeriod.textContent = "Monthly";
       }
