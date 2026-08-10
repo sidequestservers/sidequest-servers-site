@@ -76,7 +76,9 @@ export async function onRequestPost(context) {
     return jsonError("Stripe checkout is not configured for this plan.", 503);
   }
   const reservation = await reserveAllocation(context, selectedPlan);
-  if (!reservation) return jsonError("All Palworld server slots are currently full. Please check back soon.", 409);
+  if (!reservation) {
+    return jsonError("Palworld capacity is currently full. Please check back soon.", 409);
+  }
 
   const form = new URLSearchParams({
     mode: "subscription",
@@ -87,6 +89,7 @@ export async function onRequestPost(context) {
     "metadata[plan]": String(plan),
     "metadata[allocation_id]": String(reservation.allocationId),
     "metadata[reservation_id]": reservation.reservationId,
+    "custom_text[submit][message]": "The email entered here will be used for your SideQuest control-panel login. After server setup, you will receive a separate email with a one-time link to create your password.",
     "expires_at": String(reservation.expiresAt)
   });
   const response = await fetch("https://api.stripe.com/v1/checkout/sessions", {

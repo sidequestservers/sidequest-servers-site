@@ -94,8 +94,8 @@ export async function onRequestPost(context) {
     await sendEmail(context.env, {
       to: email,
       subject: "Your SideQuest Servers game server is ready",
-      text: `Hi ${customerName},\n\nYour ${plan.name} game server is ready. Sign in to the control panel at ${panelUrl}. If this is your first server, check for a separate account setup email from the panel.\n\nQuestions? Reply to this email or contact support@sidequestservers.com.`,
-      html: `<p>Hi ${escapeHtml(customerName)},</p><p>Your <strong>${escapeHtml(plan.name)}</strong> game server is ready.</p><p><a href="${escapeHtml(panelUrl)}">Open the control panel</a></p><p>If this is your first server, check for a separate account setup email from the panel.</p><p>Questions? Reply to this email or contact <a href="mailto:support@sidequestservers.com">support@sidequestservers.com</a>.</p>`
+      text: `Hi ${customerName},\n\nYour ${plan.name} game server is ready. Your Stripe email is also your control-panel login. The panel sends a separate Setup Your Account email with a one-time link to create your password.\n\nOpen the control panel: ${panelUrl}\n\nQuestions? Reply to this email or contact support@sidequestservers.com.`,
+      html: `<p>Hi ${escapeHtml(customerName)},</p><p>Your <strong>${escapeHtml(plan.name)}</strong> game server is ready.</p><p>Your Stripe email is also your control-panel login. The Panel sends a separate <strong>Setup Your Account</strong> email with a one-time link to create your password.</p><p><a href="${escapeHtml(panelUrl)}">Open the control panel</a></p><p>Questions? Reply to this email or contact <a href="mailto:support@sidequestservers.com">support@sidequestservers.com</a>.</p>`
     });
     return response("Payment recorded and server provisioned.");
   } catch (error) {
