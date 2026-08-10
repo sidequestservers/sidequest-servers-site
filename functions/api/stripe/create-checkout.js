@@ -80,7 +80,13 @@ export async function onRequestPost(context) {
   if (!selectedPlan) return jsonError("The selected hosting plan is unavailable.", 400);
   if (!priceId) return jsonError("Stripe pricing is not configured for this plan.", 503);
   if (!stripeSecretKey) return jsonError("Stripe checkout is not configured.", 503);
-  const reservation = await reserveAllocation(context, selectedPlan);
+  let reservation;
+  try {
+    reservation = await reserveAllocation(context, selectedPlan);
+  } catch (error) {
+    console.error("Palworld capacity check failed:", error);
+    return jsonError(`Palworld capacity check failed: ${error.message}`, 503);
+  }
   if (!reservation) {
     return jsonError("Palworld capacity is currently full. Please check back soon.", 409);
   }
