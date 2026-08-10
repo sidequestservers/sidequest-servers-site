@@ -71,7 +71,12 @@ export async function onRequestPost(context) {
 
   const { plan } = await context.request.json().catch(() => ({}));
   const selectedPlan = getPlan(plan);
-  const priceId = context.env[`STRIPE_PRICE_ID_${plan}_MONTHLY`];
+  const priceId = {
+    "4": context.env.STRIPE_PRICE_ID_4_MONTHLY,
+    "6": context.env.STRIPE_PRICE_ID_6_MONTHLY,
+    "8": context.env.STRIPE_PRICE_ID_8_MONTHLY,
+    "12": context.env.STRIPE_PRICE_ID_12_MONTHLY
+  }[plan];
   if (!selectedPlan || !priceId || !stripeSecretKey) {
     return jsonError("Stripe checkout is not configured for this plan.", 503);
   }
