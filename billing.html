@@ -396,7 +396,7 @@
           <div class="hero-headline">
             <h1>Choose your Palworld hosting plan.</h1>
             <p class="lead">
-              Select a plan and continue to Stripe's secure checkout.
+              Plan checkout is temporarily unavailable while we complete subscription lifecycle automation.
             </p>
             <div class="steps-row">
               <div class="step-pill">
@@ -405,7 +405,7 @@
               </div>
               <div class="step-pill">
                 <span class="num">2</span>
-                <span>Secure checkout</span>
+                <span>Checkout paused</span>
               </div>
               <div class="step-pill">
                 <span class="num">3</span>
@@ -421,7 +421,7 @@
           <div class="card">
             <h2>Plan & server preferences</h2>
             <p class="sub">
-              Choose a monthly plan, then complete checkout securely through Stripe.
+              Review available plans while checkout remains temporarily paused.
             </p>
 
             <form id="billing-form">
@@ -438,7 +438,7 @@
               </label>
 
               <p class="hint">
-                <strong>Panel login:</strong> the email entered at Stripe becomes your SideQuest control-panel login. After payment and server setup, the Panel sends a separate one-time link to create your password.
+                Checkout is paused while we complete subscription lifecycle automation.
               </p>
             </form>
           </div>
@@ -462,16 +462,16 @@
             </div>
 
             <p class="summary-footnote">
-              Stripe securely processes your payment details. Review the
+              Checkout will return after lifecycle automation is complete. Review the
               <a href="policies.html">service policies</a>.
             </p>
 
             <button id="checkout-button" class="btn btn-primary" type="button" disabled>
-              Select a plan to continue
+              Checkout temporarily unavailable
             </button>
 
             <p class="notice">
-              <strong>Stripe sandbox test:</strong> use your preferred login email and Stripe test payment details. Provisioning remains disabled for this test.
+              <strong>Checkout paused:</strong> subscription lifecycle automation is being completed.
             </p>
 
             <div id="success-box" class="success-box" role="status" aria-live="polite"></div>
@@ -479,7 +479,7 @@
 
             <div class="badge-line">
               <span class="badge">Monthly plans</span>
-              <span class="badge">Stripe test checkout</span>
+              <span class="badge">Checkout paused</span>
               <span class="badge">Game server hosting</span>
               <span class="badge">Small US team</span>
             </div>
@@ -508,6 +508,7 @@
       const summaryPeriod = document.getElementById("summary-period");
       const summaryPrice = document.getElementById("summary-price");
       const checkoutButton = document.getElementById("checkout-button");
+      const checkoutAvailable = false;
       const successBox = document.getElementById("success-box");
       const errorBox = document.getElementById("error-box");
 
@@ -521,13 +522,13 @@
         if (planVal && plans[planVal]) {
           summaryPlan.textContent = plans[planVal].name;
           summaryPrice.textContent = `$${plans[planVal].price.toFixed(2)} / month`;
-          checkoutButton.disabled = false;
-          checkoutButton.textContent = "Continue to secure checkout";
+          checkoutButton.disabled = !checkoutAvailable;
+          checkoutButton.textContent = checkoutAvailable ? "Continue to secure checkout" : "Checkout temporarily unavailable";
         } else {
           summaryPlan.textContent = "No plan selected";
           summaryPrice.textContent = "$0.00";
           checkoutButton.disabled = true;
-          checkoutButton.textContent = "Select a plan to continue";
+          checkoutButton.textContent = "Checkout temporarily unavailable";
         }
         summaryPeriod.textContent = "Monthly";
       }
