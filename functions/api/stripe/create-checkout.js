@@ -109,15 +109,22 @@ export async function onRequestPost(context) {
     "custom_text[submit][message]": "The email entered here will be used for your SideQuest control-panel login. After server setup, you will receive a separate email with a one-time link to create your password.",
     "expires_at": String(reservation.expiresAt)
   });
-  const response = await fetch("https://api.stripe.com/v1/checkout/sessions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${stripeSecretKey}`,
-      "Content-Type": "application/x-www-form-urlencoded"
-    },
-    body: form
-  });
-  const result = await response.json();
+  let response;
+  let result;
+  try {
+    response = await fetch("https://api.stripe.com/v1/checkout/sessions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${stripeSecretKey}`,
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: form
+    });
+    result = await response.json();
+  } catch (error) {
+    console.error("Stripe Checkout request failed:", error);
+    return jsonError(`Unable to contact Stripe Checkout: ${error.message}`, 502);
+  }
   if (!response.ok) {
     await context.env.DB.prepare("DELETE FROM checkout_reservations WHERE id = ?").bind(reservation.reservationId).run();
     return jsonError("Unable to start Stripe Checkout.", 502);
