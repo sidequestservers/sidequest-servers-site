@@ -13,4 +13,4 @@ git push origin main
 
 Cloudflare Pages deploys the pushed `main` commit automatically. Verify `https://sidequestservers.com` after the deployment completes.
 
-The new catalog styling lives in `game-catalog.css`. The current homepage links to `palworld.html`, `project-zomboid.html`, and `windrose.html`.
+The new catalog styling lives in `game-catalog.css`. The current homepage links to `palworld.html` and `project-zomboid.html`.
