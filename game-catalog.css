@@ -53,7 +53,7 @@ section { padding: 6.2rem 0; }
 .section-head { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 0.65fr); gap: 2rem; align-items: end; margin-bottom: 2.2rem; }
 .section-head h2 { max-width: 14ch; margin: 0; font-size: clamp(2.2rem, 4.1vw, 3.7rem); line-height: 0.98; letter-spacing: -0.06em; }
 .section-head > p { max-width: 44ch; margin: 0; color: var(--muted); }
-.game-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+.game-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 420px)); justify-content: center; gap: 1rem; }
 .game { position: relative; display: flex; min-height: 420px; flex-direction: column; overflow: hidden; padding: 1.35rem; border: 1px solid var(--line); border-radius: 13px; background: linear-gradient(160deg, #132d43, #0d2033); box-shadow: var(--shadow); transition: transform 180ms ease, border 180ms ease; }
 .game:hover { border-color: var(--cyan); transform: translateY(-5px); }
 .game::before { position: absolute; inset: 0; opacity: 0.7; content: ""; background: radial-gradient(circle at 82% 16%, var(--game-glow), transparent 33%), repeating-linear-gradient(135deg, transparent 0 16px, rgba(255, 255, 255, 0.025) 16px 17px); }
