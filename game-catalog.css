@@ -105,6 +105,15 @@ footer { border-top: 1px solid rgba(192, 222, 239, 0.1); padding: 2rem 0 2.8rem;
 .game-panel h2 { margin: 1.5rem 0 0.4rem; font-size: 1.5rem; }
 .game-panel p { color: var(--muted); }
 .game-panel .button { width: 100%; margin-top: 1rem; }
+.zomboid-pricing { background: #0b1b2c; }
+.zomboid-plan-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.85rem; }
+.zomboid-plan-grid article { display: flex; min-height: 260px; flex-direction: column; padding: 1.3rem; border: 1px solid var(--line); border-top: 2px solid var(--coral); border-radius: 10px; background: linear-gradient(145deg, #112b40, #0a1929); }
+.zomboid-plan-grid span { color: var(--coral); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; }
+.zomboid-plan-grid h3 { margin: 1rem 0 0.2rem; font-size: 1.45rem; letter-spacing: -0.04em; }
+.zomboid-plan-grid p { margin: 0; color: var(--muted); font-size: 0.88rem; }
+.zomboid-plan-grid strong { margin: 1.35rem 0; font-size: 1.7rem; letter-spacing: -0.05em; }
+.zomboid-plan-grid small { color: var(--muted); font-size: 0.75rem; font-weight: 600; letter-spacing: 0; }
+.zomboid-plan-grid .button { width: 100%; margin-top: auto; }
 .feature-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.85rem; }
 .feature-list article { padding: 1.3rem; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
 .feature-list b { color: var(--cyan); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.68rem; letter-spacing: 0.12em; }
@@ -122,5 +131,5 @@ footer { border-top: 1px solid rgba(192, 222, 239, 0.1); padding: 2rem 0 2.8rem;
 .routine-grid span { display: block; color: var(--muted); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; }
 .routine-grid strong { display: block; margin-top: 0.35rem; font-size: 0.94rem; }
 
-@media (max-width: 900px) { .hero-grid, .section-head, .world-scene { grid-template-columns: 1fr; gap: 2.5rem; } .game-grid, .ops-grid, .feature-list, .routine-grid { grid-template-columns: 1fr; } .game { min-height: 360px; } .scene-copy { grid-column: 1; } .world-scene::after { background: linear-gradient(180deg, rgba(7, 17, 31, 0.1), rgba(7, 17, 31, 0.92) 70%); } }
-@media (max-width: 620px) { .wrap { width: min(100% - 1.5rem, 1180px); } .topbar-inner { min-height: auto; padding: 0.8rem 0; align-items: flex-start; flex-direction: column; } .nav { width: 100%; overflow-x: auto; padding-bottom: 0.1rem; } .nav a { white-space: nowrap; } .catalog-hero, .game-hero { padding: 4.8rem 0 3.8rem; } h1 { font-size: clamp(3.2rem, 16vw, 5rem); } .hero-actions { flex-direction: column; } .hero-actions .button { width: 100%; } section { padding: 4.5rem 0; } .support-box { align-items: flex-start; flex-direction: column; padding: 1.5rem; } .support-box .button { width: 100%; } .footer-row { flex-direction: column; } }
+@media (max-width: 900px) { .hero-grid, .section-head, .world-scene { grid-template-columns: 1fr; gap: 2.5rem; } .game-grid, .ops-grid, .feature-list, .routine-grid { grid-template-columns: 1fr; } .zomboid-plan-grid { grid-template-columns: repeat(2, 1fr); } .game { min-height: 360px; } .scene-copy { grid-column: 1; } .world-scene::after { background: linear-gradient(180deg, rgba(7, 17, 31, 0.1), rgba(7, 17, 31, 0.92) 70%); } }
+@media (max-width: 620px) { .wrap { width: min(100% - 1.5rem, 1180px); } .topbar-inner { min-height: auto; padding: 0.8rem 0; align-items: flex-start; flex-direction: column; } .nav { width: 100%; overflow-x: auto; padding-bottom: 0.1rem; } .nav a { white-space: nowrap; } .catalog-hero, .game-hero { padding: 4.8rem 0 3.8rem; } h1 { font-size: clamp(3.2rem, 16vw, 5rem); } .hero-actions { flex-direction: column; } .hero-actions .button { width: 100%; } section { padding: 4.5rem 0; } .zomboid-plan-grid { grid-template-columns: 1fr; } .support-box { align-items: flex-start; flex-direction: column; padding: 1.5rem; } .support-box .button { width: 100%; } .footer-row { flex-direction: column; } }
