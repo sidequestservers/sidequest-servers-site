@@ -21,6 +21,7 @@
         --cyan: #6de5f5;
         --lime: #b4ef83;
         --coral: #ff9d7b;
+        --gold: #ffd36d;
         --shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
       }
 
@@ -168,19 +169,29 @@
         flex-direction: column;
         padding: 1.3rem;
         border: 1px solid var(--line);
+        border-top: 2px solid var(--coral);
         border-radius: 10px;
         background: linear-gradient(160deg, #132d43, #0d2033);
         transition: border 180ms ease, transform 180ms ease;
       }
       .plan:hover { border-color: var(--cyan); transform: translateY(-5px); }
-      .plan .level { color: var(--cyan); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.11em; text-transform: uppercase; }
+      .plan .level { color: var(--coral); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.11em; text-transform: uppercase; }
       .plan h3 { margin: 1rem 0 0.5rem; font-size: 1.2rem; letter-spacing: -0.03em; }
       .plan p { margin: 0; color: var(--muted); font-size: 0.86rem; }
       .plan-price { margin-top: auto; padding-top: 1.15rem; border-top: 1px solid var(--line); }
       .plan-price strong { font-size: 1.55rem; letter-spacing: -0.05em; }
       .plan-price span { color: var(--muted); font-size: 0.78rem; }
       .plan .button { width: 100%; margin-top: 0.9rem; min-height: 43px; font-size: 0.74rem; }
-      .plan-guild { border-color: rgba(180, 239, 131, 0.5); }
+      .plan-grid .plan:nth-child(1) .button { color: #07111f; background: var(--coral); box-shadow: 5px 5px 0 rgba(255, 157, 123, 0.7); }
+      .plan-grid .plan:nth-child(2) { border-top-color: var(--cyan); }
+      .plan-grid .plan:nth-child(2) .level { color: var(--cyan); }
+      .plan-grid .plan:nth-child(2) .button { color: #07111f; background: var(--cyan); box-shadow: 5px 5px 0 rgba(109, 229, 245, 0.7); }
+      .plan-grid .plan:nth-child(3) { border-top-color: var(--gold); }
+      .plan-grid .plan:nth-child(3) .level { color: var(--gold); }
+      .plan-grid .plan:nth-child(3) .button { color: #07111f; background: var(--gold); box-shadow: 5px 5px 0 rgba(255, 211, 109, 0.7); }
+      .plan-guild { border-top-color: var(--lime); }
+      .plan-guild .level { color: var(--lime); }
+      .plan-guild .button { box-shadow: 5px 5px 0 rgba(180, 239, 131, 0.7); }
       .included { display: flex; flex-wrap: wrap; gap: 0.65rem; margin-top: 1.5rem; }
       .included span { padding: 0.4rem 0.62rem; border: 1px solid rgba(180, 239, 131, 0.26); border-radius: 99px; color: #d4edc1; background: rgba(180, 239, 131, 0.06); font-size: 0.76rem; }
       .palworld-feature { display: grid; grid-template-columns: 0.82fr 1.18fr; margin-top: 2rem; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: #10283a; box-shadow: var(--shadow); }
