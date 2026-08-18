@@ -80,6 +80,7 @@ section { padding: 6.2rem 0; }
 .coming { display: grid; min-height: 170px; place-items: center; padding: 1.5rem; border: 1px dashed rgba(109, 229, 245, 0.45); border-radius: 13px; background: rgba(12, 28, 47, 0.45); text-align: center; }
 .coming strong { display: block; font-size: 1.25rem; letter-spacing: -0.04em; }
 .coming p { max-width: 44ch; margin: 0.5rem 0 0; color: var(--muted); }
+.coming p a { color: var(--cyan); }
 .operations { background: #0b1b2c; }
 .ops-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.85rem; }
 .ops-card { padding: 1.35rem; border: 1px solid var(--line); border-radius: 10px; background: linear-gradient(145deg, #112b40, #0a1929); }
