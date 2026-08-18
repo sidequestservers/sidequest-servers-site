@@ -44,7 +44,7 @@ h1 { max-width: 11ch; margin: 0; font-size: clamp(3.5rem, 7.2vw, 6.5rem); font-w
 .signal { position: relative; overflow: hidden; padding: 1.35rem; border: 1px solid rgba(109, 229, 245, 0.4); border-radius: 14px; background: linear-gradient(145deg, rgba(20, 50, 71, 0.92), rgba(9, 24, 40, 0.94)); box-shadow: var(--shadow), 12px 12px 0 rgba(180, 239, 131, 0.1); }
 .signal > span { display: flex; align-items: center; justify-content: space-between; color: var(--cyan); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.88rem; font-weight: 700; letter-spacing: 0.12em; }
 .signal > span::after { width: 9px; height: 9px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 16px var(--lime); content: ""; }
-.signal h2 { margin: 2.3rem 0 0.35rem; font-size: clamp(1.55rem, 3vw, 2.1rem); letter-spacing: -0.045em; }
+.signal h2 { margin: 1.15rem 0 0.35rem; font-size: clamp(1.55rem, 3vw, 2.1rem); letter-spacing: -0.045em; }
 .signal p { margin: 0; color: var(--muted); font-size: 0.9rem; }
 .signal-list { display: grid; gap: 0.55rem; margin-top: 1.5rem; }
 .signal-list div { display: flex; justify-content: space-between; padding-top: 0.6rem; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.8rem; }
