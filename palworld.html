@@ -249,6 +249,14 @@
       .panel-view-copy p { margin: 0.7rem 0 0; color: var(--muted); }
       .panel-view-copy::before { margin-bottom: 0.9rem; color: var(--lime); content: "SIDEQUEST PANEL"; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.13em; }
 
+      .faq { background: linear-gradient(140deg, #10283a, #091829); }
+      .faq-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; }
+      .faq-item { padding: 1.4rem; border: 1px solid var(--line); border-top: 2px solid var(--cyan); border-radius: 10px; background: rgba(9, 24, 39, 0.65); }
+      .faq-item:nth-child(2) { border-top-color: var(--coral); }
+      .faq-item:nth-child(3) { border-top-color: var(--lime); }
+      .faq-item h3 { margin: 0; font-size: 1.12rem; letter-spacing: -0.03em; }
+      .faq-item p { margin: 0.7rem 0 0; color: var(--muted); font-size: 0.9rem; }
+
       .how { background: linear-gradient(140deg, #112a3a, #0a1727); }
       .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
       .step { position: relative; padding: 1.35rem; border: 1px solid var(--line); border-radius: 10px; background: rgba(9, 24, 39, 0.42); }
@@ -288,7 +296,7 @@
         h1 { font-size: clamp(3.25rem, 16vw, 5rem); }
         .hero-actions { flex-direction: column; }
         .hero-actions .button { width: 100%; }
-        .trust-inner, .section-title, .steps, .details { grid-template-columns: 1fr; }
+        .trust-inner, .section-title, .steps, .faq-grid, .details { grid-template-columns: 1fr; }
         .trust-item { border-right: 0; border-bottom: 1px solid var(--line); }
         .trust-item:last-child { border-bottom: 0; }
         section { padding: 4.5rem 0; }
@@ -459,6 +467,20 @@
           <article class="panel-view" data-panel-view="import"><img src="assets/panel-import.png" alt="SideQuest Palworld world import tool" /><div class="panel-view-copy"><h3>World import</h3><p>Move an existing dedicated-server world with guided steps and rollback protection.</p></div></article>
           <article class="panel-view" data-panel-view="config"><img src="assets/panel-easy-config.png" alt="SideQuest Palworld easy configuration controls" /><div class="panel-view-copy"><h3>Easy-Config</h3><p>Adjust Palworld settings through clear controls rather than hunting through config files.</p></div></article>
           <article class="panel-view" data-panel-view="scheduler"><img src="assets/panel-scheduler.png" alt="SideQuest daily maintenance task scheduler" /><div class="panel-view-copy"><h3>Task scheduler</h3><p>Build reliable routines with restarts, backups, commands, and maintenance tasks on a schedule you control.</p></div></article>
+        </div>
+      </section>
+
+      <section class="faq">
+        <div class="wrap">
+          <div class="section-title">
+            <div><p class="eyebrow">Palworld FAQ</p><h2>Answers before you start.</h2></div>
+            <p>What to expect from your SideQuest Palworld server, from crossplay to updates.</p>
+          </div>
+          <div class="faq-grid">
+            <article class="faq-item"><h3>Does Palworld have crossplay?</h3><p>Palworld servers support crossplay across PC, PS5, and Xbox. One server lets everyone play together, so your whole group shares the same world no matter which platform they play on.</p></article>
+            <article class="faq-item"><h3>Can I use mods on my Palworld server?</h3><p>No, mod support is not currently offered for our Palworld servers. You can fully customize gameplay variables using the Easy-Config tab within the Console Interface.</p></article>
+            <article class="faq-item"><h3>Do you support Palworld updates and expansions, like the 1.0 release?</h3><p>Yes. Our Palworld servers stay current with game updates, including the major 1.0 release. When a new version releases, servers update automatically so your world is always running the latest version.</p></article>
+          </div>
         </div>
       </section>
 
