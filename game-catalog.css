@@ -82,11 +82,28 @@ section { padding: 6.2rem 0; }
 .coming p { max-width: 44ch; margin: 0.5rem 0 0; color: var(--muted); }
 .coming p a { color: var(--cyan); }
 .operations { background: #0b1b2c; }
-.ops-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.85rem; }
+.ops-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.85rem; }
 .ops-card { padding: 1.35rem; border: 1px solid var(--line); border-radius: 10px; background: linear-gradient(145deg, #112b40, #0a1929); }
 .ops-card b { color: var(--lime); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.68rem; letter-spacing: 0.12em; }
 .ops-card h3 { margin: 0.65rem 0 0.45rem; font-size: 1.08rem; }
 .ops-card p { margin: 0; color: var(--muted); font-size: 0.88rem; }
+.launch-flow { overflow: hidden; background: linear-gradient(135deg, #0b2335, #07111f); }
+.launch-layout { display: grid; grid-template-columns: minmax(0, 0.86fr) minmax(360px, 1.14fr); gap: 4rem; align-items: center; }
+.launch-copy h2 { max-width: 11ch; margin: 0; font-size: clamp(2.35rem, 4.5vw, 4rem); line-height: 0.95; letter-spacing: -0.065em; }
+.launch-copy > p { max-width: 48ch; margin: 1.3rem 0 0; color: var(--muted); }
+.launch-steps { display: grid; gap: 0.9rem; margin: 2rem 0 0; padding: 0; list-style: none; }
+.launch-steps li { display: grid; grid-template-columns: 38px 1fr; gap: 0.85rem; align-items: start; }
+.launch-steps li > span { display: grid; width: 36px; height: 36px; place-items: center; border: 1px solid rgba(109, 229, 245, 0.45); border-radius: 7px; color: var(--cyan); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.7rem; font-weight: 700; }
+.launch-steps strong { display: block; font-size: 1rem; }
+.launch-steps p { margin: 0.16rem 0 0; color: var(--muted); font-size: 0.87rem; }
+.launch-notes { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.7rem; }
+.launch-notes span { padding: 0.38rem 0.58rem; border: 1px solid rgba(180, 239, 131, 0.32); border-radius: 99px; color: var(--lime); background: rgba(180, 239, 131, 0.07); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.63rem; font-weight: 700; letter-spacing: 0.1em; }
+.panel-preview { position: relative; overflow: hidden; margin: 0; border: 1px solid rgba(109, 229, 245, 0.36); border-radius: 14px; background: #07111f; box-shadow: var(--shadow), 12px 12px 0 rgba(180, 239, 131, 0.1); }
+.panel-preview::after { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 48%, rgba(7, 17, 31, 0.94) 100%); content: ""; }
+.panel-preview img { width: 100%; min-height: 390px; display: block; object-fit: cover; object-position: top; }
+.panel-preview figcaption { position: absolute; z-index: 1; right: 1.5rem; bottom: 1.35rem; left: 1.5rem; }
+.panel-preview figcaption span { color: var(--lime); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.12em; }
+.panel-preview figcaption strong { display: block; max-width: 20ch; margin-top: 0.35rem; font-size: clamp(1.35rem, 2.8vw, 2rem); line-height: 1; letter-spacing: -0.045em; }
 .support { padding-top: 0; }
 .support-box { display: flex; align-items: center; justify-content: space-between; gap: 2rem; padding: 2.3rem; border: 1px solid rgba(180, 239, 131, 0.32); border-radius: 13px; background: linear-gradient(120deg, #17333b, #0f283a); box-shadow: var(--shadow); }
 .support-box h2 { margin: 0; font-size: clamp(1.7rem, 3vw, 2.5rem); letter-spacing: -0.05em; }
@@ -142,5 +159,5 @@ footer { border-top: 1px solid rgba(192, 222, 239, 0.1); padding: 2rem 0 2.8rem;
 .routine-grid span { display: block; color: var(--muted); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; }
 .routine-grid strong { display: block; margin-top: 0.35rem; font-size: 0.94rem; }
 
-@media (max-width: 900px) { .hero-grid, .section-head, .world-scene { grid-template-columns: 1fr; gap: 2.5rem; } .game-grid, .ops-grid, .feature-list, .routine-grid { grid-template-columns: 1fr; } .zomboid-plan-grid { grid-template-columns: repeat(2, 1fr); } .game { min-height: 360px; } .scene-copy { grid-column: 1; } .world-scene::after { background: linear-gradient(180deg, rgba(7, 17, 31, 0.1), rgba(7, 17, 31, 0.92) 70%); } }
-@media (max-width: 620px) { .wrap { width: min(100% - 1.5rem, 1180px); } .topbar-inner { min-height: auto; padding: 0.8rem 0; align-items: flex-start; flex-direction: column; } .nav { width: 100%; overflow-x: auto; padding-bottom: 0.1rem; } .nav a { white-space: nowrap; } .catalog-hero .eyebrow { white-space: normal; } .catalog-hero, .game-hero { padding: 4.8rem 0 3.8rem; } h1 { font-size: clamp(3.2rem, 16vw, 5rem); } .hero-actions { flex-direction: column; } .hero-actions .button { width: 100%; } section { padding: 4.5rem 0; } .zomboid-plan-grid { grid-template-columns: 1fr; } .support-box { align-items: flex-start; flex-direction: column; padding: 1.5rem; } .support-box .button { width: 100%; } .footer-row { flex-direction: column; } }
+@media (max-width: 900px) { .hero-grid, .section-head, .world-scene, .launch-layout { grid-template-columns: 1fr; gap: 2.5rem; } .game-grid, .feature-list, .routine-grid { grid-template-columns: 1fr; } .ops-grid, .zomboid-plan-grid { grid-template-columns: repeat(2, 1fr); } .game { min-height: 360px; } .scene-copy { grid-column: 1; } .world-scene::after { background: linear-gradient(180deg, rgba(7, 17, 31, 0.1), rgba(7, 17, 31, 0.92) 70%); } }
+@media (max-width: 620px) { .wrap { width: min(100% - 1.5rem, 1180px); } .topbar-inner { min-height: auto; padding: 0.8rem 0; align-items: flex-start; flex-direction: column; } .nav { width: 100%; overflow-x: auto; padding-bottom: 0.1rem; } .nav a { white-space: nowrap; } .catalog-hero .eyebrow { white-space: normal; } .catalog-hero, .game-hero { padding: 4.8rem 0 3.8rem; } h1 { font-size: clamp(3.2rem, 16vw, 5rem); } .hero-actions { flex-direction: column; } .hero-actions .button { width: 100%; } section { padding: 4.5rem 0; } .ops-grid, .zomboid-plan-grid { grid-template-columns: 1fr; } .panel-preview img { min-height: 290px; } .support-box { align-items: flex-start; flex-direction: column; padding: 1.5rem; } .support-box .button { width: 100%; } .footer-row { flex-direction: column; } }
