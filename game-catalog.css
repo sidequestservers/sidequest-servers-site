@@ -75,6 +75,8 @@ section { padding: 6.2rem 0; }
 .game-meta { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 1.25rem; }
 .game-meta span { padding: 0.34rem 0.52rem; border: 1px solid rgba(192, 222, 239, 0.18); border-radius: 99px; color: #d4e1e8; background: rgba(7, 17, 31, 0.28); font-size: 0.72rem; }
 .game .button { width: 100%; margin-top: auto; }
+.game-palworld .button { color: var(--night); background: var(--cyan); box-shadow: 4px 4px 0 rgba(109, 229, 245, 0.7); }
+.game-zomboid .button { color: var(--night); background: var(--coral); box-shadow: 4px 4px 0 rgba(255, 157, 123, 0.7); }
 .coming { display: grid; min-height: 170px; place-items: center; padding: 1.5rem; border: 1px dashed rgba(109, 229, 245, 0.45); border-radius: 13px; background: rgba(12, 28, 47, 0.45); text-align: center; }
 .coming strong { display: block; font-size: 1.25rem; letter-spacing: -0.04em; }
 .coming p { max-width: 44ch; margin: 0.5rem 0 0; color: var(--muted); }
