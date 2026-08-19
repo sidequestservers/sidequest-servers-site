@@ -9,64 +9,23 @@ const GAME_CONFIG = {
     name: "Palworld",
     nestId: "PTERODACTYL_NEST_ID",
     eggId: "PTERODACTYL_EGG_ID",
-    image: "PTERODACTYL_DOCKER_IMAGE",
-    schedule: {
-      name: "Daily 3:57 AM Central Backup and Restart",
-      minute: "57",
-      hour: "3",
-      tasks: [
-        { action: "command", payload: "Save", time_offset: 0, continue_on_failure: true },
-        { action: "power", payload: "stop", time_offset: 60, continue_on_failure: false },
-        { action: "backup", payload: "", time_offset: 60, continue_on_failure: false },
-        { action: "power", payload: "start", time_offset: 300, continue_on_failure: false }
-      ]
-    }
+    image: "PTERODACTYL_DOCKER_IMAGE"
   },
   zomboid: {
     name: "Project Zomboid",
     nestId: "PTERODACTYL_ZOMBOID_NEST_ID",
     eggId: "PTERODACTYL_ZOMBOID_EGG_ID",
-    image: "PTERODACTYL_ZOMBOID_DOCKER_IMAGE",
-    schedule: {
-      name: "Project Zomboid Nightly Backup",
-      minute: "0",
-      hour: "5",
-      tasks: [
-        { action: "command", payload: "save", time_offset: 0, continue_on_failure: false },
-        { action: "power", payload: "stop", time_offset: 60, continue_on_failure: false },
-        { action: "backup", payload: "", time_offset: 120, continue_on_failure: false },
-        { action: "power", payload: "start", time_offset: 300, continue_on_failure: false }
-      ]
-    }
+    image: "PTERODACTYL_ZOMBOID_DOCKER_IMAGE"
   }
 };
 
-async function createDailyBackupAndRestart(panelUrl, headers, serverId, schedule) {
-  const scheduleResponse = await fetch(`${panelUrl}/api/application/servers/${serverId}/schedules`, {
+async function createDailyBackupAndRestart(panelUrl, headers, serverId, game) {
+  const scheduleResponse = await fetch(`${panelUrl}/api/application/sidequest/schedules`, {
     method: "POST",
     headers,
-    body: JSON.stringify({
-      name: schedule.name,
-      minute: schedule.minute,
-      hour: schedule.hour,
-      day_of_week: "*",
-      day_of_month: "*",
-      is_active: true,
-      only_when_online: false
-    })
+    body: JSON.stringify({ server_id: serverId, game })
   });
-  const createdSchedule = await scheduleResponse.json().catch(() => ({}));
-  const scheduleId = createdSchedule.attributes?.id;
-  if (!scheduleResponse.ok || !scheduleId) throw new Error("Unable to create the daily restart schedule.");
-
-  for (const task of schedule.tasks) {
-    const taskResponse = await fetch(`${panelUrl}/api/application/servers/${serverId}/schedules/${scheduleId}/tasks`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(task)
-    });
-    if (!taskResponse.ok) throw new Error("Unable to create the daily backup and restart tasks.");
-  }
+  if (!scheduleResponse.ok) throw new Error("Unable to create the daily backup and restart schedule.");
 }
 
 export async function onRequestPost(context) {
@@ -159,7 +118,7 @@ export async function onRequestPost(context) {
   const server = await serverResponse.json();
   if (!serverResponse.ok) return jsonError("Panel account was created, but server creation failed.", 502);
   try {
-    await createDailyBackupAndRestart(panelUrl, headers, server.attributes.id, gameConfig.schedule);
+    await createDailyBackupAndRestart(panelUrl, headers, server.attributes.id, game);
   } catch (error) {
     return jsonError(`Server was created, but daily restart setup failed: ${error.message}`, 502);
   }

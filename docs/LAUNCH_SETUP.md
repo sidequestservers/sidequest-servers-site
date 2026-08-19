@@ -39,6 +39,16 @@ Before enabling checkout on a new D1 database, apply `database/schema.sql` and `
 
 The shared game pool uses Node2 (`192.168.0.130`) ports `20000-20010` and Node3 (`192.168.0.140`) ports `30000-30010`. Set `PTERODACTYL_NODE_IDS_JSON=[2,4]` and `PTERODACTYL_ALLOCATION_ALIASES_JSON={"2":"node2.sidequestservers.com","4":"node3.sidequestservers.com"}`. Forward those ranges to their matching node IP addresses in the router. Palworld selects one free allocation; Project Zomboid selects two consecutive free allocations. Checkout only selects allocations with the matching alias, preventing it from using older allocations outside the forwarded ranges.
 
+### Panel schedule bridge
+
+Pterodactyl's Application API cannot create server schedules. Install the signed-in Application API extension in `panel-bridge/` on the Panel host before enabling provisioning:
+
+```bash
+sudo bash /tmp/sidequest-panel-bridge/install.sh
+```
+
+The installer adds `POST /api/application/sidequest/schedules`, which uses the existing Application API key to create the canonical backup/restart schedule locally after every Palworld or Project Zomboid server is created. Re-run the installer after each Pterodactyl Panel upgrade because it extends the Panel's route provider.
+
 ## Before enabling sales
 
 - Create a Cloudflare D1 database, apply `database/schema.sql`, and bind it to Pages as `DB` for order storage and webhook event de-duplication.

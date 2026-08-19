@@ -178,7 +178,8 @@ export async function onRequestPost(context) {
   } catch (error) {
     await context.env.DB.batch([
       context.env.DB.prepare("UPDATE orders SET status = 'failed', updated_at = CURRENT_TIMESTAMP WHERE id = ?").bind(orderId),
-      context.env.DB.prepare("DELETE FROM webhook_events WHERE provider = ? AND event_id = ?").bind("stripe", event.id)
+      context.env.DB.prepare("DELETE FROM webhook_events WHERE provider = ? AND event_id = ?").bind("stripe", event.id),
+      context.env.DB.prepare("DELETE FROM checkout_reservations WHERE id = ?").bind(reservationId)
     ]);
     return response(`Provisioning failed: ${error.message}`, 500);
   }
