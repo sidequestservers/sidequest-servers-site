@@ -16,8 +16,8 @@ class SideQuestScheduleController extends Controller
     private const SCHEDULES = [
         'palworld' => [
             'name' => 'Daily Backup and Restart',
-            'minute' => '57',
-            'hour' => '3',
+            'minute' => '0',
+            'hour' => '4',
             'tasks' => [
                 ['action' => 'command', 'payload' => 'Save', 'time_offset' => 0, 'continue_on_failure' => true],
                 ['action' => 'power', 'payload' => 'stop', 'time_offset' => 60, 'continue_on_failure' => false],
@@ -28,7 +28,7 @@ class SideQuestScheduleController extends Controller
         'zomboid' => [
             'name' => 'Daily Backup and Restart',
             'minute' => '0',
-            'hour' => '5',
+            'hour' => '4',
             'tasks' => [
                 ['action' => 'command', 'payload' => 'save', 'time_offset' => 0, 'continue_on_failure' => false],
                 ['action' => 'power', 'payload' => 'stop', 'time_offset' => 60, 'continue_on_failure' => false],
