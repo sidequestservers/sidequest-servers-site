@@ -64,6 +64,7 @@ section { padding: 6.2rem 0; }
 .game:hover .game-art img { transform: scale(1.05); }
 .game-palworld { --game-glow: rgba(109, 229, 245, 0.23); }
 .game-zomboid { --game-glow: rgba(255, 157, 123, 0.24); }
+.game-zomboid .game-art img { object-position: center 35%; }
 .game-windrose { --game-glow: rgba(180, 239, 131, 0.23); }
 .game-status { position: absolute; z-index: 2; top: 1rem; left: 1rem; padding: 0.32rem 0.55rem; border: 1px solid rgba(180, 239, 131, 0.4); border-radius: 99px; color: var(--lime); background: rgba(7, 17, 31, 0.66); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
 .game-copy { position: absolute; z-index: 2; right: 1.35rem; bottom: 1.25rem; left: 1.35rem; }
