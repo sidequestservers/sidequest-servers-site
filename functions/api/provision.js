@@ -19,11 +19,11 @@ const GAME_CONFIG = {
   }
 };
 
-async function createDailyBackupAndRestart(panelUrl, headers, serverId, game) {
+async function createDailyBackupAndRestart(panelUrl, headers, serverId, game, timezone) {
   const scheduleResponse = await fetch(`${panelUrl}/api/application/sidequest/schedules`, {
     method: "POST",
     headers,
-    body: JSON.stringify({ server_id: serverId, game })
+    body: JSON.stringify({ server_id: serverId, game, timezone })
   });
   if (!scheduleResponse.ok) throw new Error("Unable to create the daily backup and restart schedule.");
 }
@@ -36,7 +36,7 @@ export async function onRequestPost(context) {
     return jsonError("Provisioning is not enabled.", 503);
   }
 
-  const { game = "palworld", email, plan, externalId, allocationId, secondaryAllocationId, nodeId, firstName = "SideQuest", lastName = "Customer" } = await context.request.json().catch(() => ({}));
+  const { game = "palworld", email, plan, externalId, allocationId, secondaryAllocationId, nodeId, timezone = "", firstName = "SideQuest", lastName = "Customer" } = await context.request.json().catch(() => ({}));
   const gameConfig = GAME_CONFIG[game];
   const selectedPlan = getPlan(plan, game);
   const selectedAllocationId = Number(allocationId);
@@ -118,7 +118,7 @@ export async function onRequestPost(context) {
   const server = await serverResponse.json();
   if (!serverResponse.ok) return jsonError("Panel account was created, but server creation failed.", 502);
   try {
-    await createDailyBackupAndRestart(panelUrl, headers, server.attributes.id, game);
+    await createDailyBackupAndRestart(panelUrl, headers, server.attributes.id, game, String(timezone || "").trim().slice(0, 64));
   } catch (error) {
     return jsonError(`Server was created, but daily restart setup failed: ${error.message}`, 502);
   }

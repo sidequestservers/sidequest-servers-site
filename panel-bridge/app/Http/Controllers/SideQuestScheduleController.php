@@ -5,6 +5,7 @@ namespace Pterodactyl\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\CarbonImmutable;
 use Pterodactyl\Helpers\Utilities;
 use Pterodactyl\Models\Schedule;
 use Pterodactyl\Models\Server;
@@ -14,7 +15,7 @@ class SideQuestScheduleController extends Controller
 {
     private const SCHEDULES = [
         'palworld' => [
-            'name' => 'Daily 3:57 AM Central Backup and Restart',
+            'name' => 'Daily Backup and Restart',
             'minute' => '57',
             'hour' => '3',
             'tasks' => [
@@ -25,7 +26,7 @@ class SideQuestScheduleController extends Controller
             ],
         ],
         'zomboid' => [
-            'name' => 'Project Zomboid Nightly Backup',
+            'name' => 'Daily Backup and Restart',
             'minute' => '0',
             'hour' => '5',
             'tasks' => [
@@ -42,11 +43,21 @@ class SideQuestScheduleController extends Controller
         $data = $request->validate([
             'server_id' => ['required', 'integer'],
             'game' => ['required', 'in:palworld,zomboid'],
+            'timezone' => ['nullable', 'string', 'max:64'],
         ]);
         $server = Server::query()->findOrFail($data['server_id']);
         $definition = self::SCHEDULES[$data['game']];
+        $timezone = $data['timezone'] ?: config('app.timezone');
+        try {
+            $customerNow = CarbonImmutable::now(new \DateTimeZone($timezone));
+        } catch (\Exception) {
+            $customerNow = CarbonImmutable::now(config('app.timezone'));
+        }
+        $customerRunAt = $customerNow->setTime((int) $definition['hour'], (int) $definition['minute']);
+        if ($customerRunAt->lessThanOrEqualTo($customerNow)) $customerRunAt = $customerRunAt->addDay();
+        $panelRunAt = $customerRunAt->setTimezone(config('app.timezone'));
 
-        $schedule = DB::transaction(function () use ($server, $definition) {
+        $schedule = DB::transaction(function () use ($server, $definition, $panelRunAt) {
             $schedule = Schedule::query()->firstOrNew([
                 'server_id' => $server->id,
                 'name' => $definition['name'],
@@ -55,12 +66,12 @@ class SideQuestScheduleController extends Controller
                 'cron_day_of_week' => '*',
                 'cron_month' => '*',
                 'cron_day_of_month' => '*',
-                'cron_hour' => $definition['hour'],
-                'cron_minute' => $definition['minute'],
+                'cron_hour' => $panelRunAt->format('G'),
+                'cron_minute' => $panelRunAt->format('i'),
                 'is_active' => true,
                 'is_processing' => false,
                 'only_when_online' => false,
-                'next_run_at' => Utilities::getScheduleNextRunDate($definition['minute'], $definition['hour'], '*', '*', '*'),
+                'next_run_at' => Utilities::getScheduleNextRunDate($panelRunAt->format('i'), $panelRunAt->format('G'), '*', '*', '*'),
             ]);
             $schedule->save();
 

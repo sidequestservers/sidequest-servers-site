@@ -116,6 +116,7 @@ export async function onRequestPost(context) {
   const allocationId = Number(session?.metadata?.allocation_id);
   const secondaryAllocationId = Number(session?.metadata?.secondary_allocation_id);
   const reservationId = String(session?.metadata?.reservation_id || "");
+  const timezone = String(session?.metadata?.timezone || "").trim().slice(0, 64);
   const plan = getPlan(planId, game);
   const email = session?.customer_details?.email || session?.customer_email;
   if (!session?.id || !email || !plan || !["palworld", "zomboid"].includes(game) || !Number.isInteger(allocationId) || !reservationId || session.payment_status !== "paid") {
@@ -158,7 +159,7 @@ export async function onRequestPost(context) {
     const provision = await fetch(`${new URL(context.request.url).origin}/api/provision`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Provisioning-Secret": context.env.PROVISIONING_SECRET },
-      body: JSON.stringify({ game, email, plan: planId, externalId: orderId, allocationId, secondaryAllocationId: reservation.secondary_allocation_id, nodeId: reservation.node_id, firstName, lastName: rest.join(" ") || "Customer" })
+      body: JSON.stringify({ game, email, plan: planId, externalId: orderId, allocationId, secondaryAllocationId: reservation.secondary_allocation_id, nodeId: reservation.node_id, timezone, firstName, lastName: rest.join(" ") || "Customer" })
     });
     const result = await provision.json().catch(() => ({}));
     if (!provision.ok) throw new Error(result.message || "Provisioning request failed.");

@@ -75,8 +75,9 @@ export async function onRequestPost(context) {
     return jsonError("Checkout is temporarily unavailable while SideQuest Servers is under development.", 503);
   }
 
-  const { game = "palworld", plan, email } = await context.request.json().catch(() => ({}));
+  const { game = "palworld", plan, email, timezone = "" } = await context.request.json().catch(() => ({}));
   const customerEmail = String(email || "").trim().toLowerCase();
+  const customerTimezone = String(timezone || "").trim().slice(0, 64);
   if (!["palworld", "zomboid"].includes(game)) return jsonError("The selected game is unavailable.", 400);
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) return jsonError("Enter a valid billing email address.", 400);
   if (stripeSecretKey?.startsWith("sk_test_")) {
@@ -109,8 +110,10 @@ export async function onRequestPost(context) {
     "metadata[allocation_id]": String(reservation.allocationId),
     "metadata[secondary_allocation_id]": String(reservation.secondaryAllocationId || ""),
     "metadata[reservation_id]": reservation.reservationId,
+    "metadata[timezone]": customerTimezone,
     "subscription_data[metadata][game]": game,
     "subscription_data[metadata][plan]": String(plan),
+    "subscription_data[metadata][timezone]": customerTimezone,
     "custom_fields[0][key]": "panel_login_email",
     "custom_fields[0][label][type]": "custom",
     "custom_fields[0][label][custom]": "Panel login email",

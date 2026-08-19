@@ -620,10 +620,11 @@
         checkoutButton.textContent = "Opening secure checkout...";
 
         try {
+          const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
           const response = await fetch("/api/stripe/create-checkout", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ game, plan: plan.value, email: checkoutEmail.value })
+            body: JSON.stringify({ game, plan: plan.value, email: checkoutEmail.value, timezone })
           });
           const result = await response.json().catch(() => ({}));
           if (!response.ok || !result.checkoutUrl) {
