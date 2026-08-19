@@ -55,8 +55,8 @@ async function createDailyBackupAndRestart(panelUrl, headers, serverId, schedule
       only_when_online: false
     })
   });
-  const schedule = await scheduleResponse.json().catch(() => ({}));
-  const scheduleId = schedule.attributes?.id;
+  const createdSchedule = await scheduleResponse.json().catch(() => ({}));
+  const scheduleId = createdSchedule.attributes?.id;
   if (!scheduleResponse.ok || !scheduleId) throw new Error("Unable to create the daily restart schedule.");
 
   for (const task of schedule.tasks) {
