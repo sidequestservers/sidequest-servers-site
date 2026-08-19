@@ -42,7 +42,7 @@ The shared game pool uses Node2 (`192.168.0.130`) ports `20000-20010` and Node3 
 
 - Create a Cloudflare D1 database, apply `database/schema.sql`, and bind it to Pages as `DB` for order storage and webhook event de-duplication.
 - The verified Stripe webhook records each paid checkout event in D1, claims the order once, then calls `/api/provision` only when `PROVISIONING_ENABLED=true`.
-- Project Zomboid tiers allocate 5/8/10 GB RAM, 25 GB disk, one backup, and the existing save-stop-backup-start schedule. Confirm its player-cap setting is written by the egg or a post-provision configuration step before enabling sales.
+- Project Zomboid tiers allocate 5/8/10 GB RAM, 25 GB disk, one backup, and the existing save-stop-backup-start schedule. Player counts are plan-sizing guidance; customers can adjust `MaxPlayers` through their server configuration while Pterodactyl enforces the resource limits.
 - Add a verified PayPal webhook handler before enabling PayPal.
 - Test with Stripe test mode and PayPal sandbox.
 - Confirm Pterodactyl can email account setup links and has available allocations.
