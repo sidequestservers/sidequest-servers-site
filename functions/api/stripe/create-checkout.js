@@ -75,8 +75,14 @@ export async function onRequestPost(context) {
     return jsonError("Checkout is temporarily unavailable while SideQuest Servers is under development.", 503);
   }
 
-  const { game = "palworld", plan } = await context.request.json().catch(() => ({}));
+  const { game = "palworld", plan, email } = await context.request.json().catch(() => ({}));
+  const customerEmail = String(email || "").trim().toLowerCase();
   if (!["palworld", "zomboid"].includes(game)) return jsonError("The selected game is unavailable.", 400);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) return jsonError("Enter a valid billing email address.", 400);
+  if (stripeSecretKey?.startsWith("sk_test_")) {
+    const allowedEmails = String(context.env.TEST_CHECKOUT_EMAIL_ALLOWLIST || "").split(",").map((value) => value.trim().toLowerCase()).filter(Boolean);
+    if (!allowedEmails.includes(customerEmail)) return jsonError("Test checkout is restricted to approved billing emails.", 403);
+  }
   const selectedPlan = getPlan(plan, game);
   const priceId = selectedPlan && context.env[selectedPlan.priceEnv];
   if (!selectedPlan) return jsonError("The selected hosting plan is unavailable.", 400);
@@ -95,6 +101,7 @@ export async function onRequestPost(context) {
     mode: "subscription",
     "line_items[0][price]": priceId,
     "line_items[0][quantity]": "1",
+    customer_email: customerEmail,
     success_url: `${new URL(context.request.url).origin}/billing.html?payment=success&session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${new URL(context.request.url).origin}/billing.html?payment=cancelled`,
     "metadata[game]": game,

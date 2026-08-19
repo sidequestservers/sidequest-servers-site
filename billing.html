@@ -431,6 +431,11 @@
                 <select id="plan" required></select>
               </label>
 
+              <label>
+                Billing email
+                <input id="checkout-email" type="email" autocomplete="email" required />
+              </label>
+
               <p class="hint">
                 Checkout is paused while we complete subscription lifecycle automation.
               </p>
@@ -529,6 +534,7 @@
       const summaryPeriod = document.getElementById("summary-period");
       const summaryPrice = document.getElementById("summary-price");
       const checkoutButton = document.getElementById("checkout-button");
+      const checkoutEmail = document.getElementById("checkout-email");
       const checkoutAvailable = false;
       const successBox = document.getElementById("success-box");
       const errorBox = document.getElementById("error-box");
@@ -575,7 +581,10 @@
       });
 
       checkoutButton.addEventListener("click", async () => {
-        if (!plan.value || !plans[plan.value]) return;
+        if (!plan.value || !plans[plan.value] || !checkoutEmail.checkValidity()) {
+          checkoutEmail.reportValidity();
+          return;
+        }
         errorBox.style.display = "none";
         checkoutButton.disabled = true;
         checkoutButton.textContent = "Opening secure checkout...";
@@ -584,7 +593,7 @@
           const response = await fetch("/api/stripe/create-checkout", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ game, plan: plan.value })
+            body: JSON.stringify({ game, plan: plan.value, email: checkoutEmail.value })
           });
           const result = await response.json().catch(() => ({}));
           if (!response.ok || !result.checkoutUrl) {
