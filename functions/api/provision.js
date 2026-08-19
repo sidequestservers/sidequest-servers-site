@@ -4,6 +4,32 @@ function createAdminPassword() {
   return crypto.randomUUID().replaceAll("-", "").slice(0, 24);
 }
 
+async function createDailyRestart(panelUrl, headers, serverId) {
+  const scheduleResponse = await fetch(`${panelUrl}/api/application/servers/${serverId}/schedules`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      name: "Daily Server Restart",
+      minute: "0",
+      hour: "4",
+      day_of_week: "*",
+      day_of_month: "*",
+      is_active: true,
+      only_when_online: false
+    })
+  });
+  const schedule = await scheduleResponse.json().catch(() => ({}));
+  const scheduleId = schedule.attributes?.id;
+  if (!scheduleResponse.ok || !scheduleId) throw new Error("Unable to create the daily restart schedule.");
+
+  const taskResponse = await fetch(`${panelUrl}/api/application/servers/${serverId}/schedules/${scheduleId}/tasks`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ action: "power", payload: "restart", time_offset: 0, continue_on_failure: false })
+  });
+  if (!taskResponse.ok) throw new Error("Unable to create the daily restart task.");
+}
+
 export async function onRequestPost(context) {
   if (context.request.headers.get("X-Provisioning-Secret") !== context.env.PROVISIONING_SECRET) {
     return jsonError("Unauthorized.", 401);
@@ -73,5 +99,10 @@ export async function onRequestPost(context) {
   });
   const server = await serverResponse.json();
   if (!serverResponse.ok) return jsonError("Panel account was created, but server creation failed.", 502);
+  try {
+    await createDailyRestart(panelUrl, headers, server.attributes.id);
+  } catch (error) {
+    return jsonError(`Server was created, but daily restart setup failed: ${error.message}`, 502);
+  }
   return Response.json({ ok: true, panelUrl, userId: user.attributes.id, serverId: server.attributes.id, serverIdentifier: server.attributes.identifier });
 }
