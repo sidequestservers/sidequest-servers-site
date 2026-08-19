@@ -4,14 +4,14 @@ function createAdminPassword() {
   return crypto.randomUUID().replaceAll("-", "").slice(0, 24);
 }
 
-async function createDailyRestart(panelUrl, headers, serverId) {
+async function createDailyBackupAndRestart(panelUrl, headers, serverId) {
   const scheduleResponse = await fetch(`${panelUrl}/api/application/servers/${serverId}/schedules`, {
     method: "POST",
     headers,
     body: JSON.stringify({
-      name: "Daily Server Restart",
-      minute: "0",
-      hour: "4",
+      name: "Daily 3:57 AM Central Backup and Restart",
+      minute: "57",
+      hour: "3",
       day_of_week: "*",
       day_of_month: "*",
       is_active: true,
@@ -22,12 +22,20 @@ async function createDailyRestart(panelUrl, headers, serverId) {
   const scheduleId = schedule.attributes?.id;
   if (!scheduleResponse.ok || !scheduleId) throw new Error("Unable to create the daily restart schedule.");
 
-  const taskResponse = await fetch(`${panelUrl}/api/application/servers/${serverId}/schedules/${scheduleId}/tasks`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify({ action: "power", payload: "restart", time_offset: 0, continue_on_failure: false })
-  });
-  if (!taskResponse.ok) throw new Error("Unable to create the daily restart task.");
+  const tasks = [
+    { action: "command", payload: "Save", time_offset: 0, continue_on_failure: true },
+    { action: "power", payload: "stop", time_offset: 60, continue_on_failure: false },
+    { action: "backup", payload: "", time_offset: 60, continue_on_failure: false },
+    { action: "power", payload: "start", time_offset: 300, continue_on_failure: false }
+  ];
+  for (const task of tasks) {
+    const taskResponse = await fetch(`${panelUrl}/api/application/servers/${serverId}/schedules/${scheduleId}/tasks`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(task)
+    });
+    if (!taskResponse.ok) throw new Error("Unable to create the daily backup and restart tasks.");
+  }
 }
 
 export async function onRequestPost(context) {
@@ -100,7 +108,7 @@ export async function onRequestPost(context) {
   const server = await serverResponse.json();
   if (!serverResponse.ok) return jsonError("Panel account was created, but server creation failed.", 502);
   try {
-    await createDailyRestart(panelUrl, headers, server.attributes.id);
+    await createDailyBackupAndRestart(panelUrl, headers, server.attributes.id);
   } catch (error) {
     return jsonError(`Server was created, but daily restart setup failed: ${error.message}`, 502);
   }
