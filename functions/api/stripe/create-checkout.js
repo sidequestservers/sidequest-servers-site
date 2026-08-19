@@ -1,10 +1,5 @@
 import { getPlan, jsonError } from "../../_lib/plans";
 
-function getPriceId(env, game, plan) {
-  const prefix = game === "zomboid" ? "STRIPE_ZOMBOID_PRICE_ID" : "STRIPE_PRICE_ID";
-  return env[`${prefix}_${plan}_MONTHLY`];
-}
-
 async function reserveAllocation(context, game, plan) {
   const panelUrl = context.env.PTERODACTYL_PANEL_URL?.replace(/\/$/, "");
   const apiKey = context.env.PTERODACTYL_APPLICATION_API_KEY;
@@ -83,7 +78,7 @@ export async function onRequestPost(context) {
   const { game = "palworld", plan } = await context.request.json().catch(() => ({}));
   if (!["palworld", "zomboid"].includes(game)) return jsonError("The selected game is unavailable.", 400);
   const selectedPlan = getPlan(plan, game);
-  const priceId = getPriceId(context.env, game, plan);
+  const priceId = selectedPlan && context.env[selectedPlan.priceEnv];
   if (!selectedPlan) return jsonError("The selected hosting plan is unavailable.", 400);
   if (!priceId) return jsonError("Stripe pricing is not configured for this plan.", 503);
   if (!stripeSecretKey) return jsonError("Stripe checkout is not configured.", 503);

@@ -5,7 +5,7 @@ These endpoints are intentionally disabled until subscription lifecycle automati
 ## Stripe test setup
 
 1. Create one recurring monthly Stripe Price for each plan.
-2. Add `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, the four `STRIPE_PRICE_ID_*_MONTHLY` values, and the three `STRIPE_ZOMBOID_PRICE_ID_*_MONTHLY` values as Cloudflare Pages secrets.
+2. Add `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` as Cloudflare Pages encrypted secrets. Add these Stripe Price IDs as regular text variables: `STRIPE_PALWORLD_PRICE_ID_STARTER_4_MONTHLY`, `STRIPE_PALWORLD_PRICE_ID_EXPLORER_6_MONTHLY`, `STRIPE_PALWORLD_PRICE_ID_FRONTIER_8_MONTHLY`, `STRIPE_PALWORLD_PRICE_ID_GUILD_12_MONTHLY`, `STRIPE_ZOMBOID_PRICE_ID_SAFEHOUSE_5_MONTHLY`, `STRIPE_ZOMBOID_PRICE_ID_SURVIVOR_10_MONTHLY`, and `STRIPE_ZOMBOID_PRICE_ID_OUTBREAK_15_MONTHLY`.
 3. In Stripe, add `https://your-domain/api/stripe/webhook` and subscribe it to `checkout.session.completed`, `invoice.payment_failed`, `invoice.paid`, `customer.subscription.updated`, and `customer.subscription.deleted`.
 4. Keep `CHECKOUT_ENABLED` unset or set to any value other than `subscription-lifecycle-ready` on production. Keep `PROVISIONING_ENABLED=false` until both game provisioning paths are tested.
 

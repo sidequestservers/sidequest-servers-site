@@ -1,4 +1,4 @@
-import { getPlan, jsonError } from "../../_lib/plans";
+import { PLANS, ZOMBOID_PLANS, getPlan, jsonError } from "../../_lib/plans";
 import { escapeHtml, sendEmail } from "../../_lib/email";
 import { setServerSuspended, updateServerBuild } from "../../_lib/pterodactyl";
 
@@ -33,8 +33,8 @@ function response(message, status = 200) {
 }
 
 function planForPrice(env, priceId) {
-  for (const [game, prefix, ids] of [["palworld", "STRIPE_PRICE_ID", ["4", "6", "8", "12"]], ["zomboid", "STRIPE_ZOMBOID_PRICE_ID", ["5", "10", "15"]]]) {
-    for (const planId of ids) if (env[`${prefix}_${planId}_MONTHLY`] === priceId) return { game, planId, plan: getPlan(planId, game) };
+  for (const [game, plans] of [["palworld", PLANS], ["zomboid", ZOMBOID_PLANS]]) {
+    for (const [planId, plan] of Object.entries(plans)) if (env[plan.priceEnv] === priceId) return { game, planId, plan };
   }
   return null;
 }
