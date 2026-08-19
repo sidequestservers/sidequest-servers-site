@@ -535,7 +535,7 @@
       const summaryPrice = document.getElementById("summary-price");
       const checkoutButton = document.getElementById("checkout-button");
       const checkoutEmail = document.getElementById("checkout-email");
-      const checkoutAvailable = false;
+      let checkoutAvailable = false;
       const successBox = document.getElementById("success-box");
       const errorBox = document.getElementById("error-box");
       const portalForm = document.getElementById("portal-form");
@@ -605,6 +605,14 @@
           updateSummary();
         }
       });
+
+      fetch("/api/stripe/checkout-status")
+        .then((response) => response.ok ? response.json() : { enabled: false })
+        .then((result) => {
+          checkoutAvailable = result.enabled === true;
+          updateSummary();
+        })
+        .catch(() => updateSummary());
 
       portalForm.addEventListener("submit", async (event) => {
         event.preventDefault();
