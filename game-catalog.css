@@ -72,9 +72,10 @@ section { padding: 6.2rem 0; }
 .game-windrose .game-mark { color: var(--lime); border-radius: 50% 50% 8px 8px; }
 .game h3 { margin: 1.45rem 0 0.5rem; font-size: clamp(1.55rem, 3vw, 2rem); letter-spacing: -0.05em; }
 .game p { margin: 0; color: var(--muted); }
-.game-meta { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 1.25rem; }
-.game-meta span { padding: 0.34rem 0.52rem; border: 1px solid rgba(192, 222, 239, 0.18); border-radius: 99px; color: #d4e1e8; background: rgba(7, 17, 31, 0.28); font-size: 0.72rem; }
+.game-price { margin-top: auto !important; padding-top: 1.25rem; color: #d4e1e8 !important; font-size: 0.78rem; }
+.game-price strong { display: block; margin-top: 0.1rem; color: var(--copy); font-size: 1.35rem; letter-spacing: -0.04em; }
 .game .button { width: 100%; margin-top: auto; }
+.game-price + .button { margin-top: 0.75rem; }
 .game-palworld .button { color: var(--night); background: var(--cyan); box-shadow: 4px 4px 0 rgba(109, 229, 245, 0.7); }
 .game-zomboid .button { color: var(--night); background: var(--coral); box-shadow: 4px 4px 0 rgba(255, 157, 123, 0.7); }
 .coming { display: grid; min-height: 170px; place-items: center; padding: 1.5rem; border: 1px dashed rgba(109, 229, 245, 0.45); border-radius: 13px; background: rgba(12, 28, 47, 0.45); text-align: center; }
