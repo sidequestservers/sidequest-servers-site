@@ -71,7 +71,7 @@ async function reserveAllocation(context, game, plan) {
 
 export async function onRequestPost(context) {
   const stripeSecretKey = context.env.STRIPE_SECRET_KEY;
-  if (context.env.CHECKOUT_ENABLED !== "subscription-lifecycle-ready") {
+  if (context.env.CHECKOUT_ENABLED !== "subscription-lifecycle-ready" || context.env.PUBLIC_CHECKOUT_ENABLED !== "true") {
     return jsonError("Checkout is temporarily unavailable while SideQuest Servers is under development.", 503);
   }
 
