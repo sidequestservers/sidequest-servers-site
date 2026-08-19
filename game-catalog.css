@@ -55,27 +55,26 @@ section { padding: 6.2rem 0; }
 .section-head h2 { max-width: 14ch; margin: 0; font-size: clamp(2.2rem, 4.1vw, 3.7rem); line-height: 0.98; letter-spacing: -0.06em; }
 .section-head > p { max-width: 44ch; margin: 0; color: var(--muted); }
 .game-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 420px)); justify-content: center; gap: 1rem; }
-.game { position: relative; display: flex; min-height: 420px; flex-direction: column; overflow: hidden; padding: 1.35rem; border: 1px solid var(--line); border-radius: 13px; background: linear-gradient(160deg, #132d43, #0d2033); box-shadow: var(--shadow); transition: transform 180ms ease, border 180ms ease; }
+.game { position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: 13px; background: linear-gradient(160deg, #132d43, #0d2033); box-shadow: var(--shadow); transition: transform 180ms ease, border 180ms ease; }
 .game:hover { border-color: var(--cyan); transform: translateY(-5px); }
-.game::before { position: absolute; inset: 0; opacity: 0.7; content: ""; background: radial-gradient(circle at 82% 16%, var(--game-glow), transparent 33%), repeating-linear-gradient(135deg, transparent 0 16px, rgba(255, 255, 255, 0.025) 16px 17px); }
-.game > * { position: relative; }
-.game-art { height: 156px; margin: -1.35rem -1.35rem 1.25rem; overflow: hidden; border-bottom: 1px solid var(--line); background: var(--surface-deep); }
-.game-art::after { position: absolute; inset: 0; content: ""; background: linear-gradient(180deg, transparent 26%, rgba(7, 17, 31, 0.92) 100%); }
+.game::before { position: absolute; z-index: 1; inset: 0; opacity: 0.5; content: ""; pointer-events: none; background: radial-gradient(circle at 82% 16%, var(--game-glow), transparent 33%); }
+.game-art { position: relative; height: 330px; overflow: hidden; border-bottom: 1px solid var(--line); background: var(--surface-deep); }
+.game-art::after { position: absolute; inset: 0; content: ""; background: linear-gradient(180deg, rgba(7, 17, 31, 0.04) 16%, rgba(7, 17, 31, 0.18) 42%, rgba(7, 17, 31, 0.97) 100%); }
 .game-art img { width: 100%; height: 100%; display: block; object-fit: cover; transition: transform 300ms ease; }
 .game:hover .game-art img { transform: scale(1.05); }
 .game-palworld { --game-glow: rgba(109, 229, 245, 0.23); }
 .game-zomboid { --game-glow: rgba(255, 157, 123, 0.24); }
 .game-windrose { --game-glow: rgba(180, 239, 131, 0.23); }
-.game-status { align-self: flex-start; padding: 0.32rem 0.55rem; border: 1px solid rgba(180, 239, 131, 0.36); border-radius: 99px; color: var(--lime); background: rgba(180, 239, 131, 0.08); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
-.game-mark { display: grid; width: 82px; height: 82px; place-items: center; margin-top: 2.3rem; border: 1px solid currentColor; border-radius: 22px 6px 22px 6px; color: var(--cyan); background: rgba(7, 17, 31, 0.42); font-size: 1.25rem; font-weight: 900; letter-spacing: -0.08em; }
-.game-zomboid .game-mark { color: var(--coral); border-radius: 8px; }
-.game-windrose .game-mark { color: var(--lime); border-radius: 50% 50% 8px 8px; }
-.game h3 { margin: 1.45rem 0 0.5rem; font-size: clamp(1.55rem, 3vw, 2rem); letter-spacing: -0.05em; }
-.game p { margin: 0; color: var(--muted); }
-.game-price { margin-top: auto !important; padding-top: 1.25rem; color: #d4e1e8 !important; font-size: 0.78rem; }
-.game-price strong { display: block; margin-top: 0.1rem; color: var(--copy); font-size: 1.35rem; letter-spacing: -0.04em; }
-.game .button { width: 100%; margin-top: auto; }
-.game-price + .button { margin-top: 0.75rem; }
+.game-status { position: absolute; z-index: 2; top: 1rem; left: 1rem; padding: 0.32rem 0.55rem; border: 1px solid rgba(180, 239, 131, 0.4); border-radius: 99px; color: var(--lime); background: rgba(7, 17, 31, 0.66); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+.game-copy { position: absolute; z-index: 2; right: 1.35rem; bottom: 1.25rem; left: 1.35rem; }
+.game-copy h3 { margin: 0; font-size: clamp(2rem, 4vw, 3rem); line-height: 0.94; letter-spacing: -0.065em; }
+.game-copy p { max-width: 44ch; margin: 0.55rem 0 0; color: #d8e5eb; font-size: 0.88rem; }
+.game-footer { position: relative; z-index: 2; display: flex; align-items: end; justify-content: space-between; gap: 1rem; padding: 1rem 1.35rem 1.25rem; }
+.game-price { margin: 0; color: var(--muted); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.game-price span { display: block; }
+.game-price strong { display: block; margin-top: 0.1rem; color: var(--copy); font-size: 1.45rem; letter-spacing: -0.05em; }
+.game-price small { color: var(--muted); font-size: 0.72rem; font-weight: 600; letter-spacing: 0; }
+.game-footer .button { min-height: 40px; padding: 0.65rem 0.9rem; }
 .game-palworld .button { color: var(--night); background: var(--cyan); box-shadow: 4px 4px 0 rgba(109, 229, 245, 0.7); }
 .game-zomboid .button { color: var(--night); background: var(--coral); box-shadow: 4px 4px 0 rgba(255, 157, 123, 0.7); }
 .coming { display: grid; min-height: 170px; place-items: center; padding: 1.5rem; border: 1px dashed rgba(109, 229, 245, 0.45); border-radius: 13px; background: rgba(12, 28, 47, 0.45); text-align: center; }
