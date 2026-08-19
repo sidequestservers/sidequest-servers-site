@@ -134,6 +134,7 @@ footer { border-top: 1px solid rgba(192, 222, 239, 0.1); padding: 2rem 0 2.8rem;
 .zomboid-pricing { background: #0b1b2c; }
 .zomboid-pricing .section-head > p { padding: 1rem; border-left: 3px solid var(--coral); background: rgba(255, 157, 123, 0.08); }
 .zomboid-pricing .section-head > p::before { display: block; margin-bottom: 0.35rem; color: var(--coral); content: "PLAYER CAPACITY NOTE"; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; }
+.zomboid-pricing .section-head > p strong { color: var(--copy); }
 .zomboid-plan-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.85rem; }
 .zomboid-plan-grid article { display: flex; min-height: 260px; flex-direction: column; padding: 1.3rem; border: 1px solid var(--line); border-top: 2px solid var(--coral); border-radius: 10px; background: linear-gradient(145deg, #112b40, #0a1929); }
 .zomboid-plan-grid span { color: var(--coral); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; }
