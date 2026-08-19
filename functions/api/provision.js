@@ -4,6 +4,17 @@ function createAdminPassword() {
   return crypto.randomUUID().replaceAll("-", "").slice(0, 24);
 }
 
+function createIdentity(firstName, lastName, externalId) {
+  const initial = String(firstName || "").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 1);
+  const surname = String(lastName || "").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 24);
+  return (initial + surname).slice(0, 25) || `sq${String(externalId).replace(/[^a-z0-9]/gi, "").slice(-20)}`.toLowerCase();
+}
+
+function identityWithSuffix(identity, suffix) {
+  const suffixText = suffix ? String(suffix) : "";
+  return `${identity.slice(0, 25 - suffixText.length)}${suffixText}`;
+}
+
 const GAME_CONFIG = {
   palworld: {
     name: "Palworld",
@@ -73,7 +84,7 @@ export async function onRequestPost(context) {
     Object.assign(environment, {
       ADMIN_PASSWORD: createAdminPassword(),
       MAX_PLAYERS: String(selectedPlan.players),
-      SERVER_NAME: `SideQuest ${selectedPlan.name}`
+      SERVER_NAME: createIdentity(firstName, lastName, externalId)
     });
   } else {
     const allocationResponse = await fetch(`${panelUrl}/api/application/nodes/${selectedNodeId}/allocations/${selectedSecondaryAllocationId}`, { headers });
@@ -81,7 +92,7 @@ export async function onRequestPost(context) {
     const steamPort = allocation.attributes?.port;
     if (!allocationResponse.ok || !steamPort) return jsonError("Unable to load the Project Zomboid Steam allocation.", 502);
     Object.assign(environment, {
-      SERVER_NAME: `SideQuest ${selectedPlan.name}`,
+      SERVER_NAME: createIdentity(firstName, lastName, externalId),
       ADMIN_USER: "admin",
       ADMIN_PASSWORD: createAdminPassword(),
       STEAM_PORT: String(steamPort),
@@ -89,20 +100,29 @@ export async function onRequestPost(context) {
       ZOMBOID_SETTINGS_VERSION: "1"
     });
   }
-  const username = `sq${String(externalId).replace(/[^a-z0-9]/gi, "").slice(-20)}`.toLowerCase();
-  const userResponse = await fetch(`${panelUrl}/api/application/users`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify({ email, username, first_name: firstName, last_name: lastName, external_id: externalId })
-  });
-  const user = await userResponse.json();
+  const identity = createIdentity(firstName, lastName, externalId);
+  let username;
+  let user;
+  let userResponse;
+  for (let suffix = 0; suffix < 1000; suffix += 1) {
+    username = identityWithSuffix(identity, suffix);
+    userResponse = await fetch(`${panelUrl}/api/application/users`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ email, username, first_name: firstName, last_name: lastName, external_id: externalId })
+    });
+    user = await userResponse.json().catch(() => ({}));
+    const usernameTaken = user?.errors?.some((error) => error.meta?.source_field === "username" || error.source?.pointer === "/data/attributes/username");
+    if (userResponse.ok || !usernameTaken) break;
+  }
   if (!userResponse.ok) return jsonError("Unable to create the panel account.", 502);
+  environment.SERVER_NAME = username;
 
   const serverResponse = await fetch(`${panelUrl}/api/application/servers`, {
     method: "POST",
     headers,
     body: JSON.stringify({
-      name: `${selectedPlan.name} - ${username}`,
+      name: username,
       user: user.attributes.id,
       egg: eggId,
        docker_image: dockerImage,
