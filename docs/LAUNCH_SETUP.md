@@ -6,7 +6,7 @@ These endpoints are intentionally disabled until subscription lifecycle automati
 
 1. Create one recurring monthly Stripe Price for each plan.
 2. Add `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, the four `STRIPE_PRICE_ID_*_MONTHLY` values, and the three `STRIPE_ZOMBOID_PRICE_ID_*_MONTHLY` values as Cloudflare Pages secrets.
-3. In Stripe, add `https://your-domain/api/stripe/webhook` and subscribe it to `checkout.session.completed`.
+3. In Stripe, add `https://your-domain/api/stripe/webhook` and subscribe it to `checkout.session.completed`, `invoice.payment_failed`, `invoice.paid`, `customer.subscription.updated`, and `customer.subscription.deleted`.
 4. Keep `CHECKOUT_ENABLED` unset or set to any value other than `subscription-lifecycle-ready` on production. Keep `PROVISIONING_ENABLED=false` until both game provisioning paths are tested.
 
 ## PayPal sandbox setup
@@ -34,7 +34,7 @@ Create an Application API key in the Pterodactyl admin panel. Never place it in 
 
 Your confirmed panel values are: Palworld nest `5`, egg `15`, and Docker image `ghcr.io/ptero-eggs/steamcmd:debian`; Project Zomboid nest `6`, egg `16`, and the same Docker image. Provisioning reads egg startup commands and variable defaults from the Panel API. Palworld provisions one allocation; Project Zomboid provisions an adjacent game/Steam allocation pair. The provision endpoint is server-to-server only and must only be called after a verified payment webhook.
 
-Before enabling checkout on a new D1 database, apply `database/schema.sql` and `database/capacity-reservations.sql`. For the existing D1 database, apply `database/add-zomboid-provisioning.sql` once to add the game and secondary-allocation columns. Checkout reserves one free allocation for Palworld or an adjacent allocation pair for Project Zomboid, each for up to 24 hours. Once capacity is assigned or reserved, checkout returns a sold-out response instead of accepting another payment.
+Before enabling checkout on a new D1 database, apply `database/schema.sql` and `database/capacity-reservations.sql`. For an existing D1 database, apply `database/add-zomboid-provisioning.sql` if needed, then apply `database/subscription-lifecycle.sql` once. Checkout reserves one free allocation for Palworld or an adjacent allocation pair for Project Zomboid, each for up to 24 hours. Once capacity is assigned or reserved, checkout returns a sold-out response instead of accepting another payment.
 
 The shared game pool uses Node2 (`192.168.0.130`) ports `20000-20010` and Node3 (`192.168.0.140`) ports `30000-30010`. Set `PTERODACTYL_NODE_IDS_JSON=[2,4]` and `PTERODACTYL_ALLOCATION_ALIASES_JSON={"2":"node2.sidequestservers.com","4":"node3.sidequestservers.com"}`. Forward those ranges to their matching node IP addresses in the router. Palworld selects one free allocation; Project Zomboid selects two consecutive free allocations. Checkout only selects allocations with the matching alias, preventing it from using older allocations outside the forwarded ranges.
 
@@ -46,6 +46,15 @@ The shared game pool uses Node2 (`192.168.0.130`) ports `20000-20010` and Node3 
 - Add a verified PayPal webhook handler before enabling PayPal.
 - Test with Stripe test mode and PayPal sandbox.
 - Confirm Pterodactyl can email account setup links and has available allocations.
+- Keep `CHECKOUT_ENABLED` unset until Stripe test events, the lifecycle Cron, and Pterodactyl suspend/unsuspend/build updates have been exercised together. It is enabled only by the exact value `subscription-lifecycle-ready`.
+
+## Subscription lifecycle and billing portal
+
+`invoice.payment_failed` starts a three-day D1 grace period for the matching Stripe subscription. `invoice.paid` clears grace and unsuspends that order's recorded Pterodactyl server. A subscription deletion suspends that recorded server and marks its order cancelled. Subscription update events map configured Stripe Price IDs to the matching game plan and update only that recorded server's Pterodactyl build limits.
+
+Deploy `workers/subscription-lifecycle-cron` separately only after setting its real D1 database name/ID, binding `PTERODACTYL_PANEL_URL` and `PTERODACTYL_APPLICATION_API_KEY` as Worker secrets, and testing it with Stripe test data. Its hourly Cron suspends only orders whose recorded grace period has expired. This repository does not deploy that Worker.
+
+The billing page requests a one-time portal link by email. Add `BILLING_PORTAL_RETURN_URL` if the default `https://your-domain/billing.html` is not correct. Links expire in 15 minutes, are single-use, and D1 stores only their SHA-256 hashes. Configure the Stripe Customer Portal in the same test or live mode as `STRIPE_SECRET_KEY`; there is no unauthenticated endpoint that creates a portal session.
 
 ## Transactional email
 

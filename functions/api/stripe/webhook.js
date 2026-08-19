@@ -1,5 +1,6 @@
 import { getPlan, jsonError } from "../../_lib/plans";
 import { escapeHtml, sendEmail } from "../../_lib/email";
+import { setServerSuspended, updateServerBuild } from "../../_lib/pterodactyl";
 
 function hex(bytes) {
   return Array.from(new Uint8Array(bytes), (byte) => byte.toString(16).padStart(2, "0")).join("");
@@ -31,10 +32,82 @@ function response(message, status = 200) {
   return Response.json({ ok: status < 400, message }, { status });
 }
 
+function planForPrice(env, priceId) {
+  for (const [game, prefix, ids] of [["palworld", "STRIPE_PRICE_ID", ["4", "6", "8", "12"]], ["zomboid", "STRIPE_ZOMBOID_PRICE_ID", ["5", "10", "15"]]]) {
+    for (const planId of ids) if (env[`${prefix}_${planId}_MONTHLY`] === priceId) return { game, planId, plan: getPlan(planId, game) };
+  }
+  return null;
+}
+
+async function processOnce(context, event, work) {
+  const inserted = await context.env.DB.prepare("INSERT OR IGNORE INTO webhook_events (provider, event_id) VALUES ('stripe', ?)").bind(event.id).run();
+  if (!inserted.meta.changes) return response("Event already handled.");
+  try {
+    await work();
+    return response("Event handled.");
+  } catch (error) {
+    await context.env.DB.prepare("DELETE FROM webhook_events WHERE provider = 'stripe' AND event_id = ?").bind(event.id).run();
+    console.error(`Stripe ${event.type} failed:`, error);
+    return response("Lifecycle update failed.", 500);
+  }
+}
+
+async function handleLifecycleEvent(context, event) {
+  const object = event.data?.object || {};
+  const subscriptionId = typeof object.subscription === "string" ? object.subscription : object.id;
+  if (!subscriptionId) return response("Event acknowledged.");
+  return processOnce(context, event, async () => {
+    const order = await context.env.DB.prepare(
+      "SELECT id, status, lifecycle_state, pterodactyl_server_id FROM orders WHERE provider = 'stripe' AND provider_subscription_id = ?"
+    ).bind(subscriptionId).first();
+    if (!order) return;
+    if (typeof object.customer === "string") {
+      await context.env.DB.prepare("UPDATE orders SET stripe_customer_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?")
+        .bind(object.customer, order.id).run();
+    }
+    if (event.type === "invoice.payment_failed") {
+      await context.env.DB.prepare(
+        "UPDATE orders SET lifecycle_state = 'grace', grace_expires_at = CASE WHEN lifecycle_state = 'grace' THEN grace_expires_at ELSE unixepoch() + 259200 END, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND status != 'cancelled'"
+      ).bind(order.id).run();
+      return;
+    }
+    if (event.type === "invoice.paid") {
+      if (order.status === "cancelled") return;
+      if (order.pterodactyl_server_id && ["grace", "suspended"].includes(order.lifecycle_state)) await setServerSuspended(context.env, order.pterodactyl_server_id, false);
+      await context.env.DB.prepare(
+        "UPDATE orders SET lifecycle_state = 'active', grace_expires_at = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = ?"
+      ).bind(order.id).run();
+      return;
+    }
+    if (event.type === "customer.subscription.deleted") {
+      if (order.pterodactyl_server_id) await setServerSuspended(context.env, order.pterodactyl_server_id, true);
+      await context.env.DB.prepare(
+        "UPDATE orders SET status = 'cancelled', lifecycle_state = 'cancelled', grace_expires_at = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = ?"
+      ).bind(order.id).run();
+      return;
+    }
+    const priceId = object.items?.data?.[0]?.price?.id;
+    const selected = planForPrice(context.env, priceId) || (() => {
+      const game = String(object.metadata?.game || "");
+      const planId = String(object.metadata?.plan || "");
+      const plan = getPlan(planId, game);
+      return plan ? { game, planId, plan } : null;
+    })();
+    if (!selected) throw new Error("Subscription price is not a configured SideQuest plan.");
+    if (order.pterodactyl_server_id) await updateServerBuild(context.env, order.pterodactyl_server_id, selected.plan);
+    await context.env.DB.prepare(
+      "UPDATE orders SET game = ?, plan_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?"
+    ).bind(selected.game, selected.planId, order.id).run();
+  });
+}
+
 export async function onRequestPost(context) {
   const event = await verifyStripeWebhook(context.request, context.env.STRIPE_WEBHOOK_SECRET);
   if (!event) return jsonError("Invalid Stripe webhook signature.", 400);
   if (!context.env.DB) return jsonError("Order database is not configured.", 503);
+  if (["invoice.payment_failed", "invoice.paid", "customer.subscription.updated", "customer.subscription.deleted"].includes(event.type)) {
+    return handleLifecycleEvent(context, event);
+  }
   if (event.type !== "checkout.session.completed") return response("Event acknowledged.");
 
   const session = event.data?.object;
@@ -66,10 +139,10 @@ export async function onRequestPost(context) {
   const results = await context.env.DB.batch([
     context.env.DB.prepare("INSERT OR IGNORE INTO webhook_events (provider, event_id) VALUES (?, ?)").bind("stripe", event.id),
     context.env.DB.prepare(
-      `INSERT INTO orders (id, provider, provider_event_id, provider_subscription_id, customer_email, game, plan_id, status)
-       VALUES (?, 'stripe', ?, ?, ?, ?, ?, 'paid')
-       ON CONFLICT(id) DO UPDATE SET provider_event_id = excluded.provider_event_id, status = 'paid', updated_at = CURRENT_TIMESTAMP`
-    ).bind(orderId, event.id, session.subscription || null, email, game, planId)
+       `INSERT INTO orders (id, provider, provider_event_id, provider_subscription_id, stripe_customer_id, customer_email, game, plan_id, status, lifecycle_state)
+        VALUES (?, 'stripe', ?, ?, ?, ?, ?, ?, 'paid', 'active')
+        ON CONFLICT(id) DO UPDATE SET provider_event_id = excluded.provider_event_id, provider_subscription_id = excluded.provider_subscription_id, stripe_customer_id = excluded.stripe_customer_id, status = 'paid', lifecycle_state = 'active', updated_at = CURRENT_TIMESTAMP`
+     ).bind(orderId, event.id, session.subscription || null, session.customer || null, email, game, planId)
   ]);
   if (results[0].meta.changes === 0) return response("Event already handled.");
 

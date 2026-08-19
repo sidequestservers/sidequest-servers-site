@@ -107,6 +107,8 @@ export async function onRequestPost(context) {
     "metadata[allocation_id]": String(reservation.allocationId),
     "metadata[secondary_allocation_id]": String(reservation.secondaryAllocationId || ""),
     "metadata[reservation_id]": reservation.reservationId,
+    "subscription_data[metadata][game]": game,
+    "subscription_data[metadata][plan]": String(plan),
     "custom_fields[0][key]": "panel_login_email",
     "custom_fields[0][label][type]": "custom",
     "custom_fields[0][label][custom]": "Panel login email",
