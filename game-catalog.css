@@ -172,7 +172,9 @@ footer { border-top: 1px solid rgba(192, 222, 239, 0.1); padding: 2rem 0 2.8rem;
 .zomboid-step:nth-child(3) b { color: var(--lime); }
 .zomboid-step h3 { margin: 1.3rem 0 0.45rem; font-size: 1.2rem; letter-spacing: -0.03em; }
 .zomboid-step p { margin: 0; color: var(--muted); font-size: 0.9rem; }
-.zomboid-panel { background: linear-gradient(140deg, #0f2638, #081726); }
+.zomboid-control-tools { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 0.65fr); gap: 2rem; align-items: end; margin: 4rem 0 2rem; }
+.zomboid-control-tools h3 { max-width: 15ch; margin: 0; font-size: clamp(1.8rem, 3.4vw, 2.8rem); line-height: 0.98; letter-spacing: -0.055em; }
+.zomboid-control-tools > p { max-width: 44ch; margin: 0; color: var(--muted); }
 .zomboid-panel-card { overflow: hidden; border: 1px solid var(--line); border-radius: 10px; background: #091829; }
 .zomboid-panel-card img { width: 100%; height: 220px; display: block; object-fit: cover; object-position: top; }
 .zomboid-panel-card div { padding: 1.1rem; }
@@ -195,5 +197,5 @@ footer { border-top: 1px solid rgba(192, 222, 239, 0.1); padding: 2rem 0 2.8rem;
 .routine-grid span { display: block; color: var(--muted); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; }
 .routine-grid strong { display: block; margin-top: 0.35rem; font-size: 0.94rem; }
 
-@media (max-width: 900px) { .hero-grid, .section-head, .world-scene, .launch-layout, .zomboid-control-layout { grid-template-columns: 1fr; gap: 2.5rem; } .game-grid, .feature-list, .routine-grid { grid-template-columns: 1fr; } .ops-grid, .zomboid-plan-grid { grid-template-columns: repeat(2, 1fr); } .game { min-height: 360px; } .scene-copy { grid-column: 1; } .world-scene::after { background: linear-gradient(180deg, rgba(7, 17, 31, 0.1), rgba(7, 17, 31, 0.92) 70%); } }
+@media (max-width: 900px) { .hero-grid, .section-head, .world-scene, .launch-layout, .zomboid-control-layout, .zomboid-control-tools { grid-template-columns: 1fr; gap: 2.5rem; } .game-grid, .feature-list, .routine-grid { grid-template-columns: 1fr; } .ops-grid, .zomboid-plan-grid { grid-template-columns: repeat(2, 1fr); } .game { min-height: 360px; } .scene-copy { grid-column: 1; } .world-scene::after { background: linear-gradient(180deg, rgba(7, 17, 31, 0.1), rgba(7, 17, 31, 0.92) 70%); } }
 @media (max-width: 620px) { .wrap { width: min(100% - 1.5rem, 1180px); } .topbar-inner { min-height: auto; padding: 0.8rem 0; align-items: flex-start; flex-direction: column; } .nav { width: 100%; overflow-x: auto; padding-bottom: 0.1rem; } .nav a { white-space: nowrap; } .catalog-hero .eyebrow { white-space: normal; } .catalog-hero, .game-hero { padding: 4.8rem 0 3.8rem; } h1 { font-size: clamp(3.2rem, 16vw, 5rem); } .hero-actions { flex-direction: column; } .hero-actions .button { width: 100%; } section { padding: 4.5rem 0; } .ops-grid, .zomboid-plan-grid, .zomboid-steps, .zomboid-panel-grid { grid-template-columns: 1fr; } .zomboid-console-art img { min-height: 290px; } .panel-preview img { min-height: 290px; } .support-box { align-items: flex-start; flex-direction: column; padding: 1.5rem; } .support-box .button { width: 100%; } .footer-row { flex-direction: column; } }
