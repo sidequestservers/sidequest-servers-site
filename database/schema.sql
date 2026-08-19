@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS orders (
   provider_event_id TEXT UNIQUE,
   provider_subscription_id TEXT UNIQUE,
   customer_email TEXT NOT NULL,
+  game TEXT NOT NULL DEFAULT 'palworld',
   plan_id TEXT NOT NULL,
   status TEXT NOT NULL CHECK (status IN ('pending', 'paid', 'provisioning', 'active', 'failed', 'cancelled')),
   pterodactyl_user_id INTEGER,

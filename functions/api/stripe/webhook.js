@@ -38,14 +38,17 @@ export async function onRequestPost(context) {
   if (event.type !== "checkout.session.completed") return response("Event acknowledged.");
 
   const session = event.data?.object;
+  const game = String(session?.metadata?.game || "palworld");
   const planId = String(session?.metadata?.plan || "");
   const allocationId = Number(session?.metadata?.allocation_id);
+  const secondaryAllocationId = Number(session?.metadata?.secondary_allocation_id);
   const reservationId = String(session?.metadata?.reservation_id || "");
-  const plan = getPlan(planId);
+  const plan = getPlan(planId, game);
   const email = session?.customer_details?.email || session?.customer_email;
-  if (!session?.id || !email || !plan || !Number.isInteger(allocationId) || !reservationId || session.payment_status !== "paid") {
+  if (!session?.id || !email || !plan || !["palworld", "zomboid"].includes(game) || !Number.isInteger(allocationId) || !reservationId || session.payment_status !== "paid") {
     return jsonError("Unsupported completed checkout session.", 400);
   }
+  if (game === "zomboid" && !Number.isInteger(secondaryAllocationId)) return jsonError("Unsupported Project Zomboid allocation pair.", 400);
 
   if (context.env.PROVISIONING_ENABLED === "true" && !context.env.PROVISIONING_SECRET) {
     return jsonError("Provisioning secret is not configured.", 503);
@@ -56,16 +59,17 @@ export async function onRequestPost(context) {
   ).bind("stripe", event.id).first();
   if (handled) return response("Event already handled.");
   const reservation = await context.env.DB.prepare(
-    "SELECT allocation_id FROM checkout_reservations WHERE id = ? AND allocation_id = ? AND expires_at > unixepoch()"
+    "SELECT allocation_id, secondary_allocation_id, node_id FROM checkout_reservations WHERE id = ? AND allocation_id = ? AND expires_at > unixepoch()"
   ).bind(reservationId, allocationId).first();
   if (!reservation) return jsonError("The reserved server slot is no longer available.", 409);
+  if (game === "zomboid" && reservation.secondary_allocation_id !== secondaryAllocationId) return jsonError("The reserved Project Zomboid allocation pair is no longer available.", 409);
   const results = await context.env.DB.batch([
     context.env.DB.prepare("INSERT OR IGNORE INTO webhook_events (provider, event_id) VALUES (?, ?)").bind("stripe", event.id),
     context.env.DB.prepare(
-      `INSERT INTO orders (id, provider, provider_event_id, provider_subscription_id, customer_email, plan_id, status)
-       VALUES (?, 'stripe', ?, ?, ?, ?, 'paid')
+      `INSERT INTO orders (id, provider, provider_event_id, provider_subscription_id, customer_email, game, plan_id, status)
+       VALUES (?, 'stripe', ?, ?, ?, ?, ?, 'paid')
        ON CONFLICT(id) DO UPDATE SET provider_event_id = excluded.provider_event_id, status = 'paid', updated_at = CURRENT_TIMESTAMP`
-    ).bind(orderId, event.id, session.subscription || null, email, planId)
+    ).bind(orderId, event.id, session.subscription || null, email, game, planId)
   ]);
   if (results[0].meta.changes === 0) return response("Event already handled.");
 
@@ -81,7 +85,7 @@ export async function onRequestPost(context) {
     const provision = await fetch(`${new URL(context.request.url).origin}/api/provision`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Provisioning-Secret": context.env.PROVISIONING_SECRET },
-      body: JSON.stringify({ email, plan: planId, externalId: orderId, allocationId, firstName, lastName: rest.join(" ") || "Customer" })
+      body: JSON.stringify({ game, email, plan: planId, externalId: orderId, allocationId, secondaryAllocationId: reservation.secondary_allocation_id, nodeId: reservation.node_id, firstName, lastName: rest.join(" ") || "Customer" })
     });
     const result = await provision.json().catch(() => ({}));
     if (!provision.ok) throw new Error(result.message || "Provisioning request failed.");
@@ -93,9 +97,9 @@ export async function onRequestPost(context) {
     const panelUrl = result.panelUrl || context.env.PTERODACTYL_PANEL_URL;
     await sendEmail(context.env, {
       to: email,
-      subject: "Your SideQuest Servers game server is ready",
-      text: `Hi ${customerName},\n\nYour ${plan.name} game server is ready. Your Stripe email is also your control-panel login. The panel sends a separate Setup Your Account email with a one-time link to create your password.\n\nOpen the control panel: ${panelUrl}\n\nQuestions? Reply to this email or contact support@sidequestservers.com.`,
-      html: `<p>Hi ${escapeHtml(customerName)},</p><p>Your <strong>${escapeHtml(plan.name)}</strong> game server is ready.</p><p>Your Stripe email is also your control-panel login. The Panel sends a separate <strong>Setup Your Account</strong> email with a one-time link to create your password.</p><p><a href="${escapeHtml(panelUrl)}">Open the control panel</a></p><p>Questions? Reply to this email or contact <a href="mailto:support@sidequestservers.com">support@sidequestservers.com</a>.</p>`
+       subject: "Your SideQuest Servers game server is ready",
+       text: `Hi ${customerName},\n\nYour ${game === "zomboid" ? "Project Zomboid" : "Palworld"} ${plan.name} server is ready. Your Stripe email is also your control-panel login. The panel sends a separate Setup Your Account email with a one-time link to create your password.\n\nOpen the control panel: ${panelUrl}\n\nQuestions? Reply to this email or contact support@sidequestservers.com.`,
+       html: `<p>Hi ${escapeHtml(customerName)},</p><p>Your <strong>${escapeHtml(game === "zomboid" ? "Project Zomboid" : "Palworld")} ${escapeHtml(plan.name)}</strong> server is ready.</p><p>Your Stripe email is also your control-panel login. The Panel sends a separate <strong>Setup Your Account</strong> email with a one-time link to create your password.</p><p><a href="${escapeHtml(panelUrl)}">Open the control panel</a></p><p>Questions? Reply to this email or contact <a href="mailto:support@sidequestservers.com">support@sidequestservers.com</a>.</p>`
     });
     return response("Payment recorded and server provisioned.");
   } catch (error) {

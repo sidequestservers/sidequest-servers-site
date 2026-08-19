@@ -4,14 +4,51 @@ function createAdminPassword() {
   return crypto.randomUUID().replaceAll("-", "").slice(0, 24);
 }
 
-async function createDailyBackupAndRestart(panelUrl, headers, serverId) {
+const GAME_CONFIG = {
+  palworld: {
+    name: "Palworld",
+    nestId: "PTERODACTYL_NEST_ID",
+    eggId: "PTERODACTYL_EGG_ID",
+    image: "PTERODACTYL_DOCKER_IMAGE",
+    schedule: {
+      name: "Daily 3:57 AM Central Backup and Restart",
+      minute: "57",
+      hour: "3",
+      tasks: [
+        { action: "command", payload: "Save", time_offset: 0, continue_on_failure: true },
+        { action: "power", payload: "stop", time_offset: 60, continue_on_failure: false },
+        { action: "backup", payload: "", time_offset: 60, continue_on_failure: false },
+        { action: "power", payload: "start", time_offset: 300, continue_on_failure: false }
+      ]
+    }
+  },
+  zomboid: {
+    name: "Project Zomboid",
+    nestId: "PTERODACTYL_ZOMBOID_NEST_ID",
+    eggId: "PTERODACTYL_ZOMBOID_EGG_ID",
+    image: "PTERODACTYL_ZOMBOID_DOCKER_IMAGE",
+    schedule: {
+      name: "Project Zomboid Nightly Backup",
+      minute: "0",
+      hour: "5",
+      tasks: [
+        { action: "command", payload: "save", time_offset: 0, continue_on_failure: false },
+        { action: "power", payload: "stop", time_offset: 60, continue_on_failure: false },
+        { action: "backup", payload: "", time_offset: 120, continue_on_failure: false },
+        { action: "power", payload: "start", time_offset: 300, continue_on_failure: false }
+      ]
+    }
+  }
+};
+
+async function createDailyBackupAndRestart(panelUrl, headers, serverId, schedule) {
   const scheduleResponse = await fetch(`${panelUrl}/api/application/servers/${serverId}/schedules`, {
     method: "POST",
     headers,
     body: JSON.stringify({
-      name: "Daily 3:57 AM Central Backup and Restart",
-      minute: "57",
-      hour: "3",
+      name: schedule.name,
+      minute: schedule.minute,
+      hour: schedule.hour,
       day_of_week: "*",
       day_of_month: "*",
       is_active: true,
@@ -22,13 +59,7 @@ async function createDailyBackupAndRestart(panelUrl, headers, serverId) {
   const scheduleId = schedule.attributes?.id;
   if (!scheduleResponse.ok || !scheduleId) throw new Error("Unable to create the daily restart schedule.");
 
-  const tasks = [
-    { action: "command", payload: "Save", time_offset: 0, continue_on_failure: true },
-    { action: "power", payload: "stop", time_offset: 60, continue_on_failure: false },
-    { action: "backup", payload: "", time_offset: 60, continue_on_failure: false },
-    { action: "power", payload: "start", time_offset: 300, continue_on_failure: false }
-  ];
-  for (const task of tasks) {
+  for (const task of schedule.tasks) {
     const taskResponse = await fetch(`${panelUrl}/api/application/servers/${serverId}/schedules/${scheduleId}/tasks`, {
       method: "POST",
       headers,
@@ -46,19 +77,24 @@ export async function onRequestPost(context) {
     return jsonError("Provisioning is not enabled.", 503);
   }
 
-  const { email, plan, externalId, allocationId, firstName = "SideQuest", lastName = "Customer" } = await context.request.json().catch(() => ({}));
-  const selectedPlan = getPlan(plan);
+  const { game = "palworld", email, plan, externalId, allocationId, secondaryAllocationId, nodeId, firstName = "SideQuest", lastName = "Customer" } = await context.request.json().catch(() => ({}));
+  const gameConfig = GAME_CONFIG[game];
+  const selectedPlan = getPlan(plan, game);
   const selectedAllocationId = Number(allocationId);
-  if (!email || !externalId || !selectedPlan || !Number.isInteger(selectedAllocationId)) {
+  const selectedSecondaryAllocationId = Number(secondaryAllocationId);
+  const selectedNodeId = Number(nodeId);
+  if (!gameConfig || !email || !externalId || !selectedPlan || !Number.isInteger(selectedAllocationId)) {
     return jsonError("Invalid provisioning request.");
   }
+  if (game === "zomboid" && (!Number.isInteger(selectedSecondaryAllocationId) || !Number.isInteger(selectedNodeId))) return jsonError("Invalid Project Zomboid allocations.");
 
   const panelUrl = context.env.PTERODACTYL_PANEL_URL?.replace(/\/$/, "");
   const apiKey = context.env.PTERODACTYL_APPLICATION_API_KEY;
-  const nestId = Number(context.env.PTERODACTYL_NEST_ID || 0);
-  const eggId = Number(context.env.PTERODACTYL_EGG_ID || 0);
-  if (!panelUrl || !apiKey || !nestId || !eggId) {
-    return jsonError("Pterodactyl is not configured.", 503);
+  const nestId = Number(context.env[gameConfig.nestId] || 0);
+  const eggId = Number(context.env[gameConfig.eggId] || 0);
+  const dockerImage = context.env[gameConfig.image];
+  if (!panelUrl || !apiKey || !nestId || !eggId || !dockerImage) {
+    return jsonError(`${gameConfig.name} Pterodactyl configuration is incomplete.`, 503);
   }
   const headers = {
     Authorization: `Bearer ${apiKey}`,
@@ -69,16 +105,31 @@ export async function onRequestPost(context) {
   const egg = await eggResponse.json().catch(() => ({}));
   const variables = egg.attributes?.relationships?.variables?.data;
   if (!eggResponse.ok || !egg.attributes?.startup || !Array.isArray(variables)) {
-    return jsonError("Unable to load the Palworld egg configuration.", 502);
+    return jsonError(`Unable to load the ${gameConfig.name} egg configuration.`, 502);
   }
   const environment = Object.fromEntries(
     variables.map(({ attributes }) => [attributes.env_variable, String(attributes.default_value ?? "")])
   );
-  Object.assign(environment, {
-    ADMIN_PASSWORD: createAdminPassword(),
-    MAX_PLAYERS: String(selectedPlan.players),
-    SERVER_NAME: `SideQuest ${selectedPlan.name}`
-  });
+  if (game === "palworld") {
+    Object.assign(environment, {
+      ADMIN_PASSWORD: createAdminPassword(),
+      MAX_PLAYERS: String(selectedPlan.players),
+      SERVER_NAME: `SideQuest ${selectedPlan.name}`
+    });
+  } else {
+    const allocationResponse = await fetch(`${panelUrl}/api/application/nodes/${selectedNodeId}/allocations/${selectedSecondaryAllocationId}`, { headers });
+    const allocation = await allocationResponse.json().catch(() => ({}));
+    const steamPort = allocation.attributes?.port;
+    if (!allocationResponse.ok || !steamPort) return jsonError("Unable to load the Project Zomboid Steam allocation.", 502);
+    Object.assign(environment, {
+      SERVER_NAME: `SideQuest ${selectedPlan.name}`,
+      ADMIN_USER: "admin",
+      ADMIN_PASSWORD: createAdminPassword(),
+      STEAM_PORT: String(steamPort),
+      AUTO_UPDATE: "1",
+      ZOMBOID_SETTINGS_VERSION: "1"
+    });
+  }
   const username = `sq${String(externalId).replace(/[^a-z0-9]/gi, "").slice(-20)}`.toLowerCase();
   const userResponse = await fetch(`${panelUrl}/api/application/users`, {
     method: "POST",
@@ -95,12 +146,12 @@ export async function onRequestPost(context) {
       name: `${selectedPlan.name} - ${username}`,
       user: user.attributes.id,
       egg: eggId,
-      docker_image: context.env.PTERODACTYL_DOCKER_IMAGE,
+       docker_image: dockerImage,
       startup: egg.attributes.startup,
       environment,
       limits: { memory: selectedPlan.memory, swap: 0, disk: selectedPlan.disk, io: 500, cpu: selectedPlan.cpu },
-      feature_limits: { databases: 0, allocations: 0, backups: 1 },
-      allocation: { default: selectedAllocationId },
+       feature_limits: { databases: 0, allocations: 0, backups: selectedPlan.backups || 1 },
+       allocation: { default: selectedAllocationId, additional: game === "zomboid" ? [selectedSecondaryAllocationId] : [] },
       start_on_completion: true,
       external_id: externalId
     })
@@ -108,7 +159,7 @@ export async function onRequestPost(context) {
   const server = await serverResponse.json();
   if (!serverResponse.ok) return jsonError("Panel account was created, but server creation failed.", 502);
   try {
-    await createDailyBackupAndRestart(panelUrl, headers, server.attributes.id);
+    await createDailyBackupAndRestart(panelUrl, headers, server.attributes.id, gameConfig.schedule);
   } catch (error) {
     return jsonError(`Server was created, but daily restart setup failed: ${error.message}`, 502);
   }

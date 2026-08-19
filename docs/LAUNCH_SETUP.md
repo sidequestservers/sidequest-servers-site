@@ -1,13 +1,13 @@
 # Payments and provisioning setup
 
-These endpoints are intentionally disabled until you finish the business setup. Checkout, including Stripe test mode, requires `CHECKOUT_ENABLED=launch-ready` after the Stripe webhook, the D1 database, and Pterodactyl have all been tested together.
+These endpoints are intentionally disabled until subscription lifecycle automation is complete. Checkout, including Stripe test mode, requires `CHECKOUT_ENABLED=subscription-lifecycle-ready` after the Stripe webhook, the D1 database, and Pterodactyl have all been tested together.
 
 ## Stripe test setup
 
 1. Create one recurring monthly Stripe Price for each plan.
-2. Add `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, and the four `STRIPE_PRICE_ID_*_MONTHLY` values as Cloudflare Pages secrets.
+2. Add `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, the four `STRIPE_PRICE_ID_*_MONTHLY` values, and the three `STRIPE_ZOMBOID_PRICE_ID_*_MONTHLY` values as Cloudflare Pages secrets.
 3. In Stripe, add `https://your-domain/api/stripe/webhook` and subscribe it to `checkout.session.completed`.
-4. Keep `CHECKOUT_ENABLED` unset or set to any value other than `launch-ready` on production. Use `launch-ready` only in an isolated test environment, and keep `PROVISIONING_ENABLED=false` until the Palworld node has capacity.
+4. Keep `CHECKOUT_ENABLED` unset or set to any value other than `subscription-lifecycle-ready` on production. Keep `PROVISIONING_ENABLED=false` until both game provisioning paths are tested.
 
 ## PayPal sandbox setup
 
@@ -26,19 +26,23 @@ Create an Application API key in the Pterodactyl admin panel. Never place it in 
 - `PTERODACTYL_NODE_IDS_JSON` (for example `[2,4]` for the Palworld capacity pool)
 - `PTERODACTYL_ALLOCATION_ALIASES_JSON` (for example `{"2":"node2.sidequestservers.com","4":"node3.sidequestservers.com"}`)
 - `PTERODACTYL_DOCKER_IMAGE`
+- `PTERODACTYL_ZOMBOID_NEST_ID=6`
+- `PTERODACTYL_ZOMBOID_EGG_ID=16`
+- `PTERODACTYL_ZOMBOID_DOCKER_IMAGE=ghcr.io/ptero-eggs/steamcmd:debian`
 - `PROVISIONING_SECRET`
 - `PROVISIONING_ENABLED=false`
 
-Your confirmed panel values are: Palworld nest `5`, egg `15`, and Docker image `ghcr.io/ptero-eggs/steamcmd:debian`. Provisioning reads the egg startup command and all variable defaults from the Panel API, then sets a unique admin password, server name, and the player limit for the purchased plan. The provision endpoint is server-to-server only and must only be called after a verified payment webhook.
+Your confirmed panel values are: Palworld nest `5`, egg `15`, and Docker image `ghcr.io/ptero-eggs/steamcmd:debian`; Project Zomboid nest `6`, egg `16`, and the same Docker image. Provisioning reads egg startup commands and variable defaults from the Panel API. Palworld provisions one allocation; Project Zomboid provisions an adjacent game/Steam allocation pair. The provision endpoint is server-to-server only and must only be called after a verified payment webhook.
 
-Before enabling checkout, apply `database/capacity-reservations.sql` to D1. Checkout reserves one specific free allocation on the configured nodes for up to 24 hours. Once every allocation in that pool is either assigned or reserved, checkout returns a sold-out response instead of accepting another payment.
+Before enabling checkout on a new D1 database, apply `database/schema.sql` and `database/capacity-reservations.sql`. For the existing D1 database, apply `database/add-zomboid-provisioning.sql` once to add the game and secondary-allocation columns. Checkout reserves one free allocation for Palworld or an adjacent allocation pair for Project Zomboid, each for up to 24 hours. Once capacity is assigned or reserved, checkout returns a sold-out response instead of accepting another payment.
 
-The Palworld pool uses Node2 (`192.168.0.130`) ports `20000-20010` and Node3 (`192.168.0.140`) ports `30000-30010`. Set `PTERODACTYL_NODE_IDS_JSON=[2,4]` and `PTERODACTYL_ALLOCATION_ALIASES_JSON={"2":"node2.sidequestservers.com","4":"node3.sidequestservers.com"}`. Forward those ranges to their matching node IP addresses in the router. Checkout only selects free allocations with the matching alias, preventing it from using older allocations outside the forwarded ranges.
+The shared game pool uses Node2 (`192.168.0.130`) ports `20000-20010` and Node3 (`192.168.0.140`) ports `30000-30010`. Set `PTERODACTYL_NODE_IDS_JSON=[2,4]` and `PTERODACTYL_ALLOCATION_ALIASES_JSON={"2":"node2.sidequestservers.com","4":"node3.sidequestservers.com"}`. Forward those ranges to their matching node IP addresses in the router. Palworld selects one free allocation; Project Zomboid selects two consecutive free allocations. Checkout only selects allocations with the matching alias, preventing it from using older allocations outside the forwarded ranges.
 
 ## Before enabling sales
 
 - Create a Cloudflare D1 database, apply `database/schema.sql`, and bind it to Pages as `DB` for order storage and webhook event de-duplication.
 - The verified Stripe webhook records each paid checkout event in D1, claims the order once, then calls `/api/provision` only when `PROVISIONING_ENABLED=true`.
+- Project Zomboid tiers allocate 5/8/10 GB RAM, 25 GB disk, one backup, and the existing save-stop-backup-start schedule. Confirm its player-cap setting is written by the egg or a post-provision configuration step before enabling sales.
 - Add a verified PayPal webhook handler before enabling PayPal.
 - Test with Stripe test mode and PayPal sandbox.
 - Confirm Pterodactyl can email account setup links and has available allocations.

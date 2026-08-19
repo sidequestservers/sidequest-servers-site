@@ -5,8 +5,15 @@ export const PLANS = {
   "12": { name: "Guild Hall", players: 12, priceCents: 1499, memory: 8192, disk: 20480, cpu: 200 }
 };
 
-export function getPlan(planId) {
-  return PLANS[String(planId)] || null;
+export const ZOMBOID_PLANS = {
+  "5": { name: "Safehouse", players: 5, priceCents: 899, memory: 5120, disk: 25600, cpu: 0, backups: 1 },
+  "10": { name: "Survivor Group", players: 10, priceCents: 1399, memory: 8192, disk: 25600, cpu: 0, backups: 1 },
+  "15": { name: "Outbreak", players: 15, priceCents: 1649, memory: 10240, disk: 25600, cpu: 0, backups: 1 }
+};
+
+export function getPlan(planId, game = "palworld") {
+  const plans = game === "zomboid" ? ZOMBOID_PLANS : game === "palworld" ? PLANS : null;
+  return plans?.[String(planId)] || null;
 }
 
 export function jsonError(message, status = 400) {

@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS checkout_reservations (
   id TEXT PRIMARY KEY,
   allocation_id INTEGER NOT NULL UNIQUE,
+  secondary_allocation_id INTEGER UNIQUE,
   node_id INTEGER NOT NULL,
   memory_mb INTEGER NOT NULL,
   disk_mb INTEGER NOT NULL,

@@ -427,14 +427,8 @@
             <form id="billing-form">
 
               <label>
-                Palworld plan
-                <select id="plan" required>
-                    <option value="">Select a plan</option>
-                    <option value="4">Starter Camp — 4 players — $6.99 / month</option>
-                    <option value="6">Explorer Outpost — 6 players — $8.99 / month</option>
-                    <option value="8">Frontier Base — 8 players — $10.99 / month</option>
-                    <option value="12">Guild Hall — 12 players — $14.99 / month</option>
-                </select>
+                <span id="plan-label">Hosting plan</span>
+                <select id="plan" required></select>
               </label>
 
               <p class="hint">
@@ -496,14 +490,32 @@
     </footer>
 
     <script>
-      const plans = {
-        "4": { name: "Starter Camp — 4 players", price: 6.99 },
-        "6": { name: "Explorer Outpost — 6 players", price: 8.99 },
-        "8": { name: "Frontier Base — 8 players", price: 10.99 },
-        "12": { name: "Guild Hall — 12 players", price: 14.99 }
+      const games = {
+        palworld: {
+          name: "Palworld",
+          plans: {
+            "4": { name: "Starter Camp — 4 players", price: 6.99 },
+            "6": { name: "Explorer Outpost — 6 players", price: 8.99 },
+            "8": { name: "Frontier Base — 8 players", price: 10.99 },
+            "12": { name: "Guild Hall — 12 players", price: 14.99 }
+          }
+        },
+        zomboid: {
+          name: "Project Zomboid",
+          plans: {
+            "5": { name: "Safehouse — 5 players", price: 8.99 },
+            "10": { name: "Survivor Group — 10 players", price: 13.99 },
+            "15": { name: "Outbreak — 15 players", price: 16.49 }
+          }
+        }
       };
 
+      const params = new URLSearchParams(window.location.search);
+      const game = games[params.get("game")] ? params.get("game") : "palworld";
+      const plans = games[game].plans;
       const plan = document.getElementById("plan");
+      document.getElementById("plan-label").textContent = `${games[game].name} plan`;
+      plan.innerHTML = `<option value="">Select a plan</option>${Object.entries(plans).map(([id, details]) => `<option value="${id}">${details.name} — $${details.price.toFixed(2)} / month</option>`).join("")}`;
       const summaryPlan = document.getElementById("summary-plan");
       const summaryPeriod = document.getElementById("summary-period");
       const summaryPrice = document.getElementById("summary-price");
@@ -535,7 +547,6 @@
 
       (function preselectPlanFromUrl() {
         try {
-          const params = new URLSearchParams(window.location.search);
           const initialPlan = params.get("plan");
           if (initialPlan && plans[initialPlan]) {
             plan.value = initialPlan;
@@ -561,7 +572,7 @@
           const response = await fetch("/api/stripe/create-checkout", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ plan: plan.value })
+            body: JSON.stringify({ game, plan: plan.value })
           });
           const result = await response.json().catch(() => ({}));
           if (!response.ok || !result.checkoutUrl) {

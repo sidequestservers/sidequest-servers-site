@@ -1,6 +1,11 @@
 import { getPlan, jsonError } from "../../_lib/plans";
 
-async function reserveAllocation(context, plan) {
+function getPriceId(env, game, plan) {
+  const prefix = game === "zomboid" ? "STRIPE_ZOMBOID_PRICE_ID" : "STRIPE_PRICE_ID";
+  return env[`${prefix}_${plan}_MONTHLY`];
+}
+
+async function reserveAllocation(context, game, plan) {
   const panelUrl = context.env.PTERODACTYL_PANEL_URL?.replace(/\/$/, "");
   const apiKey = context.env.PTERODACTYL_APPLICATION_API_KEY;
   const nodeIds = JSON.parse(context.env.PTERODACTYL_NODE_IDS_JSON || "[]");
@@ -15,7 +20,7 @@ async function reserveAllocation(context, plan) {
 
   for (let attempt = 0; attempt < 4; attempt += 1) {
     const [reserved, locks, allocationResponses] = await Promise.all([
-      context.env.DB.prepare("SELECT allocation_id, node_id, memory_mb, disk_mb FROM checkout_reservations").all(),
+      context.env.DB.prepare("SELECT allocation_id, secondary_allocation_id, node_id, memory_mb, disk_mb FROM checkout_reservations").all(),
       context.env.DB.prepare("SELECT node_id, version FROM node_capacity_locks").all(),
       Promise.all(nodeIds.map(async (nodeId) => {
         const response = await fetch(`${panelUrl}/api/application/nodes/${Number(nodeId)}/allocations?filter[server_id]=&per_page=100`, { headers });
@@ -23,7 +28,7 @@ async function reserveAllocation(context, plan) {
         return { nodeId: Number(nodeId), allocations: response.ok ? result.data || [] : [] };
       }))
     ]);
-    const reservedIds = new Set(reserved.results.map(({ allocation_id }) => allocation_id));
+    const reservedIds = new Set(reserved.results.flatMap(({ allocation_id, secondary_allocation_id }) => [allocation_id, secondary_allocation_id]).filter(Boolean));
     const reservedCapacity = new Map(nodeIds.map((nodeId) => [Number(nodeId), { memory: 0, disk: 0 }]));
     for (const entry of reserved.results) {
       const capacity = reservedCapacity.get(entry.node_id);
@@ -43,22 +48,27 @@ async function reserveAllocation(context, plan) {
       const deployable = await deployableResponse.json().catch(() => ({}));
       if (!deployableResponse.ok || !(deployable.data || []).some(({ attributes }) => attributes.id === nodeId)) continue;
 
-      for (const { attributes } of allocations) {
-        if (attributes.assigned) continue;
-        if (attributes.alias !== allocationAliases[String(nodeId)]) continue;
-        if (reservedIds.has(attributes.id)) continue;
-        const reservationId = crypto.randomUUID();
-        const expiresAt = Math.floor(Date.now() / 1000) + 24 * 60 * 60;
-        const result = await context.env.DB.batch([
-          context.env.DB.prepare("UPDATE node_capacity_locks SET version = version + 1 WHERE node_id = ? AND version = ?")
-            .bind(nodeId, lockVersions.get(nodeId)),
-          context.env.DB.prepare(
-            "INSERT INTO checkout_reservations (id, allocation_id, node_id, memory_mb, disk_mb, expires_at) SELECT ?, ?, ?, ?, ?, ? WHERE changes() = 1"
-          ).bind(reservationId, attributes.id, nodeId, plan.memory, plan.disk, expiresAt)
-        ]);
-        if (result[1].meta.changes) return { allocationId: attributes.id, expiresAt, reservationId };
-        break;
-      }
+      const available = allocations
+        .map(({ attributes }) => attributes)
+        .filter((allocation) => !allocation.assigned && allocation.alias === allocationAliases[String(nodeId)] && !reservedIds.has(allocation.id))
+        .sort((left, right) => Number(left.port) - Number(right.port));
+      const pair = game === "zomboid"
+        ? available.find((allocation, index) => Number(available[index + 1]?.port) === Number(allocation.port) + 1)
+        : null;
+      const allocation = pair || (game === "palworld" ? available[0] : null);
+      if (!allocation) continue;
+
+      const secondaryAllocationId = pair ? available[available.indexOf(pair) + 1].id : null;
+      const reservationId = crypto.randomUUID();
+      const expiresAt = Math.floor(Date.now() / 1000) + 24 * 60 * 60;
+      const result = await context.env.DB.batch([
+        context.env.DB.prepare("UPDATE node_capacity_locks SET version = version + 1 WHERE node_id = ? AND version = ?")
+          .bind(nodeId, lockVersions.get(nodeId)),
+        context.env.DB.prepare(
+          "INSERT INTO checkout_reservations (id, allocation_id, secondary_allocation_id, node_id, memory_mb, disk_mb, expires_at) SELECT ?, ?, ?, ?, ?, ?, ? WHERE changes() = 1"
+        ).bind(reservationId, allocation.id, secondaryAllocationId, nodeId, plan.memory, plan.disk, expiresAt)
+      ]);
+      if (result[1].meta.changes) return { allocationId: allocation.id, secondaryAllocationId, expiresAt, reservationId };
     }
   }
   return null;
@@ -70,27 +80,21 @@ export async function onRequestPost(context) {
     return jsonError("Checkout is temporarily unavailable while SideQuest Servers is under development.", 503);
   }
 
-  const { plan } = await context.request.json().catch(() => ({}));
-  const selectedPlan = getPlan(plan);
-  const priceId = {
-    "4": context.env.STRIPE_PRICE_ID_4_MONTHLY,
-    "6": context.env.STRIPE_PRICE_ID_6_MONTHLY,
-    "8": context.env.STRIPE_PRICE_ID_8_MONTHLY,
-    "12": context.env.STRIPE_PRICE_ID_12_MONTHLY
-  }[plan];
+  const { game = "palworld", plan } = await context.request.json().catch(() => ({}));
+  if (!["palworld", "zomboid"].includes(game)) return jsonError("The selected game is unavailable.", 400);
+  const selectedPlan = getPlan(plan, game);
+  const priceId = getPriceId(context.env, game, plan);
   if (!selectedPlan) return jsonError("The selected hosting plan is unavailable.", 400);
   if (!priceId) return jsonError("Stripe pricing is not configured for this plan.", 503);
   if (!stripeSecretKey) return jsonError("Stripe checkout is not configured.", 503);
   let reservation;
   try {
-    reservation = await reserveAllocation(context, selectedPlan);
+    reservation = await reserveAllocation(context, game, selectedPlan);
   } catch (error) {
-    console.error("Palworld capacity check failed:", error);
-    return jsonError(`Palworld capacity check failed: ${error.message}`, 503);
+    console.error(`${game} capacity check failed:`, error);
+    return jsonError(`${game} capacity check failed: ${error.message}`, 503);
   }
-  if (!reservation) {
-    return jsonError("Palworld capacity is currently full. Please check back soon.", 409);
-  }
+  if (!reservation) return jsonError(`${game} capacity is currently full. Please check back soon.`, 409);
 
   const form = new URLSearchParams({
     mode: "subscription",
@@ -98,8 +102,10 @@ export async function onRequestPost(context) {
     "line_items[0][quantity]": "1",
     success_url: `${new URL(context.request.url).origin}/billing.html?payment=success&session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${new URL(context.request.url).origin}/billing.html?payment=cancelled`,
+    "metadata[game]": game,
     "metadata[plan]": String(plan),
     "metadata[allocation_id]": String(reservation.allocationId),
+    "metadata[secondary_allocation_id]": String(reservation.secondaryAllocationId || ""),
     "metadata[reservation_id]": reservation.reservationId,
     "custom_fields[0][key]": "panel_login_email",
     "custom_fields[0][label][type]": "custom",
@@ -108,7 +114,7 @@ export async function onRequestPost(context) {
     "custom_fields[0][dropdown][options][0][label]": "Use my checkout email for my Panel login",
     "custom_fields[0][dropdown][options][0][value]": "checkoutemail",
     "custom_text[submit][message]": "The email entered here will be used for your SideQuest control-panel login. After server setup, you will receive a separate email with a one-time link to create your password.",
-    "expires_at": String(reservation.expiresAt)
+    expires_at: String(reservation.expiresAt)
   });
   let response;
   let result;
