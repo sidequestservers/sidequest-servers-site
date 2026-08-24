@@ -7,6 +7,7 @@ install -D -m 0644 "$script_dir/app/Http/Controllers/SideQuestScheduleController
 install -D -m 0644 "$script_dir/app/Http/Controllers/SideQuestBillingController.php" "$panel_root/app/Http/Controllers/SideQuestBillingController.php"
 install -D -m 0644 "$script_dir/config/sidequest.php" "$panel_root/config/sidequest.php"
 install -D -m 0644 "$script_dir/resources/scripts/components/dashboard/SideQuestBillingContainer.tsx" "$panel_root/resources/scripts/components/dashboard/SideQuestBillingContainer.tsx"
+install -D -m 0644 "$script_dir/resources/scripts/components/elements/Label.tsx" "$panel_root/resources/scripts/components/elements/Label.tsx"
 install -D -m 0644 "$script_dir/routes/sidequest.php" "$panel_root/routes/sidequest.php"
 install -D -m 0644 "$script_dir/routes/billing.php" "$panel_root/routes/billing.php"
 
