@@ -1,6 +1,6 @@
 # Payments and provisioning setup
 
-These endpoints are intentionally disabled until subscription lifecycle automation is complete. Checkout, including Stripe test mode, requires both `CHECKOUT_ENABLED=subscription-lifecycle-ready` and `PUBLIC_CHECKOUT_ENABLED=true` after the Stripe webhook, the D1 database, and Pterodactyl have all been tested together.
+These endpoints are intentionally disabled until subscription lifecycle automation is complete. Checkout, including Stripe test mode, requires both `CHECKOUT_ENABLED=subscription-lifecycle-ready` and `PUBLIC_CHECKOUT_ENABLED=true` after the Stripe webhook, the D1 database, and Pterodactyl have all been tested together. `PUBLIC_CHECKOUT_ENABLED` must be exactly `true` with no surrounding whitespace.
 
 ## Stripe test setup
 
