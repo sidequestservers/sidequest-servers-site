@@ -15,8 +15,8 @@ export default {
   async scheduled(_event, env, ctx) {
     ctx.waitUntil((async () => {
       const expired = await env.DB.prepare(
-        "SELECT id, pterodactyl_server_id FROM orders WHERE provider = 'stripe' AND lifecycle_state = 'grace' AND grace_expires_at <= unixepoch() AND pterodactyl_server_id IS NOT NULL"
-      ).all();
+        "SELECT id, pterodactyl_server_id FROM orders WHERE provider = 'stripe' AND lifecycle_state = 'grace' AND grace_expires_at <= ? AND pterodactyl_server_id IS NOT NULL"
+      ).bind(Math.floor(Date.now() / 1000)).all();
       for (const order of expired.results) {
         try {
           // The query is deliberately limited to a D1 order with an owned server ID.
