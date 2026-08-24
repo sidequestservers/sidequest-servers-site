@@ -55,7 +55,8 @@ async function reserveAllocation(context, game, plan) {
 
       const secondaryAllocationId = pair ? available[available.indexOf(pair) + 1].id : null;
       const reservationId = crypto.randomUUID();
-      const expiresAt = Math.floor(Date.now() / 1000) + 24 * 60 * 60;
+      // Keep scarce game allocations available when a customer abandons Checkout.
+      const expiresAt = Math.floor(Date.now() / 1000) + 30 * 60;
       const result = await context.env.DB.batch([
         context.env.DB.prepare("UPDATE node_capacity_locks SET version = version + 1 WHERE node_id = ? AND version = ?")
           .bind(nodeId, lockVersions.get(nodeId)),

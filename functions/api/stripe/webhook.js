@@ -104,6 +104,11 @@ export async function onRequestPost(context) {
   const event = await verifyStripeWebhook(context.request, context.env.STRIPE_WEBHOOK_SECRET);
   if (!event) return jsonError("Invalid Stripe webhook signature.", 400);
   if (!context.env.DB) return jsonError("Order database is not configured.", 503);
+  if (event.type === "checkout.session.expired") {
+    const reservationId = String(event.data?.object?.metadata?.reservation_id || "");
+    if (reservationId) await context.env.DB.prepare("DELETE FROM checkout_reservations WHERE id = ?").bind(reservationId).run();
+    return response("Expired checkout reservation released.");
+  }
   if (["invoice.payment_failed", "invoice.paid", "customer.subscription.updated", "customer.subscription.deleted"].includes(event.type)) {
     return handleLifecycleEvent(context, event);
   }

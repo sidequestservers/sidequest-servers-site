@@ -6,9 +6,9 @@ export const PLANS = {
 };
 
 export const ZOMBOID_PLANS = {
-  "5": { name: "Safehouse", players: 5, priceCents: 899, memory: 5120, disk: 25600, cpu: 0, backups: 1, priceEnv: "STRIPE_ZOMBOID_PRICE_ID_SAFEHOUSE_5_MONTHLY" },
-  "10": { name: "Survivor Group", players: 10, priceCents: 1399, memory: 8192, disk: 25600, cpu: 0, backups: 1, priceEnv: "STRIPE_ZOMBOID_PRICE_ID_SURVIVOR_10_MONTHLY" },
-  "15": { name: "Outbreak", players: 15, priceCents: 1649, memory: 10240, disk: 25600, cpu: 0, backups: 1, priceEnv: "STRIPE_ZOMBOID_PRICE_ID_OUTBREAK_15_MONTHLY" }
+  "5": { name: "Safehouse", players: 4, priceCents: 899, memory: 5120, disk: 25600, cpu: 0, backups: 1, priceEnv: "STRIPE_ZOMBOID_PRICE_ID_SAFEHOUSE_5_MONTHLY" },
+  "10": { name: "Survivor Group", players: 8, priceCents: 1399, memory: 8192, disk: 25600, cpu: 0, backups: 1, priceEnv: "STRIPE_ZOMBOID_PRICE_ID_SURVIVOR_10_MONTHLY" },
+  "15": { name: "Outbreak", players: 12, priceCents: 1649, memory: 10240, disk: 25600, cpu: 0, backups: 1, priceEnv: "STRIPE_ZOMBOID_PRICE_ID_OUTBREAK_15_MONTHLY" }
 };
 
 export function getPlan(planId, game = "palworld") {

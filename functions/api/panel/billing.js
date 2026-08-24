@@ -10,20 +10,37 @@ export async function onRequestPost(context) {
   const subscriptions = await Promise.all(orders.results.map(async (order) => {
     const plan = getPlan(order.plan_id, order.game);
     let renewalAt = null;
+    let status = order.lifecycle_state === "grace" ? "past_due" : order.lifecycle_state;
+    let priceCents = plan?.priceCents || null;
+    let currency = "usd";
+    let interval = "month";
+    let cancelAtPeriodEnd = false;
     if (order.provider_subscription_id && context.env.STRIPE_SECRET_KEY) {
       const response = await fetch(`https://api.stripe.com/v1/subscriptions/${encodeURIComponent(order.provider_subscription_id)}`, {
         headers: { Authorization: `Bearer ${context.env.STRIPE_SECRET_KEY}` }
       });
       const subscription = await response.json().catch(() => ({}));
-      if (response.ok && subscription.current_period_end) renewalAt = subscription.current_period_end;
+      if (response.ok) {
+        const item = subscription.items?.data?.[0] || {};
+        renewalAt = subscription.current_period_end || item.current_period_end || null;
+        status = subscription.status || status;
+        priceCents = item.price?.unit_amount ?? priceCents;
+        currency = item.price?.currency || currency;
+        interval = item.price?.recurring?.interval || interval;
+        cancelAtPeriodEnd = Boolean(subscription.cancel_at_period_end);
+      }
     }
     return {
       game: order.game,
       plan: plan?.name || order.plan_id,
-      status: order.status,
+      status,
       lifecycleState: order.lifecycle_state,
       serverId: order.pterodactyl_server_id,
-      renewalAt
+      renewalAt,
+      priceCents,
+      currency,
+      interval,
+      cancelAtPeriodEnd
     };
   }));
   return Response.json({ ok: true, subscriptions });

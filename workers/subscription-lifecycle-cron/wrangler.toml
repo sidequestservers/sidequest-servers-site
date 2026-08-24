@@ -4,6 +4,7 @@ compatibility_date = "2026-08-19"
 
 [vars]
 PTERODACTYL_PANEL_URL = "https://panel.sidequestservers.com"
+ARCHIVE_DOWNLOAD_BASE_URL = "https://sidequest-subscription-lifecycle-cron.mcbadon48.workers.dev/archives"
 
 [triggers]
 crons = ["15 * * * *"]
@@ -12,3 +13,7 @@ crons = ["15 * * * *"]
 binding = "DB"
 database_name = "sidequest-orders"
 database_id = "0782cf5e-9672-4697-8497-1612652106eb"
+
+[[r2_buckets]]
+binding = "CANCELLATION_ARCHIVES"
+bucket_name = "sidequest-server-archives"

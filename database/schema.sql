@@ -37,3 +37,21 @@ CREATE TABLE IF NOT EXISTS portal_magic_links (
 
 CREATE INDEX IF NOT EXISTS portal_magic_links_email_created_idx ON portal_magic_links (email, created_at);
 CREATE INDEX IF NOT EXISTS portal_magic_links_expires_at_idx ON portal_magic_links (expires_at);
+
+CREATE TABLE IF NOT EXISTS cancellation_archives (
+  order_id TEXT PRIMARY KEY REFERENCES orders(id) ON DELETE CASCADE,
+  pterodactyl_server_id INTEGER NOT NULL,
+  pterodactyl_backup_uuid TEXT,
+  r2_key TEXT,
+  status TEXT NOT NULL CHECK (status IN ('pending', 'backup_pending', 'ready', 'failed', 'purged')) DEFAULT 'pending',
+  server_delete_at INTEGER NOT NULL,
+  server_deleted_at INTEGER,
+  archive_purge_at INTEGER NOT NULL,
+  archived_at INTEGER,
+  emailed_at INTEGER,
+  purged_at INTEGER,
+  last_error TEXT,
+  created_at INTEGER NOT NULL DEFAULT (unixepoch()),
+  updated_at INTEGER NOT NULL DEFAULT (unixepoch())
+);
+CREATE INDEX IF NOT EXISTS cancellation_archives_cleanup_idx ON cancellation_archives (status, server_delete_at, archive_purge_at);

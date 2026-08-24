@@ -4,6 +4,7 @@ set -euo pipefail
 panel_root=/var/www/pterodactyl
 script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 install -D -m 0644 "$script_dir/app/Http/Controllers/SideQuestScheduleController.php" "$panel_root/app/Http/Controllers/SideQuestScheduleController.php"
+install -D -m 0644 "$script_dir/app/Http/Controllers/SideQuestArchiveController.php" "$panel_root/app/Http/Controllers/SideQuestArchiveController.php"
 install -D -m 0644 "$script_dir/app/Http/Controllers/SideQuestBillingController.php" "$panel_root/app/Http/Controllers/SideQuestBillingController.php"
 install -D -m 0644 "$script_dir/config/sidequest.php" "$panel_root/config/sidequest.php"
 install -D -m 0644 "$script_dir/resources/scripts/components/dashboard/SideQuestBillingContainer.tsx" "$panel_root/resources/scripts/components/dashboard/SideQuestBillingContainer.tsx"
