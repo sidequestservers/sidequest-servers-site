@@ -1,0 +1,22 @@
+--- resources/scripts/routers/routes.ts
++++ resources/scripts/routers/routes.ts
+@@ -11,6 +11,7 @@
+ import AccountOverviewContainer from '@/components/dashboard/AccountOverviewContainer';
+ import AccountApiContainer from '@/components/dashboard/AccountApiContainer';
+ import AccountSSHContainer from '@/components/dashboard/ssh/AccountSSHContainer';
++import SideQuestBillingContainer from '@/components/dashboard/SideQuestBillingContainer';
+ import ActivityLogContainer from '@/components/dashboard/activity/ActivityLogContainer';
+ import ServerActivityLogContainer from '@/components/server/ServerActivityLogContainer';
+ import PalworldSettingsContainer from '@/components/server/palworld/PalworldSettingsContainer';
+@@ -69,6 +70,11 @@
+             name: 'Activity',
+             component: ActivityLogContainer,
+         },
++        {
++            path: '/billing',
++            name: 'Billing',
++            component: SideQuestBillingContainer,
++        },
+     ],
+     server: [
+         {

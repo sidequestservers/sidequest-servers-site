@@ -59,13 +59,13 @@ The installer adds `POST /api/application/sidequest/schedules`, which uses the e
 - Confirm Pterodactyl can email account setup links and has available allocations.
 - Keep `CHECKOUT_ENABLED` unset until Stripe test events, the lifecycle Cron, and Pterodactyl suspend/unsuspend/build updates have been exercised together. Public checkout is enabled only when `CHECKOUT_ENABLED=subscription-lifecycle-ready` and `PUBLIC_CHECKOUT_ENABLED=true`.
 
-## Subscription lifecycle and billing portal
+## Subscription lifecycle and Panel billing
 
 `invoice.payment_failed` starts a three-day D1 grace period for the matching Stripe subscription. `invoice.paid` clears grace and unsuspends that order's recorded Pterodactyl server. A subscription deletion suspends that recorded server and marks its order cancelled. Subscription update events map configured Stripe Price IDs to the matching game plan and update only that recorded server's Pterodactyl build limits.
 
 Deploy `workers/subscription-lifecycle-cron` separately only after setting its real D1 database name/ID, binding `PTERODACTYL_PANEL_URL` and `PTERODACTYL_APPLICATION_API_KEY` as Worker secrets, and testing it with Stripe test data. Its hourly Cron suspends only orders whose recorded grace period has expired. This repository does not deploy that Worker.
 
-The billing page requests a one-time portal link by email. Add `BILLING_PORTAL_RETURN_URL` if the default `https://your-domain/billing.html` is not correct. Links expire in 15 minutes, are single-use, and D1 stores only their SHA-256 hashes. Configure the Stripe Customer Portal in the same test or live mode as `STRIPE_SECRET_KEY`; there is no unauthenticated endpoint that creates a portal session.
+Customer billing is available in the Pterodactyl Panel's `/account/billing` tab. The Panel calls the Pages Worker with a signed user ID, and the Worker returns only that user's recorded subscriptions or a direct management session. Configure the same random value as `PANEL_BILLING_BRIDGE_SECRET` in Cloudflare Pages and `SIDEQUEST_BILLING_BRIDGE_SECRET` in `/var/www/pterodactyl/.env`. Set `SIDEQUEST_BILLING_BRIDGE_URL=https://sidequestservers.com` in the Panel `.env`, and set `PANEL_BILLING_RETURN_URL=https://panel.sidequestservers.com/account/billing` in Cloudflare Pages. Re-run `panel-bridge/install.sh` after every Panel upgrade to restore the Billing tab and bridge routes.
 
 ## Transactional email
 

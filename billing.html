@@ -503,16 +503,6 @@
               <strong>Checkout paused:</strong> subscription lifecycle automation is being completed.
             </p>
 
-            <form id="portal-form">
-              <label>
-                Existing customer billing email
-                <input id="portal-email" type="email" autocomplete="email" required />
-              </label>
-              <button id="portal-button" class="btn btn-primary" type="submit">Email my billing link</button>
-            </form>
-            <p class="hint">We will email a short-lived, one-time link to open the Stripe billing portal.</p>
-
-            <div id="success-box" class="success-box" role="status" aria-live="polite"></div>
             <div id="error-box" class="error-box" role="alert" aria-live="assertive"></div>
 
             <div class="badge-line">
@@ -566,11 +556,7 @@
       const checkoutButton = document.getElementById("checkout-button");
       const checkoutEmail = document.getElementById("checkout-email");
       let checkoutAvailable = false;
-      const successBox = document.getElementById("success-box");
       const errorBox = document.getElementById("error-box");
-      const portalForm = document.getElementById("portal-form");
-      const portalEmail = document.getElementById("portal-email");
-      const portalButton = document.getElementById("portal-button");
 
       function showMessage(element, message) {
         element.textContent = message;
@@ -644,26 +630,6 @@
           updateSummary();
         })
         .catch(() => updateSummary());
-
-      portalForm.addEventListener("submit", async (event) => {
-        event.preventDefault();
-        portalButton.disabled = true;
-        errorBox.style.display = "none";
-        try {
-          const response = await fetch("/api/stripe/request-portal-link", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: portalEmail.value })
-          });
-          const result = await response.json().catch(() => ({}));
-          if (!response.ok) throw new Error(result.message || "Unable to request a billing link.");
-          showMessage(successBox, result.message);
-        } catch (error) {
-          showMessage(errorBox, error.message);
-        } finally {
-          portalButton.disabled = false;
-        }
-      });
 
       (function showCheckoutResult() {
         const payment = new URLSearchParams(window.location.search).get("payment");
