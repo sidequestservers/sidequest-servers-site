@@ -103,7 +103,7 @@ export async function onRequestPost(context) {
     "line_items[0][price]": priceId,
     "line_items[0][quantity]": "1",
     customer_email: customerEmail,
-    success_url: `${new URL(context.request.url).origin}/billing.html?payment=success&session_id={CHECKOUT_SESSION_ID}`,
+    success_url: `${new URL(context.request.url).origin}/checkout-success.html?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${new URL(context.request.url).origin}/billing.html?payment=cancelled`,
     "metadata[game]": game,
     "metadata[plan]": String(plan),
