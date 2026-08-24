@@ -88,7 +88,8 @@ async function copyCompletedBackups(env) {
       }
       if (!status.complete || !status.download_url) continue;
       const downloadUrl = new URL(status.download_url);
-      if (downloadUrl.origin !== panelUrl) throw new Error("Panel returned a backup URL outside the configured Panel origin.");
+      const allowedOrigins = [panelUrl, env.PTERODACTYL_BACKUP_DOWNLOAD_ORIGIN].filter(Boolean);
+      if (!allowedOrigins.includes(downloadUrl.origin)) throw new Error(`Panel returned a backup URL outside configured origins: ${downloadUrl.origin}`);
       const download = await fetch(downloadUrl);
       if (!download.ok || !download.body) throw new Error(`Backup download failed (${download.status}).`);
       const key = `cancellations/${archive.order_id}.tar.gz`;
@@ -126,7 +127,7 @@ async function emailReadyArchives(env, now) {
 }
 
 async function deleteExpiredServers(env, now) {
-  const due = await env.DB.prepare("SELECT order_id, pterodactyl_server_id FROM cancellation_archives WHERE status = 'ready' AND server_deleted_at IS NULL AND server_delete_at <= ? LIMIT 10").bind(now).all();
+  const due = await env.DB.prepare("SELECT order_id, pterodactyl_server_id FROM cancellation_archives WHERE status = 'ready' AND emailed_at IS NOT NULL AND server_deleted_at IS NULL AND server_delete_at <= ? LIMIT 10").bind(now).all();
   for (const archive of due.results) {
     try {
       await panelRequest(env, `/servers/${archive.pterodactyl_server_id}/force`, { method: "DELETE" });

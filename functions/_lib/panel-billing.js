@@ -41,7 +41,18 @@ async function portalConfiguration(env, game, priceIds, configuredId) {
   const listed = await stripeRequest(env, "/billing_portal/configurations?limit=100");
   if (!listed.response.ok) throw new Error(listed.body.error?.message || `Stripe configuration lookup failed (${listed.response.status}).`);
   const existing = listed.response.ok && listed.body.data?.find((configuration) => configuration.active && configuration.metadata?.sidequest_game === game);
-  if (existing?.id) return existing.id;
+  if (existing?.id) {
+    const updated = await stripeRequest(env, `/billing_portal/configurations/${existing.id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        "features[subscription_update][proration_behavior]": "always_invoice",
+        "features[subscription_update][schedule_at_period_end][conditions][0][type]": "decreasing_item_amount"
+      })
+    });
+    if (!updated.response.ok) throw new Error(updated.body.error?.message || `Stripe portal configuration update failed (${updated.response.status}).`);
+    return existing.id;
+  }
 
   const prices = await Promise.all(priceIds.map(async (priceId) => {
     const result = await stripeRequest(env, `/prices/${encodeURIComponent(priceId)}`);
@@ -67,7 +78,8 @@ async function portalConfiguration(env, game, priceIds, configuredId) {
     "features[subscription_cancel][mode]": "at_period_end",
     "features[subscription_update][enabled]": "true",
     "features[subscription_update][default_allowed_updates][]": "price",
-    "features[subscription_update][proration_behavior]": "create_prorations"
+    "features[subscription_update][proration_behavior]": "always_invoice",
+    "features[subscription_update][schedule_at_period_end][conditions][0][type]": "decreasing_item_amount"
   });
   let index = 0;
   for (const [productId, productPrices] of products) {
@@ -85,18 +97,13 @@ async function portalConfiguration(env, game, priceIds, configuredId) {
 }
 
 export async function createPortalSession(env, stripeCustomerId, requestUrl, game, priceIds, configuredId) {
-  let configurationId = null;
-  try {
-    configurationId = await portalConfiguration(env, game, priceIds, configuredId);
-  } catch (error) {
-    // Preserve the working default portal while an invalid custom catalog is corrected.
-    console.error("SideQuest portal configuration unavailable:", error);
-  }
+  const configurationId = await portalConfiguration(env, game, priceIds, configuredId);
+  if (!configurationId) return null;
   const body = new URLSearchParams({
     customer: stripeCustomerId,
     return_url: env.PANEL_BILLING_RETURN_URL || `${new URL(requestUrl).protocol}//${new URL(requestUrl).host}/billing`
   });
-  if (configurationId) body.set("configuration", configurationId);
+  body.set("configuration", configurationId);
   const response = await fetch("https://api.stripe.com/v1/billing_portal/sessions", {
     method: "POST",
     headers: { Authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, "Content-Type": "application/x-www-form-urlencoded" },

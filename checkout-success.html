@@ -30,5 +30,22 @@
       <p>If you do not receive an account email within 10 minutes, check spam or contact support.</p>
       <a href="https://panel.sidequestservers.com">Open Server Control</a>
     </main>
+    <script>
+      const sessionId = new URLSearchParams(window.location.search).get("session_id");
+      if (sessionId) {
+        const checkSetup = async () => {
+          try {
+            const response = await fetch(`/api/stripe/checkout-result?session_id=${encodeURIComponent(sessionId)}`, { cache: "no-store" });
+            const result = await response.json();
+            if (["cancelled", "failed"].includes(result.status)) {
+              window.location.replace("/checkout-unsuccessful.html");
+              return;
+            }
+          } catch {}
+          window.setTimeout(checkSetup, 3000);
+        };
+        checkSetup();
+      }
+    </script>
   </body>
 </html>

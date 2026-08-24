@@ -101,21 +101,25 @@ export async function onRequestPost(context) {
     });
   }
   const identity = createIdentity(firstName, lastName, externalId);
-  let username;
-  let user;
-  let userResponse;
-  for (let suffix = 0; suffix < 1000; suffix += 1) {
-    username = identityWithSuffix(identity, suffix);
-    userResponse = await fetch(`${panelUrl}/api/application/users`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ email, username, first_name: firstName, last_name: lastName, external_id: externalId })
-    });
-    user = await userResponse.json().catch(() => ({}));
-    const usernameTaken = user?.errors?.some((error) => error.meta?.source_field === "username" || error.source?.pointer === "/data/attributes/username");
-    if (userResponse.ok || !usernameTaken) break;
+  const existingUserResponse = await fetch(`${panelUrl}/api/application/users?filter[email]=${encodeURIComponent(email)}&per_page=1`, { headers });
+  const existingUser = (await existingUserResponse.json().catch(() => ({}))).data?.find(({ attributes }) => attributes.email?.toLowerCase() === email.toLowerCase())?.attributes;
+  let username = existingUser?.username;
+  let user = existingUser ? { attributes: existingUser } : null;
+  if (!user) {
+    let userResponse;
+    for (let suffix = 0; suffix < 1000; suffix += 1) {
+      username = identityWithSuffix(identity, suffix);
+      userResponse = await fetch(`${panelUrl}/api/application/users`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ email, username, first_name: firstName, last_name: lastName, external_id: externalId })
+      });
+      user = await userResponse.json().catch(() => ({}));
+      const usernameTaken = user?.errors?.some((error) => error.meta?.source_field === "username" || error.source?.pointer === "/data/attributes/username");
+      if (userResponse.ok || !usernameTaken) break;
+    }
+    if (!userResponse?.ok) return jsonError("Unable to create the panel account.", 502);
   }
-  if (!userResponse.ok) return jsonError("Unable to create the panel account.", 502);
   environment.SERVER_NAME = username;
 
   const serverResponse = await fetch(`${panelUrl}/api/application/servers`, {

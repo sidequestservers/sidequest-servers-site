@@ -66,7 +66,7 @@
         transition: transform 180ms ease, background 180ms ease, border 180ms ease;
       }
       .button:hover { transform: translateY(-2px); }
-      .button-primary { color: #07111f; background: var(--lime); box-shadow: 5px 5px 0 rgba(109, 229, 245, 0.7); }
+      .button-primary { color: #07111f; background: var(--lime); box-shadow: 5px 5px 0 rgba(180, 239, 131, 0.7); }
       .button-primary:hover { background: #cef6aa; }
       .button-quiet { border-color: rgba(192, 222, 239, 0.34); color: var(--copy); background: rgba(12, 28, 47, 0.42); }
       .button-quiet:hover { border-color: var(--cyan); background: rgba(109, 229, 245, 0.09); }
@@ -158,37 +158,38 @@
       .section-title { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 0.65fr); gap: 2rem; align-items: end; margin-bottom: 2.1rem; }
       .section-title h2 { max-width: 14ch; margin: 0; font-size: clamp(2.15rem, 4vw, 3.65rem); line-height: 0.98; letter-spacing: -0.06em; }
       .section-title p { max-width: 43ch; margin: 0; color: var(--muted); }
+      .section-title .capacity-note { color: #f8fafc; font-weight: 800; }
 
       .plans { position: relative; background: #0c1a2a; }
       .plans::before { position: absolute; inset: 0; content: ""; opacity: 0.32; background: linear-gradient(90deg, rgba(109, 229, 245, 0.08) 1px, transparent 1px); background-size: 25%; pointer-events: none; }
       .plans .wrap { position: relative; }
-      .plan-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.8rem; }
+      .plan-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; }
       .plan {
         display: flex;
-        min-height: 310px;
+        min-height: 260px;
         flex-direction: column;
         padding: 1.3rem;
         border: 1px solid var(--line);
         border-top: 2px solid var(--coral);
         border-radius: 10px;
-        background: linear-gradient(160deg, #132d43, #0d2033);
+        background: linear-gradient(145deg, #112b40, #0a1929);
         transition: border 180ms ease, transform 180ms ease;
       }
       .plan:hover { border-color: var(--cyan); transform: translateY(-5px); }
       .plan .level { color: var(--coral); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.11em; text-transform: uppercase; }
-      .plan h3 { margin: 1rem 0 0.5rem; font-size: 1.2rem; letter-spacing: -0.03em; }
-      .plan p { margin: 0; color: var(--muted); font-size: 0.86rem; }
-      .plan-price { margin-top: auto; padding-top: 1.15rem; border-top: 1px solid var(--line); }
-      .plan-price strong { font-size: 1.55rem; letter-spacing: -0.05em; }
+      .plan h3 { margin: 1rem 0 0.2rem; font-size: 1.45rem; letter-spacing: -0.04em; }
+      .plan p { margin: 0; color: var(--muted); font-size: 0.88rem; }
+      .plan-price { margin: 1.35rem 0; padding: 0; border: 0; }
+      .plan-price strong { font-size: 1.7rem; letter-spacing: -0.05em; }
       .plan-price span { color: var(--muted); font-size: 0.78rem; }
-      .plan .button { width: 100%; margin-top: 0.9rem; min-height: 43px; font-size: 0.74rem; }
+      .plan .button { width: 100%; margin-top: auto; min-height: 43px; font-size: 0.74rem; }
       .plan-grid .plan:nth-child(1) .button { color: #07111f; background: var(--coral); box-shadow: 5px 5px 0 rgba(255, 157, 123, 0.7); }
       .plan-grid .plan:nth-child(2) { border-top-color: var(--cyan); }
       .plan-grid .plan:nth-child(2) .level { color: var(--cyan); }
       .plan-grid .plan:nth-child(2) .button { color: #07111f; background: var(--cyan); box-shadow: 5px 5px 0 rgba(109, 229, 245, 0.7); }
-      .plan-grid .plan:nth-child(3) { border-top-color: var(--gold); }
-      .plan-grid .plan:nth-child(3) .level { color: var(--gold); }
-      .plan-grid .plan:nth-child(3) .button { color: #07111f; background: var(--gold); box-shadow: 5px 5px 0 rgba(255, 211, 109, 0.7); }
+      .plan-grid .plan:nth-child(3) { border-top-color: var(--lime); }
+      .plan-grid .plan:nth-child(3) .level { color: var(--lime); }
+      .plan-grid .plan:nth-child(3) .button { color: #07111f; background: var(--lime); box-shadow: 5px 5px 0 rgba(180, 239, 131, 0.7); }
       .plan-guild { border-top-color: var(--lime); }
       .plan-guild .level { color: var(--lime); }
       .plan-guild .button { box-shadow: 5px 5px 0 rgba(180, 239, 131, 0.7); }
@@ -367,42 +368,35 @@
               <p class="eyebrow">Pick your party size</p>
               <h2>One clear price for your crew.</h2>
             </div>
-            <p>Every plan is monthly and includes the same core server controls, daily backups, and scheduled tasks. Choose the capacity that fits your group today.</p>
+            <p><strong class="capacity-note">Player counts are based on default settings; changing game variables such as max bases, spawn rate, or max Pals in base may need more memory.</strong> Every plan includes server controls, daily backups, and scheduled tasks.</p>
           </div>
 
           <div class="plan-grid">
             <article class="plan">
               <span class="level">Starter Camp</span>
-              <h3>4 players</h3>
-              <p>For a small co-op group that wants a dependable world waiting for the next session.</p>
-              <div class="plan-price"><strong>$6.99</strong> <span>/ month</span></div>
-              <a class="button button-quiet" href="billing.html?plan=4">Choose Starter</a>
-            </article>
-            <article class="plan">
-              <span class="level">Explorer Outpost</span>
-              <h3>6 players</h3>
-              <p>For regular friend groups and families building a world together a few nights each week.</p>
+              <h3>2-4 players</h3>
+              <p>6 GB RAM</p>
               <div class="plan-price"><strong>$8.99</strong> <span>/ month</span></div>
-              <a class="button button-quiet" href="billing.html?plan=6">Choose Explorer</a>
+              <a class="button button-quiet" href="billing.html?plan=6">Choose Starter</a>
             </article>
             <article class="plan">
               <span class="level">Frontier Base</span>
-              <h3>8 players</h3>
-              <p>For a growing group with bigger builds, longer sessions, and more people dropping in.</p>
-              <div class="plan-price"><strong>$10.99</strong> <span>/ month</span></div>
+              <h3>4-8 players</h3>
+              <p>8 GB RAM</p>
+              <div class="plan-price"><strong>$11.99</strong> <span>/ month</span></div>
               <a class="button button-quiet" href="billing.html?plan=8">Choose Frontier</a>
             </article>
             <article class="plan plan-guild">
               <span class="level">Guild Hall</span>
-              <h3>12 players</h3>
-              <p>For small communities and creator groups that need a proper shared home world.</p>
-              <div class="plan-price"><strong>$14.99</strong> <span>/ month</span></div>
+              <h3>Larger/modded communities</h3>
+              <p>12 GB RAM</p>
+              <div class="plan-price"><strong>$16.99</strong> <span>/ month</span></div>
               <a class="button button-primary" href="billing.html?plan=12">Choose Guild Hall</a>
             </article>
           </div>
 
           <div class="included" aria-label="Included with every server">
-            <span>Server Console Access</span><span>Full Access to Game Files</span><span>Scheduled Restarts</span><span>Give Friends Access to Console</span><span>Import/Export World Data</span><span>Self-Service Restores</span><span>Easy Config Tool for Palworld Settings</span>
+            <span>Server Console Access</span><span>Access to Game Files</span><span>Scheduled Restarts</span><span>Import/Export World Data</span><span>Self-Service Restores</span><span>Easy Config Tool for Palworld Settings</span>
           </div>
 
           <div class="palworld-feature">
@@ -443,7 +437,7 @@
             <p>We keep the order flow simple. Choose the size of your group, complete secure checkout, then receive your server setup details.</p>
           </div>
           <div class="steps">
-            <article class="step"><span class="step-number">STEP 01</span><h3>Choose your plan</h3><p>Select the 4, 6, 8, or 12-player monthly plan that matches your group.</p></article>
+            <article class="step"><span class="step-number">STEP 01</span><h3>Choose your plan</h3><p>Select the 6 GB, 8 GB, or 12 GB monthly plan that matches your group.</p></article>
             <article class="step"><span class="step-number">STEP 02</span><h3>Check out securely</h3><p>Payment is handled securely. We do not collect or store your card details.</p></article>
             <article class="step"><span class="step-number">STEP 03</span><h3>Set up your world</h3><p>Once setup is confirmed, use the panel to manage your server and invite your group.</p></article>
           </div>

@@ -1,4 +1,5 @@
 import { PLANS, ZOMBOID_PLANS, getPlan, jsonError } from "../../_lib/plans";
+import { sendEmail } from "../../_lib/email";
 import { setServerSuspended, updateServerBuild } from "../../_lib/pterodactyl";
 
 function hex(bytes) {
@@ -36,6 +37,26 @@ function planForPrice(env, priceId) {
     for (const [planId, plan] of Object.entries(plans)) if (env[plan.priceEnv] === priceId) return { game, planId, plan };
   }
   return null;
+}
+
+async function cancelAndRefundFailedSubscription(env, subscriptionId, orderId) {
+  if (!subscriptionId || !env.STRIPE_SECRET_KEY) throw new Error("The failed subscription cannot be refunded automatically.");
+  const headers = { Authorization: `Bearer ${env.STRIPE_SECRET_KEY}` };
+  const subscriptionResponse = await fetch(`https://api.stripe.com/v1/subscriptions/${encodeURIComponent(subscriptionId)}?expand[]=latest_invoice.payment_intent`, { headers });
+  const subscription = await subscriptionResponse.json().catch(() => ({}));
+  if (!subscriptionResponse.ok) throw new Error("Unable to retrieve the failed subscription from Stripe.");
+  if (subscription.status !== "canceled") {
+    const cancelResponse = await fetch(`https://api.stripe.com/v1/subscriptions/${encodeURIComponent(subscriptionId)}`, { method: "DELETE", headers });
+    if (!cancelResponse.ok) throw new Error("Unable to cancel the failed subscription in Stripe.");
+  }
+  const paymentIntent = subscription.latest_invoice?.payment_intent;
+  if (!paymentIntent?.id || paymentIntent.status !== "succeeded") throw new Error("Unable to identify the successful payment for automatic refund.");
+  const refundResponse = await fetch("https://api.stripe.com/v1/refunds", {
+    method: "POST",
+    headers: { ...headers, "Content-Type": "application/x-www-form-urlencoded", "Idempotency-Key": `sidequest-provisioning-refund-${orderId}` },
+    body: new URLSearchParams({ payment_intent: paymentIntent.id })
+  });
+  if (!refundResponse.ok) throw new Error("Subscription was cancelled, but the automatic refund failed.");
 }
 
 async function processOnce(context, event, work) {
@@ -173,8 +194,20 @@ export async function onRequestPost(context) {
     await context.env.DB.prepare("DELETE FROM checkout_reservations WHERE id = ?").bind(reservationId).run();
     return response("Payment recorded and server provisioned.");
   } catch (error) {
+    try {
+      await cancelAndRefundFailedSubscription(context.env, session.subscription, orderId);
+    } catch (stripeError) {
+      await context.env.DB.prepare("DELETE FROM webhook_events WHERE provider = ? AND event_id = ?").bind("stripe", event.id).run();
+      throw stripeError;
+    }
+    await sendEmail(context.env, {
+      to: email,
+      subject: "Your SideQuest Servers order was cancelled",
+      text: "We could not complete automatic server setup, so your subscription was cancelled and your initial payment was refunded. You do not need to take any action.",
+      html: "<p>We could not complete automatic server setup, so your subscription was cancelled and your initial payment was refunded.</p><p>You do not need to take any action.</p>"
+    });
     await context.env.DB.batch([
-      context.env.DB.prepare("UPDATE orders SET status = 'failed', updated_at = CURRENT_TIMESTAMP WHERE id = ?").bind(orderId),
+      context.env.DB.prepare("UPDATE orders SET status = 'cancelled', lifecycle_state = 'cancelled', updated_at = CURRENT_TIMESTAMP WHERE id = ?").bind(orderId),
       context.env.DB.prepare("DELETE FROM webhook_events WHERE provider = ? AND event_id = ?").bind("stripe", event.id),
       context.env.DB.prepare("DELETE FROM checkout_reservations WHERE id = ?").bind(reservationId)
     ]);

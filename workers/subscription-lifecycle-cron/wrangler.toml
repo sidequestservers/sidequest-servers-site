@@ -4,6 +4,7 @@ compatibility_date = "2026-08-19"
 
 [vars]
 PTERODACTYL_PANEL_URL = "https://panel.sidequestservers.com"
+PTERODACTYL_BACKUP_DOWNLOAD_ORIGIN = "https://node3.sidequestservers.com"
 ARCHIVE_DOWNLOAD_BASE_URL = "https://sidequest-subscription-lifecycle-cron.mcbadon48.workers.dev/archives"
 
 [triggers]

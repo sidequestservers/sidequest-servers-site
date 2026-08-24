@@ -62,7 +62,7 @@ export default () => {
                             <p css={tw`mb-1`}>Price: {displayPrice(subscription)}</p>
                             {subscription.renewalAt && <p css={tw`mb-0`}>{subscription.cancelAtPeriodEnd ? 'Service ends' : 'Next renewal'}: {new Date(subscription.renewalAt * 1000).toLocaleString()}</p>}
                             <Button type={'button'} onClick={() => openPortal(subscription)} disabled={openingServerId !== null || !subscription.serverId} css={tw`mt-4`}>
-                                {openingServerId === subscription.serverId ? 'Opening subscription portal...' : `Manage ${subscription.game === 'zomboid' ? 'Project Zomboid' : 'Palworld'} subscription`}
+                                {openingServerId === subscription.serverId ? 'Opening subscription portal...' : 'Manage Subscription'}
                             </Button>
                         </ContentBox>
                     ))}
