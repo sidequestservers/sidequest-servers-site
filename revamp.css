@@ -63,7 +63,7 @@ body::before {
   border: 1px solid rgba(248, 184, 61, 0.85);
   border-radius: 8px;
   background: #f8b83d;
-  box-shadow: 3px 3px 0 rgba(255, 157, 123, 0.7);
+  box-shadow: 2px 2px 0 #6de5f5, 4px 4px 0 #b4ef83;
   font-size: 0.76rem;
 }
 
